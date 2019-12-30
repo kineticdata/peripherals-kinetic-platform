@@ -40,7 +40,7 @@ import org.json.simple.JSONValue;
 import org.slf4j.LoggerFactory;
 
 /**
- * The main class for the Core v2 adapter.  The Bridge required methods search,
+ * The main class for the Kinetic Platform adapter.  The Bridge required methods search,
  * count and retrieve are defined in this file.
  */
 public class KineticCoreAdapter implements BridgeAdapter {
@@ -105,7 +105,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
      *--------------------------------------------------------------------------------------------*/
 
     /** Defines the adapter display name. */
-    public static final String NAME = "Kinetic Core v2 Bridge";
+    public static final String NAME = "Kinetic Platform Bridge";
 
     /** Defines the logger */
     protected static final org.slf4j.Logger logger = 
