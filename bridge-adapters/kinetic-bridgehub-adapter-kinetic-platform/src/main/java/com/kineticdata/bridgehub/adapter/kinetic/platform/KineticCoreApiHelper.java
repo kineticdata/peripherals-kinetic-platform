@@ -11,6 +11,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.slf4j.LoggerFactory;
@@ -31,9 +32,12 @@ public class KineticCoreApiHelper {
     protected static final org.slf4j.Logger LOGGER = 
         LoggerFactory.getLogger(KineticCoreAdapter.class);
     
-    public String executeRequest (BridgeRequest request,
+    public JSONObject executeRequest (BridgeRequest request,
         String url, KineticCoreQualificationParser parser) throws BridgeError{
-        String output = "";
+        
+        JSONObject output;        
+        // System time used to measure the request/response time
+        long start = System.currentTimeMillis();
         
         try (
             CloseableHttpClient client = HttpClients.createDefault()
@@ -43,24 +47,21 @@ public class KineticCoreApiHelper {
             
             get = addAuthenticationHeader(get, this.username, this.password);
             response = client.execute(get);
+            LOGGER.debug("Recieved response from \"{}\" in {}ms.",
+                url,
+                System.currentTimeMillis()-start);
 
-            LOGGER.trace("Request response code: " + response.getStatusLine()
-                .getStatusCode());
+            int responseCode = response.getStatusLine().getStatusCode();
+            LOGGER.trace("Request response code: " + responseCode);
             
             HttpEntity entity = response.getEntity();
-            output = EntityUtils.toString(entity);
             
-            if (response.getStatusLine().getStatusCode() == 404) {
-                throw new BridgeError(String.format(
-                    "Not Found: %s not found at %s.", request.getStructure(),
-                    String.join(",", url)));
-            } else if (response.getStatusLine().getStatusCode() == 400) {
-                JSONObject json = (JSONObject)JSONValue.parse(output);
-                throw new BridgeError("Bad Reqeust: " + json.get("error"));
-            } else if (response.getStatusLine().getStatusCode() == 500) {
-                throw new BridgeError("500 Internal Server Error");
-            }
+            // Confirm that response is a JSON object
+            output = parseResponse(EntityUtils.toString(entity));
             
+            if (responseCode >= 400) {
+                handleFailedReqeust(responseCode);
+            } 
         }
         catch (IOException e) {
             throw new BridgeError(
@@ -106,5 +107,45 @@ public class KineticCoreApiHelper {
         get.setHeader("Authorization", "Basic " + new String(basicAuthBytes));
 
         return get;
+    }
+    
+    
+    private void handleFailedReqeust (int responseCode) throws BridgeError {
+        switch (responseCode) {
+            case 404:
+                throw new BridgeError("404: Page not found");
+            case 400:
+                throw new BridgeError("400: Bad Reqeust");
+            case 405:
+                throw new BridgeError("405: Method Not Allowed");
+            case 500:
+                throw new BridgeError("500 Internal Server Error");
+            default:
+                throw new BridgeError("Unexpected response from server");
+        }
+    }
+        
+    private JSONObject parseResponse(String output) throws BridgeError{
+                
+        JSONObject jsonResponse = new JSONObject();
+        try {
+            // Parse the response string into a JSONObject
+            jsonResponse = (JSONObject)JSONValue.parse(output);
+        } catch (ClassCastException e){
+            JSONArray error = (JSONArray)JSONValue.parse(output);
+            throw new BridgeError("Error caught in retrieve: "
+                + ((JSONObject)error.get(0)).get("messageText"));
+        } catch (Exception e) {
+            throw new BridgeError("An unexpected error has occured " + e);
+        }
+        
+        if(jsonResponse.get("error") != null) {
+            JSONObject error = (JSONObject)jsonResponse.get("error");
+            throw new BridgeError("Received error: " 
+                + error.get("code").toString() + ", Description: "
+                + error.get("message").toString());
+        }
+        
+        return jsonResponse;
     }
 }

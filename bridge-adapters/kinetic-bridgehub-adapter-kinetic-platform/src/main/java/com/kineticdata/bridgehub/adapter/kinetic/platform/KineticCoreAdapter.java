@@ -197,7 +197,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
         
         Map<String, NameValuePair> parameterMap = buildNameValuePairMap(parameters);
         
-        String response = coreApiHelper.executeRequest(request, 
+        JSONObject json = coreApiHelper.executeRequest(request, 
             getUrl(mapping.getPathBuilder().apply(structureArray, parameters),
                 parameterMap), parser);
         
@@ -205,7 +205,6 @@ public class KineticCoreAdapter implements BridgeAdapter {
         int count = 0;
         // parse response
         try {
-            JSONObject json = (JSONObject)JSONValue.parse(response);
             JSONArray pluralResult = new JSONArray();
             
             pluralResult = (JSONArray)json.get(mapping.getPlural());
@@ -243,20 +242,13 @@ public class KineticCoreAdapter implements BridgeAdapter {
         parameters = addImplicitIncludes(parameters, mapping.getImplicitIncludes());
         Map<String, NameValuePair> parameterMap = buildNameValuePairMap(parameters);
         
-        String response = coreApiHelper.executeRequest(request, 
+        JSONObject json = coreApiHelper.executeRequest(request, 
             getUrl(mapping.getPathBuilder().apply(structureArray, parameters),
                 parameterMap), parser);
         
         JSONObject singleResult = new JSONObject();
         // parse response
         try {
-            JSONObject json;
-            try {
-                json = (JSONObject)JSONValue.parseWithException(response);
-            } catch (ParseException e) {
-                throw new BridgeError("There was an error Parsing the response", e);
-            }
-            
             JSONArray pluralResult = (JSONArray)json.get(mapping.getPlural());
             
             // Check if forms or form property was returned.
@@ -347,29 +339,23 @@ public class KineticCoreAdapter implements BridgeAdapter {
     
         Map<String, NameValuePair> parameterMap = buildNameValuePairMap(parameters);
         
-        String response = coreApiHelper.executeRequest(request, 
+        JSONObject json = coreApiHelper.executeRequest(request, 
             getUrl(mapping.getPathBuilder().apply(structureArray, parameters),
                 parameterMap), parser);
 
         List<Record> records = new ArrayList<Record>();
         Map<String, String> metadata = request.getMetadata() != null ?
                 request.getMetadata() : new HashMap<>();
-        // parse response
-        try {
-            JSONObject json = (JSONObject)JSONValue.parse(response);
-            JSONArray pluralResult = (JSONArray)json.get(mapping.getPlural());
-            
-            records = (pluralResult == null)
-                ? Collections.emptyList()
-                : createRecords(request.getFields(), pluralResult);
 
-            String nextPageToken = (String)(json.getOrDefault("nextPageToken", null));
-            metadata.put("nextPageToken", nextPageToken);
-        } catch (Exception e) { 
-            throw new BridgeError("There was an error Parsing the response", e);
-        }
-        
-        
+        JSONArray pluralResult = (JSONArray)json.get(mapping.getPlural());
+
+        records = (pluralResult == null)
+            ? Collections.emptyList()
+            : createRecords(request.getFields(), pluralResult);
+
+        String nextPageToken = (String)(json.getOrDefault("nextPageToken", null));
+        metadata.put("nextPageToken", nextPageToken);
+
         // If server side sorting isn't supported and order is required then
         // sort adapter side.
         if (!paginationSupported && request.getMetadata("order") != null) {

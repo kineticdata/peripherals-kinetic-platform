@@ -19,6 +19,7 @@ import java.util.Set;
   *          the request to source system.
   *      PaginationPredicate paginationPredicate - method called to determine
   *          if request may be paginated server side.
+  *      PathBuilder pathBuilder - URL path to asset.  Defined in child class.
   */
 public class KineticCoreMapping {
     private final String structure;
