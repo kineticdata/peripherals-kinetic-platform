@@ -2,7 +2,6 @@ package com.kineticdata.bridgehub.adapter.kinetic.platform;
 
 import com.kineticdata.bridgehub.adapter.BridgeError;
 import com.kineticdata.bridgehub.adapter.BridgeRequest;
-import static com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapter.logger;
 import java.io.IOException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpEntity;
@@ -14,6 +13,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is a Rest service helper.
@@ -26,6 +26,10 @@ public class KineticCoreApiHelper {
         this.username = username;
         this.password = password;
     }
+    
+    /** Defines the LOGGER */
+    protected static final org.slf4j.Logger LOGGER = 
+        LoggerFactory.getLogger(KineticCoreAdapter.class);
     
     public String executeRequest (BridgeRequest request,
         String url, KineticCoreQualificationParser parser) throws BridgeError{
@@ -40,7 +44,7 @@ public class KineticCoreApiHelper {
             get = addAuthenticationHeader(get, this.username, this.password);
             response = client.execute(get);
 
-            logger.trace("Request response code: " + response.getStatusLine()
+            LOGGER.trace("Request response code: " + response.getStatusLine()
                 .getStatusCode());
             
             HttpEntity entity = response.getEntity();
@@ -59,17 +63,15 @@ public class KineticCoreApiHelper {
             
         }
         catch (IOException e) {
-            logger.error("An unexpected IO exception was encountered calling the"
-                + " core API.", e);
             throw new BridgeError(
-                "Unable to make a connection to the Kinetic Core server.");
+                "Unable to make a connection to the Kinetic Core server.", e);
         }
         
         return output;
     }
     
     protected void testAuth(String url) throws BridgeError {
-        logger.debug("Testing the authentication credentials");
+        LOGGER.debug("Testing the authentication credentials");
         HttpGet get = new HttpGet(url);
         get = addAuthenticationHeader(get, this.username, this.password);
 
@@ -80,15 +82,16 @@ public class KineticCoreApiHelper {
             HttpEntity entity = response.getEntity();
             EntityUtils.consume(entity);
             if (response.getStatusLine().getStatusCode() == 401) {
-                throw new BridgeError("Unauthorized: The inputted Username/Password combination is not valid.");
+                throw new BridgeError("Unauthorized: The inputted "
+                    + "Username/Password combination is not valid.");
             } else if (response.getStatusLine().getStatusCode() != 200) {
-                throw new BridgeError("Connecting to the Kinetic Core instance located at '"+ url +"' failed.");
+                throw new BridgeError("Connecting to the Kinetic Core instance "
+                    + "located at '"+ url +"' failed.");
             }
         }
         catch (IOException e) {
-            logger.error("An unexpected IO exception was encountered calling the"
-                + " core API." + e);
-            throw new BridgeError("Unable to make a connection to properly to Kinetic Core.");
+            throw new BridgeError("Unable to make a connection to properly to "
+                + "Kinetic Core.", e);
         }
     }
     

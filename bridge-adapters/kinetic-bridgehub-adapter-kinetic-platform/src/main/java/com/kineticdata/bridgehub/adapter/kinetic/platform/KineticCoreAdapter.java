@@ -101,8 +101,8 @@ public class KineticCoreAdapter implements BridgeAdapter {
     /** Defines the adapter display name. */
     public static final String NAME = "Kinetic Platform Bridge";
 
-    /** Defines the logger */
-    protected static final org.slf4j.Logger logger = 
+    /** Defines the LOGGER */
+    protected static final org.slf4j.Logger LOGGER = 
         LoggerFactory.getLogger(KineticCoreAdapter.class);
 
     /** Adapter version constant. */
@@ -115,7 +115,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
                 + KineticCoreAdapter.class.getName()+".version"));
             VERSION = properties.getProperty("version");
         } catch (IOException e) {
-            logger.warn("Unable to load "+KineticCoreAdapter.class.getName() 
+            LOGGER.warn("Unable to load "+KineticCoreAdapter.class.getName() 
                 + " version properties.", e);
             VERSION = "Unknown";
         }
@@ -223,7 +223,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
 
             metadata.put("pageToken",nextPageToken);
         } catch (Exception e) {
-            logger.error("An Exception occured trying to parse JSON: " + e); 
+            LOGGER.error("An Exception occured trying to parse JSON: " + e); 
             throw new BridgeError("There was an error Parsing the response");
         }
         
@@ -276,6 +276,8 @@ public class KineticCoreAdapter implements BridgeAdapter {
             throw new BridgeError("Unexpected Exception: ", e);
         }
         
+        
+        
         return createRecord(request.getFields(), singleResult);
     }
 
@@ -293,6 +295,12 @@ public class KineticCoreAdapter implements BridgeAdapter {
      */
     @Override
     public RecordList search(BridgeRequest request) throws BridgeError {
+        // Log the access
+        LOGGER.trace("Searching Records");
+        LOGGER.trace("  Structure: " + request.getStructure());
+        LOGGER.trace("  Query: " + request.getQuery());
+        LOGGER.trace("  Fields: " + request.getFieldString());
+        
         // update query with parameter values
         request.setQuery(substituteQueryParameters(request));
         // parse Structure
@@ -350,7 +358,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
         try {
             JSONObject json = (JSONObject)JSONValue.parse(response);
             JSONArray pluralResult = (JSONArray)json.get(mapping.getPlural());
-       
+            
             records = (pluralResult == null)
                 ? Collections.emptyList()
                 : createRecords(request.getFields(), pluralResult);
@@ -358,18 +366,18 @@ public class KineticCoreAdapter implements BridgeAdapter {
             String nextPageToken = (String)(json.getOrDefault("nextPageToken", null));
             metadata.put("nextPageToken", nextPageToken);
         } catch (Exception e) { 
-            throw new BridgeError("There was an error Parsing the response");
+            throw new BridgeError("There was an error Parsing the response", e);
         }
         
         
         // If server side sorting isn't supported and order is required then
         // sort adapter side.
         if (!paginationSupported && request.getMetadata("order") != null) {
-            logger.trace("Sort order was requested and pagination is not supported"
+            LOGGER.trace("Sort order was requested and pagination is not supported"
                 + " for the request. Attempting adapter side sorting.");
             // If all the records have been retrived sort adapter side.
             if ( metadata.get("nextPageToken") == null) {
-                logger.debug("No next page token found.");
+                LOGGER.debug("No next page token found.");
                 
                 int index = 0;
                 int offset = records.size();
@@ -382,7 +390,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
                             currentPage =
                                 Integer.parseInt(metadata.get("pageNumber"));
                         } catch (NumberFormatException e) {
-                            logger.error("An unexpected NumberFormatException "
+                            LOGGER.error("An unexpected NumberFormatException "
                                 + "occurred parsing the pageNumber metadata: " 
                                 + e); 
                             throw new BridgeError("pageNumber metadata must be"
@@ -398,7 +406,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
                     try {
                         offset = Integer.parseInt(limit);
                     } catch  (NumberFormatException e) {
-                        logger.error("An unexpected NumberFormatException "
+                        LOGGER.error("An unexpected NumberFormatException "
                             + "occurred parsing the pageSize metadata: " + e); 
                         throw new BridgeError("limit metadata must be an"
                             + " Integer");
@@ -416,10 +424,16 @@ public class KineticCoreAdapter implements BridgeAdapter {
                 metadata.put("warning", "Results won't be ordered because there "
                     + "was more than one page of results returned.");                
 
-                logger.debug("Warning: Results won't be ordered because there "
+                LOGGER.debug("Warning: Results won't be ordered because there "
                     + "was more than one page of results returned.");
             }
         }
+        
+        if (request.getFields() == null) {
+            request.setFields(
+                records.get(0).getRecord().keySet().stream()
+                .collect(Collectors.toList()));
+        } 
         
         return new RecordList(request.getFields(), records, metadata);
     }
@@ -539,33 +553,38 @@ public class KineticCoreAdapter implements BridgeAdapter {
      */
     private Record createRecord(List<String> fields, JSONObject item) {
         Map<String,Object> record = new HashMap<String,Object>();
-        
+
         // Return null record if item is empty.
         if (!item.isEmpty()) {
-            fields.forEach(field -> {
-                Matcher matcher = NESTED_PATTERN.matcher(field);
+            if (fields != null) {
+                fields.forEach(field -> {
+                    Matcher matcher = NESTED_PATTERN.matcher(field);
 
-                if (matcher.matches()) {
-                    String collectionProperty = matcher.group(1);
-                    String collectionKey = matcher.group(2);
+                    if (matcher.matches()) {
+                        String collectionProperty = matcher.group(1);
+                        String collectionKey = matcher.group(2);
 
-                    Object collection = item.get(collectionProperty); // "attributes"
-                    String value;
-                    if (collection instanceof JSONArray) {
-                        value = extract((JSONArray)collection, collectionKey);
-                    } else if (collection instanceof JSONObject) {
-                        value = extract((JSONObject)collection, collectionKey);
+                        Object collection = item.get(collectionProperty); // "attributes"
+                        String value;
+                        if (collection instanceof JSONArray) {
+                            value = extract((JSONArray)collection, collectionKey);
+                        } else if (collection instanceof JSONObject) {
+                            value = extract((JSONObject)collection, collectionKey);
+                        } else {
+                            throw new RuntimeException("Unexpected nested property type"
+                                + " for \"" + field + "\".");
+                        }
+                        record.put(field, value);
                     } else {
-                        throw new RuntimeException("Unexpected nested property type"
-                            + " for \"" + field + "\".");
+                        record.put(field, extract(item, field));
                     }
-                    record.put(field, value);
-                } else {
-                    record.put(field, extract(item, field));
-                }
-            });
-            
-            return new Record(record);
+                });
+
+                return new Record(record);
+            } else {
+                LOGGER.debug("No fields provided all fields will be returned");
+                return new Record(item);
+            }
         } else {
             return new Record();
         }
@@ -666,7 +685,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
 
         // Ensure that no more than one item.
         if (sortOrderItems.size() > 1) {
-            logger.debug("The endpoint does not support sorting by multiple fields.");
+            LOGGER.debug("The endpoint does not support sorting by multiple fields.");
             supported = false;
         }
         // If there is exactly one item
@@ -685,7 +704,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
             }
             // If the pagination fields does not contain the sort by field
             else {
-                logger.debug("The endpoint does not support %s as an %s "
+                LOGGER.debug("The endpoint does not support %s as an %s "
                     + "field.", sortBy, parameterName);
                 supported = false;
             }
@@ -717,7 +736,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
                     .anyMatch(field -> key.matches(field)));
         
         if (unsupported) {
-            logger.trace("Adapter side sorting only supports a single key "
+            LOGGER.trace("Adapter side sorting only supports a single key "
                     + "direction for kapps, kapp forms and datastore forms.");
         } else if (sortOrderItems.size() > 0) {
             parameters.put("orderBy", 
@@ -747,7 +766,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
             || !indexSupportsSortOrder(indexSegments, sortOrderItems);
         
         if (unsupported) {
-            logger.debug("Server side sorting only supports a single key "
+            LOGGER.debug("Server side sorting only supports a single key "
                     + "direction for datastore submissions.");
         }
         
@@ -802,7 +821,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
         String path;
         if (structureArray.length > 1) {
             if(parameters.containsKey("id")) {
-                logger.debug("The Datastore Submissions structure doesn't"
+                LOGGER.debug("The Datastore Submissions structure doesn't"
                     + " support the id parameter provided with a form slug");
             }
             path = "/datastore/forms/" + structureArray[1] +"/submissions";
@@ -828,7 +847,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
         String path;
         if (structureArray.length >= 2) {
             if(parameters.containsKey("id")) {
-                logger.debug("The Submissions structure doesn't support the id "
+                LOGGER.debug("The Submissions structure doesn't support the id "
                     + "parameter provided with a form slug");
             }
             path = structureArray.length == 2 ? 

@@ -350,7 +350,19 @@ public class KineticCoreAdapterTest extends BridgeAdapterTestBase {
     }
     
     @Test
-    public void test_search_teams() throws Exception {
+    public void test_search_teams_null_fields() throws Exception {
+        BridgeRequest request = new BridgeRequest();
+        request.setStructure("Teams");
+        request.setQuery("");
+        
+        request.setFields(null);
+        
+        RecordList records = getAdapter().search(request);
+        Assert.assertTrue(records.getRecords().size() > 0);
+    }
+    
+        @Test
+    public void test_search_teams_query() throws Exception {
         BridgeRequest request = new BridgeRequest();
         request.setStructure("Teams");
         request.setQuery("q=name=*\"a\"");
@@ -776,7 +788,5 @@ public class KineticCoreAdapterTest extends BridgeAdapterTestBase {
         request.setFields(list);
         
         RecordList records = getAdapter().search(request);
-
-        fail("HERE");
     }
 }
