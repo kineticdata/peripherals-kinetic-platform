@@ -18,13 +18,18 @@ import java.util.UUID;
 import org.junit.Assert;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class KineticCoreAdapterTest extends BridgeAdapterTestBase {
     
+    private static final Logger LOGGER = LoggerFactory
+        .getLogger(KineticCoreAdapterTest.class);
     static String userRecordsMockData = null;
 
     @Override
@@ -334,7 +339,7 @@ public class KineticCoreAdapterTest extends BridgeAdapterTestBase {
         request.setQuery("q=name=\"<%=parameter[\"Team Name\"]%>\"");
         
         Map parameters = new HashMap();
-        parameters.put("Team Name", "HR");
+        parameters.put("Team Name", "Role::Contractor");
         request.setParameters(parameters);
         
         List<String> list = Arrays.asList("name", "description");
@@ -750,5 +755,28 @@ public class KineticCoreAdapterTest extends BridgeAdapterTestBase {
             .apply(list, new HashMap<String, String>(), sortOrderItems);
         
         Assert.assertFalse(unsupported);
+    }
+    
+    @Test
+    public void test_unrestricted_kapps_sort() throws Exception {        
+        BridgeRequest request = new BridgeRequest();
+        request.setStructure("Kapps");
+        request.setQuery("");
+        
+        request.setParameters(new HashMap() {{
+          put("","");  
+        }});
+        
+        request.setMetadata(new HashMap() {{
+            put("order", "<%=field[\"createdBy\"]%>:ASC"
+                + ",<%=field[\"name\"]%>:ASC");
+        }});
+               
+        List<String> list = Arrays.asList("name", "slug", "createdBy");
+        request.setFields(list);
+        
+        RecordList records = getAdapter().search(request);
+
+        fail("HERE");
     }
 }

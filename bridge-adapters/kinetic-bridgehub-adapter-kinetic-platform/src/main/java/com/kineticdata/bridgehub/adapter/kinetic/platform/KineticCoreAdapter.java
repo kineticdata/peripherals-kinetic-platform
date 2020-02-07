@@ -24,19 +24,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -255,8 +249,14 @@ public class KineticCoreAdapter implements BridgeAdapter {
         
         JSONObject singleResult = new JSONObject();
         // parse response
-        try {    
-            JSONObject json = (JSONObject)JSONValue.parse(response);
+        try {
+            JSONObject json;
+            try {
+                json = (JSONObject)JSONValue.parseWithException(response);
+            } catch (ParseException e) {
+                throw new BridgeError("There was an error Parsing the response", e);
+            }
+            
             JSONArray pluralResult = (JSONArray)json.get(mapping.getPlural());
             
             // Check if forms or form property was returned.
@@ -270,9 +270,10 @@ public class KineticCoreAdapter implements BridgeAdapter {
             } else {
                 singleResult = (JSONObject)json.get(mapping.getSingular());
             }
+        } catch (BridgeError e) {
+            throw e;
         } catch (Exception e) {
-            logger.error("An Exception occured trying to parse JSON: " + e); 
-            throw new BridgeError("There was an error Parsing the response");
+            throw new BridgeError("Unexpected Exception: ", e);
         }
         
         return createRecord(request.getFields(), singleResult);
@@ -356,8 +357,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
 
             String nextPageToken = (String)(json.getOrDefault("nextPageToken", null));
             metadata.put("nextPageToken", nextPageToken);
-        } catch (Exception e) {
-            logger.error("An Exception occured trying to parse JSON: " + e); 
+        } catch (Exception e) { 
             throw new BridgeError("There was an error Parsing the response");
         }
         
@@ -365,11 +365,15 @@ public class KineticCoreAdapter implements BridgeAdapter {
         // If server side sorting isn't supported and order is required then
         // sort adapter side.
         if (!paginationSupported && request.getMetadata("order") != null) {
+            logger.trace("Sort order was requested and pagination is not supported"
+                + " for the request. Attempting adapter side sorting.");
             // If all the records have been retrived sort adapter side.
             if ( metadata.get("nextPageToken") == null) {
+                logger.debug("No next page token found.");
                 
                 int index = 0;
                 int offset = records.size();
+                // This path is for sort orders where the request was < 1000.
                 if (limit != null) {
                     // support for adapter side pagianation
                     Integer currentPage = 0;
@@ -408,7 +412,6 @@ public class KineticCoreAdapter implements BridgeAdapter {
                 Collections.sort(records, comparator);
                 records = records.subList(index, records.size() < offset ? 
                     records.size() : offset);
-
             } else {
                 metadata.put("warning", "Results won't be ordered because there "
                     + "was more than one page of results returned.");                
@@ -714,7 +717,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
                     .anyMatch(field -> key.matches(field)));
         
         if (unsupported) {
-            logger.debug("Server side sorting only supports a single key "
+            logger.trace("Adapter side sorting only supports a single key "
                     + "direction for kapps, kapp forms and datastore forms.");
         } else if (sortOrderItems.size() > 0) {
             parameters.put("orderBy", 
