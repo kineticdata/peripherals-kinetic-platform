@@ -2,9 +2,9 @@
 # ie. For the property with a label of Username, the configuration will be Username: "test.user"
 # Do this for all of the configuration values
 Bridge Configuration:
-    Username: ""
-    Password: ""
-    Kinetic Core Space Url: ""
+    Username: "chad.rehm@kineticdata.com"
+    Password: "Chadzilla"
+    Kinetic Core Space Url: "https://uat.kinopsdev.io"
 
 # Setting the different request configurations for the Standard Bridgehub tests
     # Structure: Structure string
@@ -14,11 +14,11 @@ Bridge Configuration:
     # Single Value Query: A bridge query that ALWAYS return one value
     # Multiple Value Query: A bridge query that returns multiple values
 Test Request Configuration:
-    Structure: "Forms"
+    Structure: "Forms > services"
     Fields: "slug"
-    Empty Value Query: "kapps/services/forms?limit=100&q=name=*\"zzzzzzzz\""
-    Single Value Query: "kapps/services/forms/cleaning"
-    Multiple Value Query: "kapps/services/forms?limit=100"
+    Empty Value Query: "limit=100&q=name=*\"zzzzzzzz\""
+    Single Value Query: "q=formSlug=\"cleaning\""
+    Multiple Value Query: "limit=100"
 
 # Configuration of the various metadata options
     # Pagination Type: Possible values (string) - offset,token,none

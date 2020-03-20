@@ -9,7 +9,7 @@ Starts a handler execution from a Kinetic Agent.
 [Handler Slug]
   The slug of the specific handler to fire.
 [Payload]
-  The payload to send to the Agent's handler.  
+  The payload to send to the Agent's handler.
   Note that this should match the parameters of the handler adapter.
 
 === Sample Configuration

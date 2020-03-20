@@ -1,0 +1,31 @@
+== Kinetic Agent Handler Execute
+Starts a handler execution from a Kinetic Agent.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Handler Space]
+  The space defined for the handler.
+[Handler Slug]
+  The slug of the specific handler to fire.
+[Payload]
+  The payload to send to the Agent's handler.  
+  Note that this should match the parameters of the handler adapter.
+
+=== Sample Configuration
+Error Handling:         Error Message
+Handler Space:          foo
+Handler Slug:           bar
+Payload:                {"baz": "buzz"}             
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[output]
+  The result of the handler execution.
+
+
+=== Detailed Description
+This handler adapter makes a call to a handler defined in the Kinetic Agent.  From there the
+Agent will execute the handler adapter that it is configured for.  The results from the handler
+adapter are returned to the original call.

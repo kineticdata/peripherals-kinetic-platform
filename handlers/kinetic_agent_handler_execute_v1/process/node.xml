@@ -9,15 +9,14 @@
     <deferrable>false</deferrable>
     <parameters>
         <parameter id="error_handling" label="Error Handling" required="true"
-            tooltip="Determine what to return if an error is encountered."
-            menu="Error Message,Raise Error">Error Message</parameter>
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
         <parameter id="handler_space" label="Handler Space" required="true"
-            tooltip="The name of the space that the handler is defined in"/>
+          tooltip="The name of the space that the handler is defined in"/>
         <parameter id="handler_slug" label="Handler Slug" required="true"
-            tooltip="The name of the handler slug to execute. ex foo_bar"/>
+          tooltip="The name of the handler slug to execute. ex foo_bar"/>
         <parameter id="payload" label="Payload" required="false"
-            tooltip="A json structure that matches the handlers parameters.
-            ie {&quot;baz&quot;: &quot;buz&quot;}"/>
+          tooltip="The payload to send to the Agent's handler. This should match the parameters of the handler adapter and be in JSON format.  Ex: {&quot;handler_param_name_1&quot;:&quot;handler_param_value_1&quot;, &quot;handler_param_name_2&quot;:&quot;handler_param_value_2&quot;}"/>
     </parameters>
     <handler name="kinetic_agent_handler_execute" version="1">
         <infos>

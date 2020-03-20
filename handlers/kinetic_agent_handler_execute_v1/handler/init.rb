@@ -33,12 +33,11 @@ class KineticAgentHandlerExecuteV1
 
       api_route = "#{server}/#{@parameters['handler_space']}/app/api/v1/handlers/#{@parameters["handler_slug"]}/execute"
       puts "API ROUTE: #{api_route}" if @enable_debug_logging
-     
+
       resource = RestClient::Resource.new(api_route, { :user => api_username, :password => api_password })
-      
+
       # Post to the API
-      response = resource.post( @parameters['payload'], 
-        { :accept => "application/json", :content_type => "application/json" })
+      response = resource.post(@parameters['payload'], { :accept => "json", :content_type => "json" })
 
       puts "RESULTS: #{response.inspect}" if @enable_debug_logging
       return <<-RESULTS
@@ -48,29 +47,11 @@ class KineticAgentHandlerExecuteV1
       </results>
       RESULTS
 
-    # Example:
-    #  * 404 (missing handler; use non-existing slug)
-    #  * 401/403 (invalid credentials) 
-    #  * 400 (malformed body content)
-    #  * 400 (calling handler with params that cause error; verify agent handler message bubbles up)
-      
     rescue RestClient::Exception => error
-      # If the error response body is empty, such as when a 404 is returned
-      if error.response.nil?
-        error_message = "Agent Response: #{error.http_code} (empty body)"
-      elsif error.http_code == 400
-        begin
-          json = JSON.parse(error.response)
-          if json.errorKey = "handler_error"
-            error_message = "Agent Handler Error: #{json.errorData.message}"
-          else
-            error_message = "Agent Response: #{error.http_code} #{error.response}"
-          end
-        rescue => parse_error
-          error_message = "Agent Response: #{error.http_code} #{error.response}"
-        end
-      else
-        error_message = "Agent Response: #{error.http_code} #{error.response}"
+      begin
+        error_message = "#{error.http_code}: #{JSON.parse(error.response)["error"]}"
+      rescue
+        error_message = error.inspect
       end
       raise error_message if error_handling == "Raise Error"
     rescue Exception => error

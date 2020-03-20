@@ -287,7 +287,7 @@ public class KineticCoreAdapterTest extends BridgeAdapterTestBase {
     public void test_search_users() throws Exception {
         BridgeRequest request = new BridgeRequest();
         request.setStructure("Users");
-        request.setQuery("limit=10&q=username=*\"c\" AND enabled=\"true\"");
+        request.setQuery("includes=details&limit=10&q=username=*\"c\" AND enabled=\"true\"");
         
         List<String> list = Arrays.asList("displayName", "email");
         request.setFields(list);
