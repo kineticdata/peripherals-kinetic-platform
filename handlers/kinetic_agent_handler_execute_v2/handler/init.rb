@@ -1,7 +1,7 @@
 # Require the dependencies file to load the vendor libraries
 require File.expand_path(File.join(File.dirname(__FILE__), "dependencies"))
 
-class KineticAgentHandlerExecuteV1
+class KineticAgentHandlerExecuteV2
   def initialize(input)
     # Set the input document attribute
     @input_document = REXML::Document.new(input)
