@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite tests="59" failures="1" name="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" time="0.018" errors="5" skipped="5">
+  <properties>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="sun.boot.library.path" value="/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib"/>
+    <property name="java.vm.version" value="25.221-b11"/>
+    <property name="gopherProxySet" value="false"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="java.vendor.url" value="http://java.oracle.com/"/>
+    <property name="path.separator" value=":"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.os.patch.level" value="unknown"/>
+    <property name="test" value="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="/Users/chadrehm/Work/peripherals/peripherals-kinetic-platform/bridge-adapters/kinetic-bridgehub-adapter-kinetic-platform"/>
+    <property name="java.runtime.version" value="1.8.0_221-b11"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.CGraphicsEnvironment"/>
+    <property name="java.endorsed.dirs" value="/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib/endorsed"/>
+    <property name="os.arch" value="x86_64"/>
+    <property name="java.io.tmpdir" value="/var/folders/3m/md6ky1hs6bx7pzjdg1lfzqw80000gn/T/"/>
+    <property name="line.separator" value="
+"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="os.name" value="Mac OS X"/>
+    <property name="maven.ext.class.path" value="/Applications/NetBeans/NetBeans 8.2.app/Contents/Resources/NetBeans/java/maven-nblib/netbeans-eventspy.jar"/>
+    <property name="classworlds.conf" value="/Applications/NetBeans/NetBeans 8.2.app/Contents/Resources/NetBeans/java/maven/bin/m2.conf"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/Users/chadrehm/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="52.0"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="10.13.6"/>
+    <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="user.home" value="/Users/chadrehm"/>
+    <property name="user.timezone" value="America/Chicago"/>
+    <property name="java.awt.printerjob" value="sun.lwawt.macosx.CPrinterJob"/>
+    <property name="java.specification.version" value="1.8"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="user.name" value="chadrehm"/>
+    <property name="java.class.path" value="/Applications/NetBeans/NetBeans 8.2.app/Contents/Resources/NetBeans/java/maven/boot/plexus-classworlds-2.4.jar"/>
+    <property name="java.vm.specification.version" value="1.8"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.home" value="/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -Dtest=com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest -Dmaven.ext.class.path=/Applications/NetBeans/NetBeans 8.2.app/Contents/Resources/NetBeans/java/maven-nblib/netbeans-eventspy.jar surefire:test"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="user.language" value="en"/>
+    <property name="awt.toolkit" value="sun.lwawt.macosx.LWCToolkit"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.version" value="1.8.0_221"/>
+    <property name="java.ext.dirs" value="/Users/chadrehm/Library/Java/Extensions:/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib/ext:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java"/>
+    <property name="sun.boot.class.path" value="/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib/resources.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib/rt.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib/sunrsasign.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib/jsse.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib/jce.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib/charsets.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/lib/jfr.jar:/Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home/jre/classes"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="maven.home" value="/Applications/NetBeans/NetBeans 8.2.app/Contents/Resources/NetBeans/java/maven"/>
+    <property name="file.separator" value="/"/>
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
+    <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="sun.cpu.isalist" value=""/>
+  </properties>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_unrestricted_model_diff_direction" time="0.744"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_blankFields" time="0.001">
+    <error message="java.lang.String cannot be cast to org.json.simple.JSONObject" type="java.lang.ClassCastException">java.lang.ClassCastException: java.lang.String cannot be cast to org.json.simple.JSONObject
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.parseResponse(KineticCoreApiHelper.java:143)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.executeRequest(KineticCoreApiHelper.java:60)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapter.retrieve(KineticCoreAdapter.java:245)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest.test_blankFields(KineticCoreAdapterTest.java:116)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runners.Suite.runChild(Suite.java:127)
+	at org.junit.runners.Suite.runChild(Suite.java:26)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:160)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:138)
+	at org.apache.maven.surefire.junitcore.JUnitCoreWrapper.execute(JUnitCoreWrapper.java:61)
+	at org.apache.maven.surefire.junitcore.JUnitCoreProvider.invoke(JUnitCoreProvider.java:140)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:188)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:166)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:86)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:101)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:74)
+</error>
+    <system-out>2020-02-07 13:33:37,114 DEBUG [main                  ] - Testing the authentication credentials
+2020-02-07 13:33:37,710 DEBUG [main                  ] - Recieved response from &quot;https://uat.kinopsdev.io/app/api/v1/kapps/services/forms?q=formSlug%3D%22cleaning%22&amp;include=details%2Cattributes&quot; in 277ms.
+2020-02-07 13:33:37,710 TRACE [main                  ] - Request response code: 400
+</system-out>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_invalidBridgeConfiguration" time="0.337"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_count_kapps" time="0.594"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_count_teams" time="0.527"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_count_users" time="0.538"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_teams_null_fields" time="0.606"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_blankQuery" time="0.575"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_retrieve_submissions" time="0.58"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_form_limit" time="0.581"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_form_no_query" time="0.573"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_unrestricted_kapps_sort" time="0.58"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_form_limit" time="0.578"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_form_query" time="0.57"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_count_datastore_form" time="0.542"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_submissions_by_form" time="0.579"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_restricted_model_multiple_items" time="0.248"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_form_query_include" time="0.565"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_kapps" time="0.576"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_users" time="0.505"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_invalidField" time="0.001">
+    <error message="java.lang.String cannot be cast to org.json.simple.JSONObject" type="java.lang.ClassCastException">java.lang.ClassCastException: java.lang.String cannot be cast to org.json.simple.JSONObject
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.parseResponse(KineticCoreApiHelper.java:143)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.executeRequest(KineticCoreApiHelper.java:60)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapter.retrieve(KineticCoreAdapter.java:245)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest.test_invalidField(KineticCoreAdapterTest.java:80)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runners.Suite.runChild(Suite.java:127)
+	at org.junit.runners.Suite.runChild(Suite.java:26)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:160)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:138)
+	at org.apache.maven.surefire.junitcore.JUnitCoreWrapper.execute(JUnitCoreWrapper.java:61)
+	at org.apache.maven.surefire.junitcore.JUnitCoreProvider.invoke(JUnitCoreProvider.java:140)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:188)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:166)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:86)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:101)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:74)
+</error>
+    <system-out>2020-02-07 13:33:47,378 DEBUG [main                  ] - Testing the authentication credentials
+2020-02-07 13:33:47,903 DEBUG [main                  ] - Recieved response from &quot;https://uat.kinopsdev.io/app/api/v1/kapps/services/forms?q=formSlug%3D%22cleaning%22&amp;include=details%2Cattributes&quot; in 268ms.
+2020-02-07 13:33:47,904 TRACE [main                  ] - Request response code: 400
+</system-out>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_index_model_multiple_items" time="0.26"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_form" time="0.599"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_unrestricted_model_multiple_items" time="0.243"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_datastore_submissions" time="0">
+    <error message="java.lang.String cannot be cast to org.json.simple.JSONObject" type="java.lang.ClassCastException">java.lang.ClassCastException: java.lang.String cannot be cast to org.json.simple.JSONObject
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.parseResponse(KineticCoreApiHelper.java:143)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.executeRequest(KineticCoreApiHelper.java:60)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapter.search(KineticCoreAdapter.java:342)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest.test_search_datastore_submissions(KineticCoreAdapterTest.java:481)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runners.Suite.runChild(Suite.java:127)
+	at org.junit.runners.Suite.runChild(Suite.java:26)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:160)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:138)
+	at org.apache.maven.surefire.junitcore.JUnitCoreWrapper.execute(JUnitCoreWrapper.java:61)
+	at org.apache.maven.surefire.junitcore.JUnitCoreProvider.invoke(JUnitCoreProvider.java:140)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:188)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:166)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:86)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:101)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:74)
+</error>
+    <system-out>2020-02-07 13:33:49,009 DEBUG [main                  ] - Testing the authentication credentials
+2020-02-07 13:33:49,253 TRACE [main                  ] - Searching Records
+2020-02-07 13:33:49,253 TRACE [main                  ] -   Structure: Datastore Submissions &gt; movies
+2020-02-07 13:33:49,253 TRACE [main                  ] -   Query: index=values[Name]
+2020-02-07 13:33:49,253 TRACE [main                  ] -   Fields: values[Name],values[Year]
+2020-02-07 13:33:49,509 DEBUG [main                  ] - Recieved response from &quot;https://uat.kinopsdev.io/app/api/v1/datastore/forms/movies/submissions?include=details%2Cvalues&amp;index=values%5BName%5D&quot; in 256ms.
+2020-02-07 13:33:49,509 TRACE [main                  ] - Request response code: 400
+</system-out>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_teams_query" time="0.509"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_unrestricted_model" time="0.247"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_submissions_order_limit_2" time="1.281"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_retrieve_datastore_form" time="0.533"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_submissions_order" time="0.823"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_retrieve_kapps" time="0.996"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_retrieve_teams" time="0.828"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_retrieve_users" time="0.83"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_retrieve_form" time="0.94"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_datastore_form" time="0.533"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_submissions_order_limit" time="0.927"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_count_submissions" time="0.669"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_index_model_diff_order" time="0.248"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_submissions" time="0.619"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_temp_search_users" time="1.006"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_restricted_model" time="0.242"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_index_model" time="0.243"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_search_submissions_order_2" time="0.582"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_count_form" time="0.566"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_index_model_diff_direction" time="0.241"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_invalidOffsetPagination" time="0.246">
+    <skipped/>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_singleRetrieve" time="0">
+    <error message="java.lang.String cannot be cast to org.json.simple.JSONObject" type="java.lang.ClassCastException">java.lang.ClassCastException: java.lang.String cannot be cast to org.json.simple.JSONObject
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.parseResponse(KineticCoreApiHelper.java:143)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.executeRequest(KineticCoreApiHelper.java:60)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapter.retrieve(KineticCoreAdapter.java:245)
+	at com.kineticdata.bridgehub.adapter.BridgeAdapterTestBase.test_singleRetrieve(BridgeAdapterTestBase.java:128)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runners.Suite.runChild(Suite.java:127)
+	at org.junit.runners.Suite.runChild(Suite.java:26)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:160)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:138)
+	at org.apache.maven.surefire.junitcore.JUnitCoreWrapper.execute(JUnitCoreWrapper.java:61)
+	at org.apache.maven.surefire.junitcore.JUnitCoreProvider.invoke(JUnitCoreProvider.java:140)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:188)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:166)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:86)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:101)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:74)
+</error>
+    <system-out>2020-02-07 13:34:02,624 DEBUG [main                  ] - Testing the authentication credentials
+2020-02-07 13:34:03,140 DEBUG [main                  ] - Recieved response from &quot;https://uat.kinopsdev.io/app/api/v1/kapps/services/forms?q=formSlug%3D%22cleaning%22&amp;include=details%2Cattributes&quot; in 272ms.
+2020-02-07 13:34:03,140 TRACE [main                  ] - Request response code: 400
+</system-out>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_paginationToken" time="0.001">
+    <failure type="java.lang.AssertionError">java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:86)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at org.junit.Assert.assertNotNull(Assert.java:621)
+	at org.junit.Assert.assertNotNull(Assert.java:631)
+	at com.kineticdata.bridgehub.adapter.BridgeAdapterTestBase.test_paginationToken(BridgeAdapterTestBase.java:333)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runners.Suite.runChild(Suite.java:127)
+	at org.junit.runners.Suite.runChild(Suite.java:26)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:160)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:138)
+	at org.apache.maven.surefire.junitcore.JUnitCoreWrapper.execute(JUnitCoreWrapper.java:61)
+	at org.apache.maven.surefire.junitcore.JUnitCoreProvider.invoke(JUnitCoreProvider.java:140)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:188)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:166)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:86)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:101)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:74)
+</failure>
+    <system-out>2020-02-07 13:34:03,142 DEBUG [main                  ] - Testing the authentication credentials
+2020-02-07 13:34:03,385 TRACE [main                  ] - Searching Records
+2020-02-07 13:34:03,385 TRACE [main                  ] -   Structure: Forms &gt; services
+2020-02-07 13:34:03,385 TRACE [main                  ] -   Query: limit=100
+2020-02-07 13:34:03,385 TRACE [main                  ] -   Fields: slug
+2020-02-07 13:34:03,718 DEBUG [main                  ] - Recieved response from &quot;https://uat.kinopsdev.io/app/api/v1/kapps/services/forms?include=details%2Cattributes&amp;limit=100&quot; in 332ms.
+2020-02-07 13:34:03,718 TRACE [main                  ] - Request response code: 200
+</system-out>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_simpleCount" time="0">
+    <error message="java.lang.String cannot be cast to org.json.simple.JSONObject" type="java.lang.ClassCastException">java.lang.ClassCastException: java.lang.String cannot be cast to org.json.simple.JSONObject
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.parseResponse(KineticCoreApiHelper.java:143)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreApiHelper.executeRequest(KineticCoreApiHelper.java:60)
+	at com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapter.count(KineticCoreAdapter.java:200)
+	at com.kineticdata.bridgehub.adapter.BridgeAdapterTestBase.test_simpleCount(BridgeAdapterTestBase.java:90)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runners.Suite.runChild(Suite.java:127)
+	at org.junit.runners.Suite.runChild(Suite.java:26)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:160)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:138)
+	at org.apache.maven.surefire.junitcore.JUnitCoreWrapper.execute(JUnitCoreWrapper.java:61)
+	at org.apache.maven.surefire.junitcore.JUnitCoreProvider.invoke(JUnitCoreProvider.java:140)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:188)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:166)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:86)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:101)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:74)
+</error>
+    <system-out>2020-02-07 13:34:03,721 DEBUG [main                  ] - Testing the authentication credentials
+2020-02-07 13:34:04,236 DEBUG [main                  ] - Recieved response from &quot;https://uat.kinopsdev.io/app/api/v1/kapps/services/forms?q=formSlug%3D%22cleaning%22&amp;limit=1000&quot; in 268ms.
+2020-02-07 13:34:04,236 TRACE [main                  ] - Request response code: 400
+</system-out>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_multipleRetrieve" time="0.568"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_multipleSearch" time="0.574"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_invalidOrder" time="0.239">
+    <skipped/>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_emptyRetrieve" time="0.561"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_paginationGenerateOffset" time="0.241">
+    <skipped/>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_emptySearch" time="0.559"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_invalidStructure" time="0.247"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_emptyCount" time="0.561"/>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_paginationOffset" time="0.241">
+    <skipped/>
+  </testcase>
+  <testcase classname="com.kineticdata.bridgehub.adapter.kinetic.platform.KineticCoreAdapterTest" name="test_order" time="0.244">
+    <skipped/>
+  </testcase>
+</testsuite>
