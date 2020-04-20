@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_agent_handler_execute" name="Kinetic Agent Handler Execute" schema_version="1.0" version="3">
+    <author>support@kineticdata.com</author>
+    <description>
+        Use to call a handler that is loaded into a Kinetic Agent.
+    </description>
+    <helpurl></helpurl>
+    <visible>true</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+            tooltip="Determine what to return if an error is encountered."
+            menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="agent_slug" label="Agent Slug" required="true"
+            tooltip="The slug of the agent that contains the handler to execute. (Configured in Space > Platform Components > Agents)"/>
+        <parameter id="handler_slug" label="Handler Slug" required="true"
+            tooltip="The slug of the handler to execute. ex on-prem-incident-create"/>
+        <parameter id="payload" label="Payload" required="false"
+            tooltip="The parameter-to-value mappings of the handler that is being executed in JSON format.
+            ie {&quot;baz&quot;: &quot;buz&quot;}"/>
+    </parameters>
+    <handler name="kinetic_agent_handler_execute" version="3">
+        <infos>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="agent_slug">&lt;%= @parameters["agent_slug"] %&gt;</parameter>
+            <parameter name="handler_slug">&lt;%= @parameters["handler_slug"] %&gt;</parameter>
+            <parameter name="payload">&lt;%= @parameters["payload"] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="PLACEHOLDER REPLACE ME"/>
+    </results>
+</taskDefinition>

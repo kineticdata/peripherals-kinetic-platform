@@ -1,0 +1,9 @@
+Kinetic Agent Handler Execute V1 (2019-10-30)
+* Initial version.  See README for details.
+
+Kinetic Agent Handler Execute V2 (2020-02-05)
+* Updated how errors are handled.
+
+Kinetic Agent Handler Execute V3 (2020-04-20)
+* Updated to return outputs of the handler that is being called, and not the single "output" parameter
+* Updated info values to proxy through the Kinetic Platform (not direct to Agent using the configurator user)
