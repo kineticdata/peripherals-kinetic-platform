@@ -1,0 +1,13 @@
+<results>
+    <result name="Handler Error Message" type="Regexp"></result>
+    <result name="Username">createdFromHandler.com</result>
+    <result name="Display Name" type="RegExp">.+</result>
+    <result name="Email" type="RegExp">.+</result>
+    <result name="Created At" type="RegExp">.+</result>
+    <result name="Created By" type="RegExp">.+</result>
+    <result name="Enabled">true</result>
+    <result name="Updated At" type="RegExp">.+</result>
+    <result name="Updated By" type="RegExp">.+</result>
+    <result name="Attributes" type="RegExp">.+</result>
+    <result name="Exists" type="RegExp">true</result>
+</results>

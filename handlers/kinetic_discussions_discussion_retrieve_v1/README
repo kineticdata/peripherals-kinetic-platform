@@ -1,0 +1,26 @@
+== Kinetic Discussions Discussion Retrieve
+This handler will retrieve a specific discussion by ID.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The space the discussion belongs to (defaults to info value if not provided).
+[GUID]
+  The discussion GUID to retrieve details for.
+
+=== Sample Configuration
+Error Handling:          Error Message
+Space Slug:
+GUID:                    9fa2b330-fa5e-11e8-88ef-7bbe80231820
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Discussion]
+  Details about the discussion, JSON formatted.
+
+=== Detailed Description
+This handler uses the OAuth client ID and client secret
+to retrieve an access token that connects to the Kinetic Discussions
+API. It will then return details for a specific discussion based on ID.

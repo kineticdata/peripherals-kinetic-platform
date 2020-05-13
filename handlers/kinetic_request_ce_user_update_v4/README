@@ -1,0 +1,64 @@
+== Kinetic Request CE User Update
+Updates a user. Fields user_name and space_slug are required in order to properly identify which
+user you are attempting to select.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  Space slug of which the user you are trying to updates belongs to (defaults to info value if not provided).
+[Current User Name]
+  User name of user you wish to update.
+[Display Name]
+  The displayName for the user.
+[Email]
+  The email for this user profile.
+[Preferred Locale]
+  The preferred language for the user, in the format languageabbreviation[_COUNTRYABBREVIATION].
+  Examples:  en, fr, es, en_GB, es_MX
+[Enabled]
+  Select if this user profile will be enabled (boolean)
+[Password]
+  Reset password for a user.
+[Space Admin]
+  Select if you desire for this user to have space admin privledges.(boolean)
+[New Username]
+  Change the username for this user.
+[Append or Replace attributes?]
+  Append or replace the existing attribute values with the attributes provided.
+[Attributes]
+  Change the attributes for this user. JSON formatted string: [
+  {"name": "Attribute Name","values":["Attribute Value","Attribute Value",...]},
+  {"name": "Attribute Name2","values":["Attribute Value",...]},
+  ...]
+[Profile Attributes]
+  Change the profile attributes for this user. JSON formatted string: [
+  {"name": "Profile Attribute Name","values": ["Profile Attribute Value","Profile Attribute Value",...]},
+  {"name": "Profile Attribute Name2","values": ["Profile Attribute Value",...]},
+  ...]
+
+=== Sample Configuration
+Error Handling:                 Error Message
+Space Slug:
+Current User Name:              test@example.com
+Display Name:                   Test User
+Email:                          test@example.com
+Preferred Locale:
+Enabled:                        true
+Password:                       temporarypassword1!
+Space Admin:                    false
+New Username:
+Append or Replace attributes?:
+Attributes:
+Profile Attributes:
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Username]
+  The username of the User record you wish to update.
+[Exists]
+  If the User exists or not.
+
+=== Detailed Description
+This handler updates a profile of a User that has already been Updated.

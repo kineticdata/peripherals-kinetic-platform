@@ -1,0 +1,29 @@
+== Kinetic Discussions Message Create
+This handler will create a message in a Kinetic Discussion
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The space the discussion belongs to (defaults to info value if not provided).
+[Discussion GUID]
+  The discussion to invite a user to.
+[Message]
+  Message in JSON specific format to support tokenizing options. e.g. [{"type":"text","value":"Johnny Five, still alive!"}]
+
+=== Sample Configuration
+Error Handling:          Error Message
+Space Slug:
+Discussion GUID:         9fa2b330-fa5e-11e8-88ef-7bbe80231820
+Message:                 [{"type":"text","value":"Johnny Five, still alive!"}]
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Message]
+  Details about the just created message.
+
+=== Detailed Description
+This handler uses the OAuth client ID and client secret
+to retrieve an access token that connects to the Kinetic Discussions
+API.

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_datastore_submission_search" name="Kinetic Request CE Datastore Submission Search" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>Searches a Datastore Form for submissions and returns any matching submission objects in the specified return format.</description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="space_slug" label="Space Slug" required="false"
+          tooltip="The Space the submission is being retrieved from (defaults to info value if not provided)."/>
+        <parameter id="form_slug" label="Datastore Form Slug" required="false"
+            tooltip="The slug of the Datastore Form to search for submissions in."/>
+        <parameter id="index" label="Index" required="false"
+            tooltip="The index to use for the search." />
+        <parameter id="query" label="Query" required="false"
+            tooltip="The query that will be used to search the submissions. Ex: values[company]=Kinetic"/>
+        <parameter id="limit" label="Limit" required="false"
+            tooltip="An integer representing the max results that the search can return." />
+        <parameter id="return_type" label="Return Type" required="true"
+            tooltip="The format that the results should be returned in."
+            menu="JSON,XML,ID List">JSON</parameter>
+    </parameters>
+    <handler name="kinetic_request_ce_datastore_submission_search" version="1">
+        <infos>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters["space_slug"] %&gt;</parameter>
+            <parameter name="form_slug">&lt;%= @parameters['form_slug'] %&gt;</parameter>
+            <parameter name="index">&lt;%= @parameters['index'] %&gt;</parameter>
+            <parameter name="query">&lt;%= @parameters['query'] %&gt;</parameter>
+            <parameter name="limit">&lt;%= @parameters['limit'] %&gt;</parameter>
+            <parameter name="return_type">&lt;%= @parameters['return_type'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="Count"/>
+        <result name="Result"/>
+    </results>
+</taskDefinition>

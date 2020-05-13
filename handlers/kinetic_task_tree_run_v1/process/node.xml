@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_task_tree_run" name="Kinetic Task Tree Run" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>This handler is used to start a new run of an existing tree.</description>
+    <helpurl></helpurl>
+    <visible>true</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="source" label="Source" required="true"
+            tooltip="The source for the tree you want to run."/>
+        <parameter id="group" label="Group" required="true"
+            tooltip="The group of the tree you want to run."/>
+        <parameter id="tree_name" label="Tree Name" required="true"
+            tooltip="The name of the tree you want to run."/>
+        <parameter id="body" label="Body" required="false"
+            tooltip="A JSON string of name/value pairs that will be passed to the tree as body content."/> 
+    </parameters>
+    <handler name="kinetic_task_tree_run" version="1">
+        <infos>
+            <info name="username">&lt;%= @info['username'] %&gt;</info>
+            <info name="password">&lt;%= @info['password'] %&gt;</info>
+            <info name="kinetic_task_location">&lt;%= @info['kinetic_task_location'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="source">&lt;%= @parameters['source'] %&gt;</parameter>
+            <parameter name='group'>&lt;%= @parameters['group'] %&gt;</parameter>
+            <parameter name='tree_name'>&lt;%= @parameters['tree_name'] %&gt;</parameter>
+            <parameter name='body'>&lt;%= @parameters['body'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="run_id"/>
+    </results>
+</taskDefinition>

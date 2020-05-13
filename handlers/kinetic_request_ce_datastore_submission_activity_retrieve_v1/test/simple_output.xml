@@ -1,0 +1,8 @@
+<results>
+    <result name="Handler Error Message" type="Regexp"></result>
+    <result name="data"/>
+    <result name="description"/>
+    <result name="label"/>
+    <result name="id"/>
+    <result name="type"/>
+</results>

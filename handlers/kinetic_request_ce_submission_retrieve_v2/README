@@ -1,0 +1,84 @@
+== Kinetic Request CE Submission Retrieve
+Retrieves a submission.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The space the submission is being retrieved from (defaults to info value if not provided).
+[Retrieve By]
+  How to retrive the submission. Id of Query.
+[Kapp Slug]
+  Slug of the kapp to query.
+[Form Slug]
+  Slug of the form to query.
+[Query]
+  A query that will retrieve a single submission.
+[Submission Id]
+  The id of the submission being retrieved.
+
+=== Sample Configuration
+Error Handling:         Error Message
+Space Slug:
+Retrieve By:            Query
+Kapp Slug:              test-kapp
+Form Slug:              test-form
+Query:                  values[Unique Field]="unique value"
+Submission Id:
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[ID]
+  ID of the submission that was entered.
+[Label]
+  Label of the submission.
+[Handle]
+  Handle of the submission (last 6 of ID)
+[Origin]
+  Originating ID. This is typically the ID of a different submission.
+[Parent]
+  Parent ID.
+[Submitted At]
+  Submitted Date/Time
+[Submitted By]
+  User that submitted the submission
+[Type]
+[Updated At]
+  Closed Date/Time
+[Updated By]
+  User ID for Last Updated
+[Closed At]
+  Closed Date/Time
+[Core State]
+  Status: Draft, Submitted, or Closed
+[Created At]
+  Created Date/Time
+[Created By]
+  User ID that created the submission
+[Form Description]
+  Description on the submission's form
+[Form Name]
+  Name of the submission's form
+[Form Notes]
+  Notes on the submission's form
+[Form Slug]
+  Slug of the submission's form
+[Form Status]
+  Status of the submission's form
+[Kapp Name]
+  Name of the submission's kapp
+[Kapp Slug]
+  Slug of the submission's kapp
+[Current Page]
+  The Current Page of the submission
+[Values JSON]
+  JSON Result of submission's Values
+
+
+=== Detailed Description
+This handler retrieves a submission by either id or query. If retrieving by query, the handler
+queries the given space/kapp/form in the form of q={inputted_query}. The query that is used to
+return back a submission should be a query unique enough to bring back one record, although if it
+is not unique the handler will not currently fail and will instead just return the first submission
+returned. If searching by id, only the id needs to be inputted to return that submission.

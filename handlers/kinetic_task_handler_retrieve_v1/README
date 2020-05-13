@@ -1,0 +1,32 @@
+== Kinetic_Task_Handler_Retrieve_V1
+    This handler is used to retrieve a handler.
+
+=== Parameters
+[Task Instance]
+   The location of the Kinetic Task instance (ie. http://task.kineticdata.com/kinetic-task). Optional. May be needed/used during migration flows.
+[Space Slug]
+   The space this task engine is for, if part of kinops (or another multi-tenant environment).   Optional
+[Definition Id]
+   The Definition Id of the handler you want to retrieve, ex. kinetic_request_ce_attribute_values_retrieve_v1
+   
+=== Results
+    [Handler Error Message]
+       Error message (if one is returned)
+    [Response]
+      The json response. Will contain the details, info properties, and categorization.
+
+==== Sample Configuration
+Error Handling::  Error Message
+Task Instance::  
+Space Slug::  
+Definition Id::        kinetic_request_ce_attribute_values_retrieve_v1
+
+=== Detailed Description
+    This handler uses the Kinetic Task REST API to retrieve a handler. 
+    To configure the info values, you'll need your username, 
+    password, and the url where your task instance is located. The
+    handler will return details, info properties, and categorization
+    of the handler. Intended for backup and/or export/import functionality.
+    
+    Note: Your the user configured must have access via API Console 
+    Policy rule to be able to effectively use this handler.

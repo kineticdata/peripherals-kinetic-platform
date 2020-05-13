@@ -1,0 +1,49 @@
+== Kinetic Request CE User Update
+Updates a user. Fields user_name and space_slug are required in order to properly identify which user you are attempting to select.
+
+=== Parameters
+[user_name]
+  User name of the user you wish to make updates / edits to.
+[space_slug]
+	Space slug of which the user you are trying to updates belongs to.
+[displayName]
+  The displayName for the user.
+[email]
+  The email for this user profile
+[enabled]
+  Select if this user profile will be enabled.  This Value should only consist of a boolean value (true / false).
+[password]
+  Reset password for a user.
+[spaceAdmin]
+  Select if you desire for this user to have space admin privileges. This Value should only consist of a boolean value (true / false).
+[username]
+  Change the username for this user.
+[attributes]
+  Attributes for a user.  This should look like the JSON structure that the attribute input for a user calls for.  An
+  example of this would be:
+  '[
+    {
+      "name": "First Name",
+      "values": [
+        "User"
+      ]
+    },
+    {
+      "name": "Last Name",
+      "values": [
+        "Userlastname"
+      ]
+    }
+  ]'
+
+=== Sample Configuration
+Space::			acme
+Username::      test@example.com
+Password::		secretPassword
+
+=== Results
+[String]
+  The username of the User record you wish to update.
+
+=== Detailed Description
+This handler updates a profile of a User that has already been Updated.

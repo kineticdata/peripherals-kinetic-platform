@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_user_update" name="Kinetic Request CE User Update" schema_version="1.0" version="3">
+    <author>support@kineticdata.com</author>
+    <description>
+        Updates a User record in Kinetic Request CE for the specified space.
+	  </description>
+    <helpurl></helpurl>
+    <visible>true</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered." menu="Error Message,Raise Error">Error Message</parameter>
+		<parameter id="space_slug" label="Space Slug" required="true"
+          tooltip="Space slug of which the user you are trying to updates belongs to."/>
+        <parameter id="current_username" label="Current User Name" required="true"
+          tooltip="User name of user you wish to update."/>
+        <parameter id="display_name" label="Display Name" required="false"
+		      tooltip="The displayName for the user."/>
+        <parameter id="email" label="Email" required="false"
+  		    tooltip="The email for this user profile."/>
+        <parameter id="preferred_locale" label="Preferred Locale" required="false"
+          tooltip="The preferred language for the user, in the format languageabbreviation[_COUNTRYABBREVIATION].  Examples:  en, fr, es, en_GB, es_MX"/>
+        <parameter id="enabled" label="Enabled" required="false"
+  		    tooltip="Select if this user profile will be enabled (boolean)"/>
+        <parameter id="password" label="Password" required="false"
+          tooltip="Reset password for a user."/>
+        <parameter id="space_admin" label="Space Admin" required="false"
+          tooltip="Select if you desire for this user to have space admin privledges.(boolean)"/>
+        <parameter id="new_username" label="New Username" required="false"
+          tooltip="Change the username for this user."/>
+		<parameter id="append_or_replace" label="Append or Replace attributes?" required="true"
+          tooltip="Append or replace the existing attribute values with the attributes provided." menu="Append,Replace">Append</parameter>
+        <parameter id="attributes" label="Attributes" required="false"
+          tooltip='Change the attributes for this user. JSON formatted string: [{"name": "Attribute Name","values": ["Attribute Value","Attribute Value",...]},{"name": "Attribute Name2","values": ["Attribute Value",...]},...]'/>
+        <parameter id="profile_attributes" label="Profile Attributes" required="false"
+          tooltip='Change the profile attributes for this user. JSON formatted string: [{"name": "Profile Attribute Name","values": ["Profile Attribute Value","Profile Attribute Value",...]},{"name": "Profile Attribute Name2","values": ["Profile Attribute Value",...]},...]'/>
+    </parameters>
+    <handler name="kinetic_request_ce_user_update" version="3">
+        <infos>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ? @parameters["error_handling"] : "Raise" %&gt;</parameter>
+			<parameter name="space_slug">&lt;%= @parameters['space_slug'] %&gt;</parameter>
+            <parameter name="current_username">&lt;%= @parameters['current_username'] %&gt;</parameter>
+            <parameter name="display_name">&lt;%= @parameters['display_name'] %&gt;</parameter>
+            <parameter name="email">&lt;%= @parameters['email'] %&gt;</parameter>
+            <parameter name="preferred_locale">&lt;%= @parameters['preferred_locale'] %&gt;</parameter>
+			<parameter name="enabled">&lt;%= @parameters['enabled'] %&gt;</parameter>
+            <parameter name="password">&lt;%= @parameters['password'] %&gt;</parameter>
+            <parameter name="space_admin">&lt;%= @parameters['space_admin'] %&gt;</parameter>
+            <parameter name="new_username">&lt;%= @parameters['new_username'] %&gt;</parameter>
+            <parameter name="append_or_replace">&lt;%= @parameters['append_or_replace'] %&gt;</parameter>
+            <parameter name="attributes">&lt;%= @parameters['attributes'] %&gt;</parameter>
+            <parameter name="profile_attributes">&lt;%= @parameters['profile_attributes'] %&gt;</parameter>
+        </parameters>
+    </handler>
+  <results />
+</taskDefinition>

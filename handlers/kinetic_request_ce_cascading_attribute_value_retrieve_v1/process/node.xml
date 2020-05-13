@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_cascading_attribute_value_retrieve" name="Kinetic Request CE Cascading Attribute Value Retrieve" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>
+        Returns the matched value of the "Property to Return" parameter for the given scope. If the Context is Submission, this handler
+        will search for a matching submission value, if none found, it will search the form, then kapp, then space for a match. 
+    </description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered." menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="start_context" label="Start Context" required="true"
+          tooltip="The lowest level to search. If Submission, only a Submission Id is needed" menu="Submission,Form,Kapp,Space">Submission</parameter>
+        <parameter id="end_context" label="End Context" required="true"
+          tooltip="The highest level to search. If Submission, only a Submission Id is needed" menu="Space,Kapp,Form,Submission">Space</parameter>
+        <parameter id="prop_to_find" label="Property To Find" required="true"
+          tooltip="The Name of the Field/Attribute to search for a match."/>
+        <parameter id="backup_if_none" label="Backup Value" required="false"
+          tooltip="If no Field/Attribute value is returned, use this value"/>  
+        <parameter id="space_slug" label="Space Slug" required="false"
+          tooltip="The Slug of the space to find attribute values in."/>
+        <parameter id="kapp_slug" label="Kapp Slug" required="false"
+          tooltip="The Slug of the kapp to find attribute values in."/>
+        <parameter id="form_slug" label="Form Slug" required="false"
+          tooltip="The Slug of the form to find attribute values in."/>
+        <parameter id="submission_id" label="Submission Id" required="false"
+          tooltip="The id of the submission to find values in"/>
+    </parameters>
+    <handler name="kinetic_request_ce_cascading_attribute_value_retrieve" version="1">
+        <infos>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info["space_slug"] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ? @parameters["error_handling"] : "Raise" %&gt;</parameter>
+            <parameter name="start_context">&lt;%= @parameters["start_context"] %&gt;</parameter>
+            <parameter name="end_context">&lt;%= @parameters["end_context"] %&gt;</parameter>
+            <parameter name="prop_to_find">&lt;%= @parameters["prop_to_find"] %&gt;</parameter>
+            <parameter name="backup_if_none">&lt;%= @parameters["backup_if_none"] %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters["space_slug"] %&gt;</parameter>
+            <parameter name="kapp_slug">&lt;%= @parameters["kapp_slug"] %&gt;</parameter>
+            <parameter name="form_slug">&lt;%= @parameters["form_slug"] %&gt;</parameter>
+            <parameter name="submission_id">&lt;%= @parameters['submission_id'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="Matched Context"/>
+        <result name="Value"/>
+    </results>
+</taskDefinition>

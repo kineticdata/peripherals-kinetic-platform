@@ -1,0 +1,67 @@
+== Kinetic Request CE Format Answers
+Takes provided JSON or Retrieves all answers for a given submission and
+formats them into a name value pair results, json result, HTML table, and list.
+
+=== Parameters
+[Error Handling]
+    Determine what to return if an error is encountered. available menu choices: Error Message,Raise Error, default: Error Message
+[Space Slug]
+    The Space the submission is being retrieved from.
+[Submission ID]
+    The id of the submission to retrieve answers for. Either this or JSON answer set needs to be specified.
+[JSON Answer Set]
+    JSON Answer set to format. Either this or submission ID needs to be specified.
+[Mode]
+    Available menu choices: All,Some. If 'All' the entire set of fields will be used.  If 'Some' the fields listed in the 'Included Fields'
+    parameter will be used.  **In both cases, fields listed in the 'Excluded Fields' parameter will never be included in the generated output.**
+[Included Fields]
+    A comma separated list of field names that should be explicitly included in the field list.  This is only required if the 'Mode' parameter
+    is set to 'Some'.  Whitespace matters; ensure there are no spaces after a comma separating the field names (unless the field names includes
+    a preceding space).
+[Excluded Fields]
+    A comma separated list of field names that should be explicitly excluded from the field list.  Fields included in this list will be excluded
+    even if they are included in the 'Included Fields' parameter.  Whitespace matters; ensure there are no spaces after a comma separating the
+    field names (unless the field name includes a preceding space).
+[Field Aliases]
+    A specially formatted mapping of field names in the answer hash to labels to be used in the answer set, table, and list.  This is necessary
+    when an answer should be forwarded via answer set, but the field name varies from form to form.  The alias format is as follows:
+    OldQuestionLabel=NewQuestionLabel,RequesterFirstName=FirstName.
+
+
+=== Sample Configuration
+Error Handling:             Error Message
+Space Slug:
+Submission ID:              bc682e61-3f2a-11e7-8718-876ea99e5150
+JSON Answer Set:
+Mode:                       Some
+Included Fields:            Other Information,Requested By,Requested For,Number of People Expected,Date and Time Needed
+Excluded Fields:            Observing Teams
+Field Aliases:              Other Information=Details,Date and Time Needed=Lunch Time
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[JSON]
+[HTML]
+[List]
+[### Placeholder for field name ###]
+
+=== Detailed Description
+Builds an XML of the fields on the form. For example, if the form held two fields, color and size,
+the response might look like this:
+
+<results format="xml">
+
+    <result name="Handler Error Message"></result>
+
+    <result name="JSON">{"color":"Red","size":"Small"}</result>
+
+    <result name="HTML">&lt;table&gt;&lt;tr&gt;&lt;th&gt;Field&lt;&#47;th&gt;&lt;th&gt;Answer&nbsp;Value&lt;&#47;th&gt;&lt;&#47;tr&gt;&lt;tr&gt;&lt;td&gt;color&lt;&#47;td&gt;&lt;td&gt;Red&lt;&#47;td&gt;&lt;&#47;tr&gt;&lt;tr&gt;&lt;td&gt;size&lt;&#47;td&gt;&lt;td&gt;Small&lt;&#47;td&gt;&lt;&#47;tr&gt;&lt;&#47;table&gt;</result>
+
+    <result name="List">color: Red\nsize: Small\n</result>
+
+    <result name="color">Red</result>
+
+    <result name="size">Small</result>
+
+</results>

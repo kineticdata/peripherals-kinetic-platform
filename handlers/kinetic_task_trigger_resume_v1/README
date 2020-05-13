@@ -1,0 +1,14 @@
+== kinetic_task_trigger_resume_V1
+    ** Short description needed **
+
+=== Parameters
+[Trigger Id]
+   The Id of the paused task trigger.
+
+=== Results
+
+==== Sample Configuration
+Trigger Id:: ** Configuration needed **
+
+=== Detailed Description
+    ** Description needed **

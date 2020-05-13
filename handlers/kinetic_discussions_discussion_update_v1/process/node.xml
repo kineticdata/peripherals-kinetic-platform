@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_discussions_discussion_update" name="Kinetic Discussions Discussion Update" schema_version="1.0" version="1">
+  <author>support@kineticdata.com</author>
+  <description>This handler updates a Kinetic Discussions discussion.</description>
+  <helpurl>http://ktc.kineticdata.com/handler/kinetic_discussions_discussion_create/1</helpurl>
+  <visible>true</visible>
+  <deferrable>false</deferrable>
+  <parameters>
+    <parameter id="error_handling" label="Error Handling" required="true"
+      tooltip="Determine what to return if an error is encountered."
+      menu="Error Message,Raise Error">Error Message</parameter>
+    <parameter id="space_slug" label="CE Space" required="false"
+               tooltip="The CE space of the discussion you are trying to create. Optional. Defaults to handler info property."/>
+    <parameter id="guid" label="Discussion ID" required="true"
+               tooltip="The ID of the discussion to update."/>
+    <parameter id="title" label="Title" required="false"
+               tooltip="The title of the new discussion."/>
+    <parameter id="description" label="Description" required="false"
+               tooltip="The description of the new discussion."/>
+    <parameter id="is_archived" label="Is Archived" required="false"
+               tooltip="Archived discussions do not allow new messages added to them."/>
+    <parameter id="is_private" label="Is Private" required="false"
+               tooltip="Private discussions only allow people to see the discussion if they have been explicitly invited to it. Join policy is ignored if set to true."/>
+    <parameter id="join_policy" label="Join Policy" required="false"
+               tooltip="Security policy name for allowing people to join."/>
+    <parameter id="owning_users" label="Owning Users" required="false"
+               tooltip="JSON array of CE users allowed to manage the new discussion."/>
+    <parameter id="owning_teams" label="Owning Teams" required="false"
+               tooltip="JSON array of CE team names allowed to manage the new discussion."/>
+  </parameters>
+  <handler name="kinetic_discussions_discussion_update" version="1">
+    <infos>
+	  <info name="discussions_server_url">&lt;%= @info['discussions_server_url'] %&gt;</info>
+      <info name="ce_server_url">&lt;%= @info['ce_server_url'] %&gt;</info>
+	  <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+      <info name="ce_client_id">&lt;%= @info['ce_client_id'] %&gt;</info>
+      <info name="ce_client_secret">&lt;%= @info['ce_client_secret'] %&gt;</info>
+    </infos>
+    <parameters>
+      <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+        @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+      <parameter name="space_slug">&lt;%= @parameters['space_slug'] %&gt;</parameter>
+      <parameter name="guid">&lt;%= @parameters['guid'] %&gt;</parameter>
+      <parameter name="title">&lt;%= @parameters['title'] %&gt;</parameter>
+      <parameter name="description">&lt;%= @parameters['description'] %&gt;</parameter>
+      <parameter name="is_private">&lt;%= @parameters['is_private'] %&gt;</parameter>
+      <parameter name="join_policy">&lt;%= @parameters['join_policy'] %&gt;</parameter>
+      <parameter name="owning_users">&lt;%= @parameters['owning_users'] %&gt;</parameter>
+      <parameter name="owning_teams">&lt;%= @parameters['owning_teams'] %&gt;</parameter>
+    </parameters>
+  </handler>
+  <results format="xml">
+    <result name="Handler Error Message"/>
+    <result name='Discussion'></result>
+  </results>
+</taskDefinition>

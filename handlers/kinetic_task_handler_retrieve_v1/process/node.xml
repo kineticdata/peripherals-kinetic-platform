@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_task_handler_retrieve" name="Kinetic Task Handler Retrieve" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>This handler is used to retrieve a handler.</description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered." menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="instance" label="Task Instance" required="false"
+            tooltip="The location of the Kinetic Task instance (ie. http://task.kineticdata.com/kinetic-task)."/>
+        <parameter id="space" label="Space Slug" required="false"
+            tooltip="The space this task engine is for, if part of kinops."/>
+        <parameter id="definitionId" label="Definition Id" required="true"
+            tooltip="A valid Definition Id of a handler, ex. kinetic_request_ce_attribute_values_retrieve_v1"/> 
+    </parameters>
+    <handler name="kinetic_task_handler_retrieve" version="1">
+        <infos>
+            <info name="username">&lt;%= @info['username'] %&gt;</info>
+            <info name="password">&lt;%= @info['password'] %&gt;</info>
+            <info name="kinetic_task_location">&lt;%= @info['kinetic_task_location'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ? @parameters["error_handling"] : "Raise" %&gt;</parameter>
+            <parameter name="instance">&lt;%= @parameters['instance'] %&gt;</parameter>
+            <parameter name="space">&lt;%= @parameters['space'] %&gt;</parameter>
+            <parameter name='definitionId'>&lt;%= @parameters['definitionId'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="Response"/>
+    </results>
+</taskDefinition>

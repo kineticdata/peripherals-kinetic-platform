@@ -1,0 +1,14 @@
+<results>
+    <result name="Handler Error Message" type="Regexp"></result>
+    <result name="Name" type="RegExp">.+</result>
+    <result name="Slug" type="RegExp">.+</result>
+    <result name="Description" type="RegExp">.+</result>
+    <result name="CreatedAt" type="RegExp">.+</result>
+    <result name="CreatedBy" type="RegExp">.+</result>
+    <result name="UpdatedAt" type="RegExp">.+</result>
+    <result name="UpdatedBy" type="RegExp">.+</result>
+    <result name="Notes" type="RegExp">.+</result>
+    <result name="Secure" type="RegExp">.+</result>
+    <result name="Attributes" type="RegExp">.+</result>
+    <result name="Fields" type="RegExp">.+</result>
+</results>

@@ -1,0 +1,32 @@
+== Kinetic Core Kapp Submission Retrieve Children
+Searches for a submission and returns its children
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The space the submission is being retrieved from (defaults to info value if not provided).
+[Submission Id]
+  Id of the submissions to return children of
+[Return Type]
+  File format of desired response.
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Count]
+  The number of children that have been returned.
+[Result]
+  The children submissions in the format specified in parameters
+
+=== Sample Configuration
+Error Handling:        Raise Error
+Space Slug:            acme
+Submission Id:         c1399fea-2ea5-11e7-8d82-af7d446eb641
+Return Type:           JSON
+
+== Detailed Description
+Returns information about the children found by the query submission id,
+the count, and XML list of the Ids (for looping through the submissions),
+jsons of the submissions, and an XML of the submission (in case you want
+to loop through something other than the id.

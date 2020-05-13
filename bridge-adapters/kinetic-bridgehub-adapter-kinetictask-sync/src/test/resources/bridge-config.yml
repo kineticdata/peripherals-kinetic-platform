@@ -1,0 +1,31 @@
+# Values used for the bridge configuration using a key value pair of Configuration Label: Value
+# ie. For the property with a label of Username, the configuration will be Username: "test.user"
+# Do this for all of the configuration values
+#Bridge Configuration:
+   Task API Web Server: "http://localhost:8080/kinetic-task"
+   Task API Username: ""
+   Task API Password: ""
+   Core API Web Server: "http://localhost:8080/kinetic/playground"
+   Core API Username: ""
+   Core API Password: ""
+   Time Out Limit: "1"
+
+Test Request Configuration:
+    Structure: ""
+    Fields: ""
+    Single Value Query: ""
+    Multiple Value Query: ""
+    Empty Value Query: ""
+
+# Configuration of the various metadata options
+    # Pagination Type: Possible values (string) - offset,token,none
+        # offset: If the bridge uses a pageNumber,pageSize, and offset to handle pagination
+        # token: If the bridges uses a nextPageToken to handle pagination
+        # none: If the bridge doesn't support pagination, pagination tests are ignored
+    # Order Supported: Possible values (string) - true,false
+        # true: If order is supported, make sure that the first two fields in the
+        #       Test Request Configuration are sortable fields
+        # false: If the bridge doesn't support ordering, the order tests are ignored
+Metadata Configuration:
+    Pagination Type: "none"
+    Order Supported: "false"

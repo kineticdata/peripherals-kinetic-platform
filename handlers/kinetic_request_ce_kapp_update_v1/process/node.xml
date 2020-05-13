@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_kapp_update" name="Kinetic Request CE Kapp Update" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>
+        Updates a Kapp in Kinetic Request CE for the specified space.
+    </description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="space_slug" label="Space Slug" required="false"
+          tooltip="The Space the kapp is in (defaults to info value if not provided)."/>
+        <parameter id="orig_kapp_slug" label="Orig Kapp Slug" required="true"
+          tooltip="The slug of the kapp being updated."/>
+        <parameter id="new_kapp_slug" label="New Kapp Slug" required="false"
+            tooltip="The renamed slug value (if applicable)."/>
+        <parameter id="new_kapp_name" label="New Kapp Name" required="false"
+            tooltip="The new name of the Kapp (if applicable)."/>
+        <parameter id="attributes" label="Attributes" required="false"
+            tooltip="A JSON array of the attributes to update / create. Ex. [{'name': 'Attribute Name','values': ['Attr Value 1']}]"/>
+        <parameter id="bundle_path" label="Bundle Path" required="false"
+            tooltip="The new bundle path (if applicable)"/>
+    </parameters>
+    <handler name="kinetic_request_ce_kapp_update" version="1">
+        <infos>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters['space_slug'] %&gt;</parameter>
+            <parameter name="orig_kapp_slug">&lt;%= @parameters['orig_kapp_slug'] %&gt;</parameter>
+            <parameter name="new_kapp_slug">&lt;%= @parameters['new_kapp_slug'] %&gt;</parameter>
+            <parameter name="new_kapp_name">&lt;%= @parameters['new_kapp_name'] %&gt;</parameter>
+            <parameter name="attributes">&lt;%= @parameters['attributes'] %&gt;</parameter>
+            <parameter name="bundle_path">&lt;%= @parameters['bundle_path'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+    </results>
+</taskDefinition>

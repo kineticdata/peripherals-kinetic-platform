@@ -1,0 +1,21 @@
+== Kinetic Request CE Submission Delete
+Deletes a submission.
+
+=== Parameters
+[SpaceSlug]
+  The Space slug to be searched. If this value is not entered, the
+  Space slug will default to the one configured in info values.
+[Submission Id]
+    The id of the submission being deleted.
+
+=== Sample Configuration
+Error Handling:         Error Message
+Space Slug:
+Submission Id:          02edc019-e553-11e5-9c32-351e42075226
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+
+=== Detailed Description
+This handler deletes a submission.

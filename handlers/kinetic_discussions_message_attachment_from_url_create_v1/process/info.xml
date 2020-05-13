@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<taskInfo version="1.0">
+  <info name="api_username" description="Username"></info>
+  <info name="api_password" description="Password" type="encrypted"></info>
+  <info name="api_location" description="API Location (https://acme.kinops.io/app/discussions/api/v1)"></info>
+  <info name="api_oauth_location" description="OAuth Location (https://acme.kinops.io/app/oauth/token?grant_type=client_credentials&amp;response_type=token)"></info>
+  <info name="enable_debug_logging" description="True or False">false</info>
+</taskInfo>
