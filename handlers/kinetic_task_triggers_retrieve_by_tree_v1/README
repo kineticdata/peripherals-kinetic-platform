@@ -1,0 +1,16 @@
+== kinetic_task_triggers_retrieve_by_tree_V1
+    ** Short description needed **
+
+=== Parameters
+[Tree Id]
+   The Id of the task tree that was paused and resulted in paused triggers.
+
+=== Results
+    [Triggers]
+       ** Description needed **
+
+==== Sample Configuration
+Tree Id:: ** Configuration needed **
+
+=== Detailed Description
+    ** Description needed **

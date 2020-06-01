@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_datastore_submission_retrieve" name="Kinetic Request CE Datastore Submission Retrieve" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>
+        Retrieves a Datastore Submission record in Kinetic Request CE for the specified space.
+    </description>
+    <helpurl></helpurl>
+    <visible>true</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="space_slug" label="Space Slug" required="false"
+          tooltip="The Space the submission is being retrieved from (defaults to info value if not provided)."/>
+        <parameter id="retrieve_by" label="Retrieve By" required="true"
+          tooltip="How to retrieve the submission. Id or Query." menu="Id,Query"/>
+        <!-- Retrieve By Query parameters -->
+        <parameter id="form_slug" label="Datastore Form Slug" required="false"
+          tooltip="Slug of the form to query"
+          dependsOnId="retrieve_by" dependsOnValue="Query"/>
+        <parameter id="index" label="Index" required="false"
+          tooltip="The index to use for the search/retrieval"
+          dependsOnId="retrieve_by" dependsOnValue="Query"/>
+        <parameter id="query" label="Query" required="false"
+          tooltip="A query that will retrieve a single submission"
+          dependsOnId="retrieve_by" dependsOnValue="Query"/>
+        <!-- Retrieve By Id parameters -->
+        <parameter id="submission_id" label="Datastore Submission Id" required="false"
+          tooltip="The id of the submission being retrieved."
+          dependsOnId="retrieve_by" dependsOnValue="Id"/>
+    </parameters>
+    <handler name="kinetic_request_ce_datastore_submission_retrieve" version="1">
+        <infos>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info["space_slug"] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters["space_slug"] %&gt;</parameter>
+            <parameter name="retrieve_by">&lt;%= @parameters['retrieve_by'] %&gt;</parameter>
+            <parameter name="form_slug">&lt;%= @parameters['form_slug'] %&gt;</parameter>
+            <parameter name="index">&lt;%= @parameters['index'] %&gt;</parameter>
+            <parameter name="query">&lt;%= @parameters['query'] %&gt;</parameter>
+            <parameter name="submission_id">&lt;%= @parameters['submission_id'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="ID"/>
+        <result name="Label"/>
+        <result name="Handle"/>
+        <result name="Core State"/>
+        <result name="Current Page"/>
+        <result name="Submitted At"/>
+        <result name="Submitted By"/>
+        <result name="Updated At"/>
+        <result name="Updated By"/>
+        <result name="Created At"/>
+        <result name="Created By"/>
+        <result name="Form Description"/>
+        <result name="Form Name"/>
+        <result name="Form Notes"/>
+        <result name="Form Slug"/>
+        <result name="Form Status"/>
+        <result name="Values JSON"/>
+    </results>
+</taskDefinition>

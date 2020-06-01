@@ -1,0 +1,4 @@
+<results>
+    <result name="Handler Error Message" type="Regexp"></result>
+    <result name="Token">abc-123-xyz-456</result>
+</results>

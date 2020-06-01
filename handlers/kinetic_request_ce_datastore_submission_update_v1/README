@@ -1,0 +1,36 @@
+== Kinetic Request CE Datastore Submission Update
+Updates a datastore submission.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The Space the submission is being updated in (defaults to info value if not provided).
+[Submission Id]
+  The id of the datastore submission being updated.
+[State]
+  The value used to set the submission state.
+[Values]
+  A JSON map of field names to values that should be set.
+[Current Page Name]
+  Set the current page name.
+[Current Page Navigation]
+  Set the current page navigation.
+
+=== Sample Configuration
+Error Handling:           Error Message
+Space Slug:
+Datastore Submission Id:  02edc019-e553-11e5-9c32-351e42075226
+State:                    Submitted
+Values:                   {"Year": "2019"}
+Current Page Name:
+Current Page Navigation:
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+
+=== Detailed Description
+Given a Datastore Submission Id, a Datastore Form Slug, and a JSON Values map, this handler
+updates an existing Datastore Submission associated with submission id. A successful update will
+return an empty result set, while an error will be caught and raised/returned if encountered.

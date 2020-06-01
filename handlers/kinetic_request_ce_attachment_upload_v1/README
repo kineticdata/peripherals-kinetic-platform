@@ -1,0 +1,51 @@
+== Kinetic Request CE Attachment Upload
+Retrieves a an attachment from Kinetic Filehub and uploads it to a Request CE form.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The space the submission is being retrieved from.
+[Kapp Slug]
+  The Kapp being retrieved from.
+[Form Slug]
+  The Form being retrieved from.
+[Filestore]
+  The desired Filestore from Filehub.
+[Filepath]
+  Filepath of the desired file from Filbehub.
+[Filename]
+  The new name of the file being uploaded.
+
+=== Sample Configuration
+Error Handling:         Raise Error
+Space Slug:             acme
+Kapp Slug:              test-kapp
+Form Slug:              test-form
+Filestore:              local-filestore
+Filepath:               2017-11-19/12345678-1234-1234-123456789012
+Filename:               new_file.txt
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Content Type]
+  File content type
+[Document Id]
+  File document id
+[Name]
+  File name
+[Size]
+  File size
+
+
+=== Detailed Description
+This handler retrieves a file from Filehub and uploads that file to Kinetic Request CE.
+
+Sample result:
+{
+  "Content Type"=>"text/css",
+  "Document Id"=>"2016/06/01/c980626d-4d4e-4b59-8c2a-a3584f79e0ce",
+  "name"=>"test.css",
+  "size"=>"29"
+}

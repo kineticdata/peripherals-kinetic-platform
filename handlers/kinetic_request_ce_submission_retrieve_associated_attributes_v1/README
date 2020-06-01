@@ -1,0 +1,38 @@
+== Kinetic Request CE Submission Retrieve Associated Attributes
+Retrieves a submissions values, it's forms attribtues, kapps attributes, and spaces attributes.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Submission Id]
+  The id of the submission being retrieved.
+[Space Slug]
+  The Space slug to be searched. If this value is not entered, the
+  Space slug will default to the one configured in info values.
+
+=== Sample Configuration
+Error Handling:         Error Message
+Space Slug:
+Submission Id:          424ecd62-8d9a-11e7-b48a-9904b1fc11dd
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Type]
+[Form Slug]
+[Form Attributes]
+[Kapp Slug]
+[Kapp Attributes]
+[Space Slug]
+[Space Attributes]
+[Submission Values]
+
+=== Detailed Description
+Retrieves a submissions values, it's forms attribtues, kapps attributes, and spaces attributes.
+Attributes and Values are returned as JSON structured like so:
+
+[
+  {
+    name="attributeName" : values=["xyz","abc"]
+  }
+]

@@ -1,0 +1,46 @@
+== Kinetic Agent Handler Execute
+This handler executes Agent Handlers that have been installed on a configured Agent.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Agent Slug]
+  The slug of the agent that contains the handler to execute. (Configured in Space > Platform Components > Agents)
+[Handler Slug]
+  The slug of the handler to execute. ex on-prem-incident-create
+[Payload]
+  The parameter id-to-value mappings of the handler that is being executed in JSON format. Note that this should match the parameters of the handler adapter. The parameter label showin in the Workflow Builder is not the same as the parameter id.
+
+  **Note**: If one of the parameters of the handler that is being executed is expecting a JSON sring, that parameter must be a string itself. A good best practice for building up the payload is to convert the parameter that requires a json string into a json string, and then include that in the payload like the following example:
+
+  ```
+  <%= 
+    # build json parameter
+    stringified_json_parameter = { "first_name" => "John", "last_name" => "Doe" }.to_json
+    
+    # return full payload with nested json string
+    {"non_json_parameter" => "ABC", "json_parameter" => stringified_json_parameter }.to_json 
+  %>
+  ```
+
+=== Sample Configuration
+Error Handling:         Error Message
+Handler Space:          foo
+Handler Slug:           bar
+Payload:                <%= {"parameter_1" => "ABC", "parameter_2" => "123"}.to_json %>            
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[PLACEHOLDER REPLACE ME]
+  Because each handler returns different results, we can't precalculate and list them here. Any result that the agent handler being executed returns will be listed here. Within the Workflow Builder, choose PLACEHOLDER REPLACE ME from the pre-defined list of results, and then replace that text with one of the results from the agent handler that was executed. (ex: replace `@results['Name of Node']['PLACEHOLDER REPLACE ME']` with `@results['Name of Node']['Ticket Number']`)
+
+
+=== Detailed Description
+This handler executes Agent Handlers that have been installed on a configured Agent. 
+
+**Prerequisites:**
+- Kinetic Platform v5+ is required to run this handler
+- Before using this handler, an Agent must be installed and configured within the Space Admin consoles (Space > Settings > Platform Components > Agents). 
+
+The handler works by calling the Kinetic Agent (proxying through the Kinetic Platform for added security) and giving it the slug of the handler which should be run. From there the Agent will execute the handler adapter. The results from the handler being executed within the agent adapter are returned as the output result of this handler.

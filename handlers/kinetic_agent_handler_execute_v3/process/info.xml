@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskInfo version="1.0">
+  <info name="api_server" description="Kinetic Platform API Location">https://space.example-domain.com</info>
+  <info name="api_username" description="Username of a Kinetic Platform spaceAdmin"></info>
+  <info name="api_password" description="Password of a Kinetic Platform spaceAdmin" type="encrypted"></info>
+  <info name="enable_debug_logging" description="Enable debug logging if the value is set to 'Yes'.">No</info>
+</taskInfo>

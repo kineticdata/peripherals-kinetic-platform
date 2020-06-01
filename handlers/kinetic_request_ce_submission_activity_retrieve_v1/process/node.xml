@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_submission_activity_retrieve" name="Kinetic Request CE Submission Activity Retrieve" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>
+        Retrieves a submission activity record in Kinetic Request CE.
+    </description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="space_slug" label="Space Slug" required="false"
+          tooltip="The Space the submission is being retrieved from (defaults to info value if not provided)."/>
+        <parameter id="submission_id" label="Submission Id" required="true"
+          tooltip="The Submission the activity is related to."/>
+        <parameter id="activity_id" label="Activity Record Id" required="true"
+          tooltip="The Activity Record being retreived."/>
+    </parameters>
+    <handler name="kinetic_request_ce_submission_activity_retrieve" version="1">
+        <infos>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters['space_slug'] %&gt;</parameter>
+            <parameter name="submission_id">&lt;%= @parameters['submission_id'] %&gt;</parameter>
+            <parameter name="activity_id">&lt;%= @parameters['activity_id'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="data"/>
+        <result name="description"/>
+        <result name="label"/>
+        <result name="id"/>
+        <result name="type"/>
+    </results>
+</taskDefinition>

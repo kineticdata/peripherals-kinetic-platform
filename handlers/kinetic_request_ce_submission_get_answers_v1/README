@@ -1,0 +1,27 @@
+== Kinetic Core Format Answers
+Formats a Kinetic Core Submission's answers.
+
+=== Parameters
+[SpaceSlug]
+  The Space slug to be searched. If this value is not entered, the
+  Space slug will default to the one configured in info values.
+[Submission ID]
+    The id of the submission to format answers for.
+
+=== Sample Configuration
+Submission ID::				d3ab56e0-b584-11e5-8783-ddc68221c3ba
+
+=== Results
+[XML of results]
+<results format="xml">
+        <result name="### Placeholder for field name ###"/>
+</results>
+
+=== Detailed Description
+Builds an XML of the fields on the form. For example, if the form held two fields, color and size, 
+the response might look like this:
+
+<results format="xml">
+	<result name="color">Red</result>
+	<result name="size">Small</result>
+</results>

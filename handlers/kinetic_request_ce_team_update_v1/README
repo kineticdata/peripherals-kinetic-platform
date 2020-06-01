@@ -1,0 +1,50 @@
+== Kinetic Request CE User Update
+Updates a team. Fields team_name and space_slug are required in order to properly identify which team you are attempting to select.
+
+=== Parameters
+[team_name]
+  User name of the user you wish to make updates / edits to.
+[space_slug]
+	Space slug of which the user you are trying to updates belongs to.
+[description]
+  The description of the team
+[new_name]
+  Change the name of this team.
+[attributes]
+  Attributes for a team.  This should look like the JSON structure that the attribute input for a team calls for.  An
+  example of this would be:
+  '[
+    {
+      "name": "Status",
+      "values": [
+        "Active"
+      ]
+    },
+    {
+      "name": "Icon",
+      "values": [
+        "fa-awesome"
+      ]
+    }
+  ]'
+
+=== Sample Configuration
+Error Handling:     Error Message
+Space Slug:			    acme
+Current Team Name:  Test::Team
+Description:		    new description
+New Name:
+Append or Replace attributes?:  Append
+Attributes:         [{"name": "Manager","values": ["luke.skywalker"]}]
+
+=== Results
+[Team Name]
+  The Name of the updated Team.
+[Exists]
+  If the Team exists or not.
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+
+=== Detailed Description
+This handler updates a Team based on a slug value.
+The slug is derived by MD5 hashing the provided Team Name.

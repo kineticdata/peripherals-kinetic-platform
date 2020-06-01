@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_submission_search" name="Kinetic Request CE Submission Search" schema_version="1.0" version="2">
+    <author>support@kineticdata.com</author>
+    <description>Searches a kapp or form for submissions and returns any matching submission objects
+        in the specified return format.</description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="space_slug" label="Space Slug" required="false"
+          tooltip="The Space the submission is being retrieved from (defaults to info value if not provided)."/>
+        <parameter id="kapp_slug" label="Kapp Slug" required="true"
+            tooltip="The slug of the Kapp to search for submissions in."/>
+        <parameter id="form_slug" label="Form Slug" required="false"
+            tooltip="The slug of the Form to search for submissions in."/>
+        <parameter id="include" label="Include" required="false"
+            tooltip="Comma-separated list of properties to include in the response. Options include 'details', 'activities', 'children', 'descendants', 'form', 'origin', 'parent', 'type', 'values', 'values.raw', and 'values[FIELD NAME]'.  Note: Ignored if return type is ID List"/>
+        <parameter id="core_state" label="Core State" required="false"
+            tooltip="Searches for submissions that have a core state that matches this parameter. Options are 'Draft', 'Submitted', 'Closed'.  If no value is provided, the results will contain submissions in all core states."/>
+        <parameter id="timeline" label="Timeline" required="false"
+            tooltip="Date property to search by. Options are 'createdAt','submittedAt','updatedAt', and 'closedAt'. The default value is 'createdAt'."/>
+        <parameter id="direction" label="Direction" required="false"
+            tooltip="Result Set sorting direction. Options are 'ASC' and 'DESC' The default value is descending (DESC)."/>
+        <parameter id="start" label="Start" required="false"
+            tooltip="Start date/time of the timeline. This value should be used to both refine and limit the search results. Format: yyyy-MM-ddTHH:mm:ssZ"/>
+        <parameter id="end" label="End" required="false"
+            tooltip="End date/time of the timeline. This value should be used to both refine and limit the search results. Format: yyyy-MM-ddTHH:mm:ssZ"/>
+        <parameter id="limit" label="Limit" required="false"
+            tooltip="Limit the number of results returned. If not provided, the server will limit the results to 25 submissions.  Maximum value 1000.">1000</parameter>
+        <parameter id="query" label="Query" required="false"
+            tooltip="The query that will be used to search the submissions. Ex: values[Company]=&quot;Kinetic&quot;"/>
+        <parameter id="page_token" label="Page Token" required="false"
+            tooltip="The value to use as the offset for the page of submissions to return. The submission that matches this value will not be included in the results." />
+        <parameter id="return_type" label="Return Type" required="true"
+            tooltip="The format that the results should be returned in."
+            menu="JSON,XML,ID List">JSON</parameter>
+    </parameters>
+    <handler name="kinetic_request_ce_submission_search" version="2">
+        <infos>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters["space_slug"] %&gt;</parameter>
+            <parameter name="kapp_slug">&lt;%= @parameters['kapp_slug'] %&gt;</parameter>
+            <parameter name="form_slug">&lt;%= @parameters['form_slug'] %&gt;</parameter>
+            <parameter name="include">&lt;%= @parameters['include'] %&gt;</parameter>
+            <parameter name="core_state">&lt;%= @parameters['core_state'] %&gt;</parameter>
+            <parameter name="timeline">&lt;%= @parameters['timeline'] %&gt;</parameter>
+            <parameter name="direction">&lt;%= @parameters['direction'] %&gt;</parameter>
+            <parameter name="start">&lt;%= @parameters['start'] %&gt;</parameter>
+            <parameter name="end">&lt;%= @parameters['end'] %&gt;</parameter>
+            <parameter name="limit">&lt;%= @parameters['limit'] %&gt;</parameter>
+            <parameter name="query">&lt;%= @parameters['query'] %&gt;</parameter>
+            <parameter name="page_token">&lt;%= @parameters['page_token'] %&gt;</parameter>
+            <parameter name="return_type">&lt;%= @parameters['return_type'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="Count"/>
+        <result name="Next Page Token"/>
+        <result name="Result"/>
+    </results>
+</taskDefinition>

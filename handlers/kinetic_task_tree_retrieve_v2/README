@@ -1,0 +1,43 @@
+== Kinetic_Task_Tree_Retrieve_V2
+    This handler is used to retrieve a new tree.
+
+=== Parameters
+[Task Instance]
+   The location of the Kinetic Task instance (ie. http://task.kineticdata.com/kinetic-task). Optional. May be needed/used during migration flows.
+[Space Slug]
+   The space this task engine is for, if part of kinops (or another multi-tenant environment).   Optional
+[Source]
+   The source for the tree you want to retrieve.
+[Group]
+   The group of the tree you want to retrieve.
+[Tree]
+   The name of the tree you want to retrieve.
+[Signature Key]
+   The id of the access key to use to sign the request (overrides info value).
+[Signature Secret]
+   The secret of the access key to use to sign the request (overrides info value).
+
+=== Results
+    [Handler Error Message]
+       Error message (if one is returned)
+    [Response]
+      The json response. Will contain the details and the treeXml.
+
+==== Sample Configuration
+Error Handling::  Error Message
+Task Instance::  https://<domain>/kinetic-task
+Space Slug::  acme
+Source::      Kinetic Task
+Group::       Run Error
+Tree::        Notify on Run Error
+Signature Key::                  nil
+Signature Secret::               nil
+
+=== Detailed Description
+    This handler uses the Kinetic Task REST API to retrieve a tree.
+    To configure the info values, you'll need your username,
+    password, and the url where your task instance is located. The
+    handler will return details and treeXml of the tree.
+
+    Note: Your the user configured must have access via API Console
+    Policy rule to be able to effectively use this handler.

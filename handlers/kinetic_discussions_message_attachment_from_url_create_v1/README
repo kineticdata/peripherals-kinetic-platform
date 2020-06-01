@@ -1,0 +1,28 @@
+== Kinetic Discussions Message Attachment From Url V1
+This handler creates a message in a discussion from a provided URL.
+
+=== Parameters
+[Error Handling]
+  Select between returning an error message, or raising an exception.
+[Path]
+  The relative API path (to the `api_location` info value) that will be called.
+  This value should begin with a forward slash `/`.
+[Filename]
+  The name of the attachment file.
+[Url]
+  The Url to download the attachment from.
+
+=== Sample Configuration
+Error Handling:          Error Message
+Path:                    /discussions/:discussionId/messages
+Filename:                Updating the discussion title
+Url:                     https://my-attachment-server.com/my-attachment.png
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Response Body]
+  The returned value from the Rest Call (JSON format)
+
+=== Detailed Description
+This handler creates a message in a discussion as an attachment given a URL that it can download the attachment from.

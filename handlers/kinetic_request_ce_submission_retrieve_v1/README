@@ -1,0 +1,60 @@
+== Kinetic Request CE Submission Retrieve
+Retrieves a submission.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The space the submission is being retrieved from (defaults to info value if not provided).
+[Submission Id]
+  The id of the submission being retrieved.
+
+=== Sample Configuration
+Error Handling:         Error Message
+Space Slug:
+Submission Id:          424ecd62-8d9a-11e7-b48a-9904b1fc11dd
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[ID]
+  ID of the submission that was entered.
+[Label]
+  Label of the submission.
+[Origin]
+  Originating ID. This is typically the ID of a different submission.
+[Parent]
+  Parent ID.
+[Submitted At]
+  Submitted Date/Time
+[Type]
+[Updated At]
+  Closed Date/Time
+[Updated By]
+  User ID for Last Updated
+[Closed At]
+  Closed Date/Time
+[Core State]
+  Status: Draft, Submitted, or Closed
+[Created At]
+  Created Date/Time
+[Created By]
+  User ID that created the submission
+[Form Description]
+  Description on the submission's form
+[Form Name]
+  Name of the submission's form
+[Form Notes]
+  Notes on the submission's form
+[Form Slug]
+  Slug of the submission's form
+[Form Status]
+  Status of the submission's form
+[Kapp Name]
+  Name of the submission's kapp
+[Kapp Slug]
+  Slug of the submission's kapp
+
+
+=== Detailed Description
+This handler retrieves a submission.

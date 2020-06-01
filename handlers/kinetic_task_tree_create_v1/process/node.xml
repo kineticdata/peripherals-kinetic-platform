@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_task_tree_create" name="Kinetic Task Tree Create" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>This handler is used to create a tree for a given source / group.</description>
+    <helpurl></helpurl>
+    <visible>true</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered." menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="source" label="Source" required="true"
+            tooltip="The source for the tree you want to run."/>
+        <parameter id="group" label="Group" required="true"
+            tooltip="The group of the tree you want to run."/>
+        <parameter id="body" label="Body" required="false"
+            tooltip="A valid xml tree definition"/> 
+    </parameters>
+    <handler name="kinetic_task_tree_create" version="1">
+        <infos>
+            <info name="username">&lt;%= @info['username'] %&gt;</info>
+            <info name="password">&lt;%= @info['password'] %&gt;</info>
+            <info name="kinetic_task_location">&lt;%= @info['kinetic_task_location'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ? @parameters["error_handling"] : "Raise" %&gt;</parameter>
+            <parameter name="source">&lt;%= @parameters['source'] %&gt;</parameter>
+            <parameter name='group'>&lt;%= @parameters['group'] %&gt;</parameter>
+            <parameter name='body'>&lt;%= @parameters['body'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="tree_id"/>
+    </results>
+</taskDefinition>

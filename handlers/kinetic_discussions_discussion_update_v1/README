@@ -1,0 +1,47 @@
+== Kinetic Discussions Discussion Update
+This handler will update a Kinetic Discussion with the provided parameter details
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The space the discussion will belong to (defaults to info value if not provided).
+[Discussion ID]
+  The ID of the discussion to update.
+[Title]
+  The title of the discussion.
+[Description]
+  The description of the discussion.
+[Is Archived]
+  Archived discussions do not allow new messages added to them.
+[Is Private]
+  Private discussions only allow people to see the discussion if they have been explicitly invited to it. Join policy is ignored if set to true.
+[Join Policy]
+  Security policy name for allowing people to join.
+[Owning Users]
+  JSON array of CE users allowed to manage the discussion.
+[Owning Team]
+  JSON array of CE team names allowed to manage the discussion.
+
+=== Sample Configuration
+Error Handling:          Error Message
+Space Slug:
+Discussion ID:           07b38300-0941-11e9-ac0a-c5718f33057b
+Title:                   Updating the discussion title
+Description:             
+Is Archived:             false
+Is Private:              false
+Join Policy:             Authenticated Users
+Owning Users:            <%= ["admin@acme.com"].to_json %>
+Owning Teams:            <%= ["Administrators"].to_json %>
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Discussion]
+  Details about the new discussion, JSON formatted.
+
+=== Detailed Description
+This handler uses the OAuth client ID and client secret
+to retrieve an access token that connects to the Kinetic Discussions
+API.

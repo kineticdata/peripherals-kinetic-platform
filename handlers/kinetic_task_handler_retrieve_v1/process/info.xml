@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<taskInfo version="1.0">
+  <info name="username" description="The username for the Kinetic Task instance." />
+  <info name="password" description="The password for the Kinetic Task instance." type="encrypted"/>
+  <info name="kinetic_task_location" description="The location of the Kinetic Task instance (ie. http://task.kineticdata.com/kinetic-task)." />
+  <info name="space_slug" description="The space slug" />
+  <info name="enable_debug_logging" description="Enable debug logging if the value is set to 'Yes'.">No</info>
+</taskInfo>

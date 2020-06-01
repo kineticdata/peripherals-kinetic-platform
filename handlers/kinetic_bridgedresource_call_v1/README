@@ -1,0 +1,33 @@
+== Kinetic Bridged Resource Call V1
+Kinetic Bridged Resource Call V1
+
+=== Parameters
+[Error Handling]
+  Select between returning an error message, or raising an exception.
+[Space Slug]
+  space slug for space containing form with bridged resource
+[Kapp Slug]
+  kapp slug for kapp containing form with bridged resource
+[Form Slug]
+  form with bridged resource
+[Bridged Resource Name]
+  Name set up in the form for the Bridged Resource
+[Parameters]
+  JSON of parameters for bridged resource not hard coded, format example: {"values[Requested Date]":"2019-03-25"}
+
+
+=== Results
+[Response Body]
+  The returned value from the REST Call (JSON format)
+[Response Code]
+  The returned code from the REST Call (ex. 200, 404)
+[Handler Error Message]
+  Populated if error handling is set to error message and an error occurs.
+
+=== Details
+This handler calls an existing bridged resource on an existing form.
+
+An example of returned format for a call with a result (single):
+{"record":{"attributes":{"Holiday Name":"Thanksgiving","Holiday Date":"2019-11-28"}}}
+An example of returned format for a call with no result (single qualification):
+{"record":{"attributes":null}}

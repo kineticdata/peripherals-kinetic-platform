@@ -1,0 +1,41 @@
+== Kinetic Request CE User Retrieve
+Retrieves a user from Kinetic Request CE.
+
+=== Parameters
+[SpaceSlug]
+  The Space slug to be searched. If this value is not entered, the
+  Space slug will default to the one configured in info values.
+[Username]
+	The unique username that identifies the user.
+
+
+=== Sample Configuration
+Space:      acme
+Username:   test@example.com
+
+
+=== Results
+[username]
+  Username of user.
+[display_name]
+  Display name of user.
+[email]
+  Email of user.
+[createdAt]
+  When the user was created.
+[createdBy]
+  Who created the user.
+[enabled]
+  If user is active or not.
+[updatedAt]
+  When the user was updated.
+[updatedBy]
+  Who updated the user.
+[attributes]
+  User attributes.
+[Exists]
+  If user is exists or not.
+
+
+=== Detailed Description
+This handler returns the properties for the user record.

@@ -1,0 +1,36 @@
+== Kinetic Request CE Datastore Submission Create
+Creates a Datastore Submission record in Kinetic Core for the specified space.
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The space the submission is being created in (defaults to info value if not provided).
+[Datastore Form Slug]
+  The slug that corresponds to the Datastore Form that the submission record should be associated
+  with.
+[Values]
+  JSON map of the intended datastore submission field values.
+[Current Page Name]
+  Set the current page name.
+[Current Page Navigation]
+  Set the current page navigation.
+
+=== Sample Configuration
+Error Handling:          Error Message
+Space Slug:
+Datastore Form Slug:     cars
+Values:                  {"Year": "2018", "Model": "CR-V", "Make": "Honda"}
+Current Page Name:       Page 1
+Current Page Navigation:
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Submission ID]
+  Id for the newly created submission.
+
+=== Detailed Description
+Given a Datastore Form Slug and a JSON Values map, this handler creates a new Datastore Submission
+associated with the form slug. If the submission record is successfully created, a submission id
+will be returned.

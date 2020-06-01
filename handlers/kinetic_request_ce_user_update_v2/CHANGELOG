@@ -1,0 +1,4 @@
+Kinetic Request CE User Update (2016-04-20)
+ * Initial version.  See README for details.
+Kinetic Request CE User Update (2018-04-24)
+ * URI encoded username parameter so that this handler will work with all usernames
