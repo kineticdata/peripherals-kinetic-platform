@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_attachment_upload" name="Kinetic Request CE Attachment Upload" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>
+        Retrieves a an attachment from Kinetic Filehub and uploads it to a Request CE form.
+    </description>
+    <helpurl></helpurl>
+    <visible>true</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="space_slug" label="Space Slug" required="false"
+          tooltip="The Space the submission is being retrieved from."/>
+        <parameter id="kapp_slug" label="Kapp Slug" required="true"
+          tooltip="The Kapp being retrieved from."/>
+        <parameter id="form_slug" label="Form Slug" required="true"
+          tooltip="The Form being retrieved from."/>
+        <parameter id="filestore" label="Filestore" required="true"
+          tooltip="Filestore of desired Filehub."/>
+        <parameter id="filepath" label="Filepath" required="true"
+          tooltip="Filepath of desired file from Filehub."/>
+        <parameter id="filename" label="Filename" required="true"
+          tooltip="Filename new name of file being uploaded."/>
+    </parameters>
+    <handler name="kinetic_request_ce_upload_attachment" version="1">
+        <infos>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+            <info name="filehub_key">&lt;%= @info['filehub_key'] %&gt;</info>
+            <info name="filehub_secret">&lt;%= @info['filehub_secret'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters['space_slug'] %&gt;</parameter>
+            <parameter name="kapp_slug">&lt;%= @parameters['kapp_slug'] %&gt;</parameter>
+            <parameter name="form_slug">&lt;%= @parameters['form_slug'] %&gt;</parameter>
+            <parameter name="filestore">&lt;%= @parameters['filestore'] %&gt;</parameter>
+            <parameter name="filepath">&lt;%= @parameters['filepath'] %&gt;</parameter>
+            <parameter name="filename">&lt;%= @parameters['filename'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="Content Type"/>
+        <result name="Document Id"/>
+        <result name="Name"/>
+        <result name="Size"/>
+    </results>
+</taskDefinition>

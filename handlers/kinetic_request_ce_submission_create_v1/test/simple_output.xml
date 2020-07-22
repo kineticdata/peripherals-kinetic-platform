@@ -1,0 +1,4 @@
+<results>
+    <result name="Handler Error Message" type="Regexp"></result>
+    <result name="Submission ID" type="RegExp">.+</result>
+</results>

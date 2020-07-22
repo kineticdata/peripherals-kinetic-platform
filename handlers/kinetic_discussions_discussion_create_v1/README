@@ -1,0 +1,44 @@
+== Kinetic Discussions Discussion Create
+This handler will create a Kinetic Discussion with the provided parameter details
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The space the discussion will belong to (defaults to info value if not provided).
+[Title]
+  The title of the new discussion.
+[Description]
+  The description of the new discussion.
+[Is Archived]
+  Archived discussions do not allow new messages added to them.
+[Is Private]
+  Private discussions only allow people to see the discussion if they have been explicitly invited to it. Join policy is ignored if set to true.
+[Join Policy]
+  Security policy name for allowing people to join.
+[Owning Users]
+  JSON array of CE users allowed to manage the new discussion.
+[Owning Team]
+  JSON array of CE team names allowed to manage the new discussion.
+
+=== Sample Configuration
+Error Handling:          Error Message
+Space Slug:
+Title:                   This is a new discussion
+Description:             
+Is Archived:             false
+Is Private:              false
+Join Policy:             Authenticated Users
+Owning Users:            <%= ["admin@acme.com"].to_json %>
+Owning Teams:            <%= ["Administrators"].to_json %>
+
+=== Results
+[Handler Error Message]
+  Error message if an error was encountered and Error Handling is set to "Error Message".
+[Discussion]
+  Details about the new discussion, JSON formatted.
+
+=== Detailed Description
+This handler uses the OAuth client ID and client secret
+to retrieve an access token that connects to the Kinetic Discussions
+API.

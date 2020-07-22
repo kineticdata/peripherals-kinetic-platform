@@ -1,0 +1,31 @@
+== Kinetic_Task_Tree_Run_V1
+    This handler is used to start a new run of an existing tree.
+
+=== Parameters
+    [Source]
+        The source for the tree you want to run.
+    [Group]
+        The group of the tree you want to run.
+    [Tree Name]
+        The name of the tree you want to run.
+    [Body]
+        A JSON string of name/value pairs that will be passed to the tree as 
+        body content.
+
+=== Results
+    [run_id]
+      The run id of the tree that was just started.
+
+==== Sample Configuration
+    Source:                         Playground
+    Group:                          Scott
+    Tree Name:                      API
+    Body:                           {"String1" : "Source", "String2" : "Data"}
+
+=== Detailed Description
+    This handler uses the Kinetic Task REST API to start a new run of an
+    existing tree. To configure the info values, you'll need your username, 
+    password, and the url where your task instance is located. The handler
+    assembles the endpoint to the intended tree and then sends a POST to it
+    (including the body of JSON key/value pairs if it was not left blank). The
+    handler will return the run id of the process that was started by this handler.

@@ -1,0 +1,20 @@
+== kinetic_task_instance_complete_with_answer_set_V1
+    ** Short description needed **
+
+=== Parameters
+[Answer Set]
+   The answer set of the submission.
+[Deferral Token]
+  The deferral token of the deferred task.
+
+=== Results
+  [Trigger Id]
+     Id of created trigger.
+
+==== Sample Configuration
+Error Handling::  Error Message
+Answer Set:: **Configuration needed**
+Deferral Token:: **Configuration needed**
+
+=== Detailed Description
+    **Description needed.**

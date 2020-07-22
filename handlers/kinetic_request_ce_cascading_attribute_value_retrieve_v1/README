@@ -1,0 +1,34 @@
+== Kinetic Request CE Cascading Attribute Value Retrieve
+Returns the matched value of the "Property to Return" parameter for the given scope. If the Context is Submission, this handler
+will search for a matching submission value, if none found, it will search the form, then kapp, then space attributes for a match. 
+
+The purpose of this handler is to allow Space / Kapp / Form Attributes to be overridden by the lowest level specified.
+
+=== Parameters
+[start_context]
+  The LOWEST context for which you want to search. If none found, the handler will continue to search through the end context
+[end_context]
+  The HIGHEST context for which you want to search. If you specify Kapp here, no space attribtues will be searched since Space is 
+  higher than Kapp
+[prop_to_find]
+  The Property that the handler will search for (An Attribute name or Form Field Name)
+[backup_if_none]
+  If no matches are found, the backup value will be returned
+[space_slug]
+  The Slug of the Space to search. If blank, the Handlers Info Space Slug value will be used
+[kapp_slug]
+  The Slug of the Kapp to search. (required if start context is "Kapp" or "Form")
+[form_slug]
+  The Slug of the Form to search. (required if start context is "Form")
+[submission_id]
+  The Submission ID to search (required if start/end context are "Submission")
+
+=== Results
+[Matched Context]
+   The Context for which the value was found (Space / Kapp / Form Attribute, Submission Values or the Backup Value)
+[Value]
+   The Matched Value Found and Returned
+
+=== Detailed Description
+Retrieves a submissions values, it's forms attribtues, kapps attributes, and spaces attributes.
+Attributes and Values are returned as JSON structured like so:

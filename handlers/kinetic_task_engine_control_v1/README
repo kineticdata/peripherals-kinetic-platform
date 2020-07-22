@@ -1,0 +1,32 @@
+== Kinetic Task Engine Control V1
+    This handler is used to stop, start, or restart the task engine.
+
+=== Parameters
+[Task Instance]
+   The location of the Kinetic Task instance (ie. http://task.kineticdata.com/kinetic-task). Optional. May be needed/used during migration flows.
+[Space Slug]
+   The space this task engine is for, if part of kinops (or another multi-tenant environment).   Optional
+[Command]
+   A valid command: stop, start, or restart
+
+=== Results
+    [Handler Error Message]
+       Error message (if one is returned)
+    [Result]
+       Success or Failure
+    [Message]
+       The message returned by the server
+
+==== Sample Configuration
+Error Handling::  Error Message
+Task Instance::  https://<domain>/kinetic-task
+Space Slug::  acme
+Command::      restart
+
+=== Detailed Description
+    This handler uses the Kinetic Task REST API to control the task Engine.
+    Be cautious using the stop command on the current server (restart should
+    be ok).
+
+    Note: Your the user configured must have access via API Console
+    Policy rule to be able to effectively use this handler.

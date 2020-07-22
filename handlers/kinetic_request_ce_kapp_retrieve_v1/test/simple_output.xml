@@ -1,0 +1,10 @@
+<results>
+    <result name="Handler Error Message" type="Regexp"></result>
+    <result name="Name"/>
+    <result name="Slug"/>
+    <result name="CreatedAt"/>
+    <result name="CreatedBy"/>
+    <result name="UpdatedAt"/>
+    <result name="UpdatedBy"/>
+    <result name="Attributes"/>
+</results>

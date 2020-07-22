@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_format_answers" name="Kinetic Request CE Format Answers" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>
+        Takes provided JSON or Retrieves all answers for a given submission and
+        formats them into a name value pair results, json result, HTML table, and list.
+        Allows for including, excluding, and or aliasing fields.
+    </description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="answer_set" label="JSON Answer Set" required="false"
+            tooltip="JSON Answer set to format. Either this or submission ID needs to be specified."/>
+        <parameter id="space_slug" label="Space Slug" required="false"
+          tooltip="The Space the submission is being retrieved from (defaults to info value if not provided)."/>
+        <parameter id="submission_id" label="Submission ID" required="false"
+            tooltip="The id of the submission to retrieve answers for. Either this or submission ID needs to be specified."/>
+        <parameter id="mode" label="Mode" required="true" menu="All,Some"
+            tooltip="If 'All' the entire set of fields will be used.  If 'Some' the fields listed in the 'Included Fields' parameter will be used.  **In both cases, fields listed in the 'Excluded Fields' parameter will never be included in the generated output.**"/>
+        <parameter id="included_fields" label="Included Fields" required="false"
+            dependsOnId="mode" dependsOnValue="Some"
+            tooltip="A comma separated list of field names that should be explicitly included in the field list.  This is only required if the 'Mode' parameter is set to 'Some'.  Whitespace matters; ensure there are no spaces after a comma separating the field names (unless the field names includes a preceding space)."/>
+        <parameter id="excluded_fields" label="Excluded Fields" required="false"
+            tooltip="A comma separated list of field names that should be explicitly excluded from the field list.  Fields included in this list will be excluded even if they are included in the 'Included Fields' parameter.  Whitespace matters; ensure there are no spaces after a comma separating the field names (unless the field name includes a preceding space)."/>
+        <parameter id="field_aliases" label="Field Aliases" required="false"
+            tooltip="A specially formatted mapping of field names in the answer hash to labels to be used in the answer set.  This is necessary when an answer should be forwarded via answer set, but the field name varies from form to form.  The alias format is as follows:  OldQuestionLabel=NewQuestionLabel,RequesterFirstName=FirstName."/>
+
+    </parameters>
+    <handler name="kinetic_request_ce_format_answers" version="1">
+        <infos>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters['space_slug'] %&gt;</parameter>
+            <parameter name="submission_id">&lt;%= @parameters['submission_id'] %&gt;</parameter>
+            <parameter name="answer_set">&lt;%= @parameters['answer_set'] %&gt;</parameter>
+            <parameter name="mode">&lt;%= @parameters['mode'] %&gt;</parameter>
+            <parameter name="included_fields">&lt;%= @parameters['included_fields'] %&gt;</parameter>
+            <parameter name="excluded_fields">&lt;%= @parameters['excluded_fields'] %&gt;</parameter>
+            <parameter name="field_aliases">&lt;%= @parameters['field_aliases'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="JSON"/>
+        <result name="HTML"/>
+        <result name="List"/>
+        <result name="### Placeholder for field name ###"/>
+    </results>
+</taskDefinition>
