@@ -140,10 +140,14 @@ public class KineticCoreApiHelper {
         }
         
         if(jsonResponse.get("error") != null) {
-            JSONObject error = (JSONObject)jsonResponse.get("error");
-            throw new BridgeError("Received error: " 
-                + error.get("code").toString() + ", Description: "
-                + error.get("message").toString());
+            try {
+                JSONObject error = (JSONObject)jsonResponse.get("error");
+                throw new BridgeError("Received error: " 
+                    + error.get("code").toString() + ", Description: "
+                    + error.get("message").toString());
+            } catch (ClassCastException e){
+                throw new BridgeError((String)jsonResponse.get("error"));
+            }
         }
         
         return jsonResponse;

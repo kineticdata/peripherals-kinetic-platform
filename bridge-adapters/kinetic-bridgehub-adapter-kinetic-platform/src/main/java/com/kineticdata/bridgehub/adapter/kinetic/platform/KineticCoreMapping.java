@@ -14,7 +14,7 @@ import java.util.Set;
   *  Properties:
   *      String structure - name of a model of data.
   *      String plural - property name accessor when multiple results returned
-  *      String plural - property name accessor when single result returned
+  *      String singular - property name accessor when single result returned
   *      Set<String> implicitIncludes - additions placed on the parameters of
   *          the request to source system.
   *      PaginationPredicate paginationPredicate - method called to determine
