@@ -67,28 +67,37 @@ class KineticRequestCeSubmissionUpdateV1
       # Post to the API
       result = resource.put(data.to_json, { :accept => "json", :content_type => "json" })
     rescue RestClient::Exception => error
-      code = error.http_code
-      body = JSON.parse(error.response)
+      # If the error response body is empty, such as when a 404 is returned
+      if error.response.nil?
+        error_message = "#{error.http_code} (empty body)"
+      else
+        begin
+          code = error.http_code
+          body = JSON.parse(error.response)
 
-      # Retry the handler if stale record exception
-      stale_record = (code == 400) && (
-        # Checks for stale record in core v3.0+
-        body["errorKey"] == 'stale_record' ||
-        # Checks for stale record in core 2.1 to v3.0
-        body["error"].include?("has been updated or deleted by another user") ||
-        # Checks for stale record in core before 2.1 (this check is only safe if the above 
-        # code is only doing updates and never doing creates)
-        body["error"].include?("with the same id already exists")
-      )
+          # Retry the handler if stale record exception
+          stale_record = (code == 400) && (
+            # Checks for stale record in core v3.0+
+            body["errorKey"] == 'stale_record' ||
+            # Checks for stale record in core 2.1 to v3.0
+            body["error"].include?("has been updated or deleted by another user") ||
+            # Checks for stale record in core before 2.1 (this check is only safe if the above 
+            # code is only doing updates and never doing creates)
+            body["error"].include?("with the same id already exists")
+          )
 
-      if stale_record
-        if (retries += 1) < 10
-          puts "Retrying Because of Stale Record Exception. Retry Number #{retries.to_s}"
-          retry
+          if stale_record
+            if (retries += 1) < 10
+              puts "Retrying Because of Stale Record Exception. Retry Number #{retries.to_s}"
+              retry
+            end
+          end
+
+          error_message = "#{code}: #{body["error"]}"
+        rescue => parse_error
+          error_message = "#{error.http_code} #{error.response}"
         end
       end
-
-      error_message = "#{code}: #{body["error"]}"
       raise error_message if error_handling == "Raise Error"
     rescue Exception => error
       error_message = error.inspect

@@ -93,8 +93,17 @@ class KineticRequestCeSubmissionSearchV2
       end
 
     rescue RestClient::Exception => error
-      puts "Error: #{JSON.parse(error.response)}" if @enable_debug_logging
-      error_message = "#{error.http_code}: #{JSON.parse(error.response)["error"]}"
+      # If the error response body is empty, such as when a 404 is returned
+      if error.response.nil?
+        error_message = "#{error.http_code} (empty body)"
+      else
+        begin
+          puts "Error: #{JSON.parse(error.response)}" if @enable_debug_logging
+          error_message = "#{error.http_code}: #{JSON.parse(error.response)["error"]}"
+        rescue => parse_error
+          error_message = "#{error.http_code} #{error.response}"
+        end
+      end
       raise error_message if error_handling == "Raise Error"
     rescue Exception => error
       puts "Error: #{error.inspect}" if @enable_debug_logging

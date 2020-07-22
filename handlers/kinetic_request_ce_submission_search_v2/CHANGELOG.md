@@ -1,3 +1,6 @@
+Kinetic Request CE Submission Search V2 (2020-07-22)
+* Modified error handling.
+
 Kinetic Request CE Submission Search V2 (2019-01-14)
 * Updated handler to include all API options as input and Next Page Token as an output.
 
