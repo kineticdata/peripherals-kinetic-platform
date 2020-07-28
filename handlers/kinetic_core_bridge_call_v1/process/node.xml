@@ -11,7 +11,7 @@
     <parameter id="kapp" label="Kapp Slug" required="true" tooltip="kapp slug for kapp containing form with bridged resource"></parameter>
     <parameter id="form" label="Form Slug" required="true" tooltip="form with bridged resource"></parameter>
     <parameter id="resource" label="Bridged Resource Name" required="true" tooltip="Name set up in the form for the Bridged Resource"></parameter>
-    <parameter id="parameters" label="Parameters" required="true" tooltip="JSON of parameters for bridged resource not hard coded, format example: {\"values[Requested Date]\":\"2019-03-25\""></parameter>
+    <parameter id="parameters" label="Parameters" required="true" tooltip="JSON of parameters for bridged resource not hard coded, format example: {&quot;values[Requested Date]&quot;:&quot;2019-03-25&quot;"></parameter>
   </parameters>
 
   <handler name="kinetic_core_bridge_call" version="1">
