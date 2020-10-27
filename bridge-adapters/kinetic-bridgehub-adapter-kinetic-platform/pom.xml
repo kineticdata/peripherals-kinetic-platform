@@ -4,7 +4,7 @@
 
     <groupId>com.kineticdata.bridges.adapter</groupId>
     <artifactId>kinetic-bridgehub-adapter-kinetic-platform</artifactId>
-    <version>5.0.1</version>
+    <version>5.0.2</version>
     <packaging>jar</packaging>
 
     <name>kinetic-bridgehub-adapter-kinetic-platform</name>
