@@ -16,3 +16,7 @@ Kinetic Core [handlers] (2020-07-22)
     * modified error handling.
   * [kinetic_request_ce_submission_update_v1]
     * modified error handling.
+
+Kinetic Platform [bridge-adapter] (2020-10-26)
+  * [kinetic-bridgehub-adapter-kinetic-platform]
+    * updated log4j and junit dependencies
