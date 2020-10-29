@@ -31,6 +31,7 @@
             <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
             <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
             <info name="jdbc_database_id">&lt;%= @info["jdbc_database_id"] %&gt;</info>
+            <info name="jdbc_url_opts">&lt;%= @info["jdbc_url_opts"] %&gt;</info>
             <info name="host">&lt;%= @info["host"] %&gt;</info>
             <info name="port">&lt;%= @info["port"] %&gt;</info>
             <info name="database_name">&lt;%= @info["database_name"] %&gt;</info>
