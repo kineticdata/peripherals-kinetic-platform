@@ -45,13 +45,16 @@ This adapter works with Core 2.4+
 | Teams | Get teams |
 | Users | Get Users |
 
-Fields
+## Fields
 Fields that will be returned with the record.  If no fields are provided then all fields will be
 returned.
 
-Qualification (Query)
+## Qualification (Query)
 Supports all queries that Core api supports for the given context.  An id parameter is required for datastore submission and kapp submission lookups.
 
+### Example Qualifications
+* Get a form and its fields: `q=slug="${parameters("Form Slug")}"&include=fields`
+* Get teams by their parent name: `q=parentName="${parameters('Parent')}"`
 # General Bridgehub Information
 ---
 ## What is a Bridgehub adapter?
