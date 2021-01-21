@@ -91,6 +91,7 @@ class KineticRequestCeSubmissionDbInsertV1
       @info_values['host']              = input['host']
       @info_values['port']              = input['port']
       @info_values['jdbc_database_id']  = input['jdbc_database_id']
+      @info_values['jdbc_url_opts']     = input['jdbc_url_opts']
       @info_values['database_name']     = input['database_name']
       @info_values['user']              = input['user']
       @info_values['password']          = input['password']
@@ -113,6 +114,7 @@ class KineticRequestCeSubmissionDbInsertV1
     database_name   = @info_values["database_name"]
     user            = @info_values["user"]
     password        = @info_values["password"]
+    jdbc_url_opts   = @info_values["jdbc_url_opts"].to_s.strip
 
     max_connections = 1
     if @info_values['max_connections'].to_s =~ /\A[1-9]\d*\z/ then
@@ -128,7 +130,9 @@ class KineticRequestCeSubmissionDbInsertV1
 
     # Attempt to connect to the database
     if @info_values["jdbc_database_id"].downcase == "sqlserver"
-      @db = Sequel.connect("jdbc:#{@info_values["jdbc_database_id"]}://#{host}:#{port};database=#{database_name};user=#{user};password=#{password}", :max_connections => max_connections, :pool_timeout => pool_timeout)
+      jdbc_url_opts.concat(";") if jdbc_url_opts.empty? == false && jdbc_url_opts[-1] != ";"
+      # TODO: Fix JDBC URL connection string to not take unsanitized user info values and separate username/password from connection string.
+      @db = Sequel.connect("jdbc:#{@info_values["jdbc_database_id"]}://#{host}:#{port};#{jdbc_url_opts}database=#{database_name};user=#{user};password=#{password}", :max_connections => max_connections, :pool_timeout => pool_timeout)
       @db.extension :identifier_mangling
       @db.identifier_input_method = nil
       @db.identifier_output_method = nil
@@ -140,6 +144,7 @@ class KineticRequestCeSubmissionDbInsertV1
     elsif @info_values["jdbc_database_id"].downcase == "oracle"
       Sequel.database_timezone = :utc
       #Sequel.application_timezone = :utc
+      # TODO: Fix JDBC URL connection string to not take unsanitized user info values and separate username/password from connection string.
       @db = Sequel.connect("jdbc:#{@info_values["jdbc_database_id"]}:thin:#{user}/#{password}@#{host}:#{port}:#{database_name}", :max_connections => max_connections, :pool_timeout => pool_timeout)
       @db.extension :identifier_mangling
       @db.identifier_input_method = nil
@@ -147,8 +152,10 @@ class KineticRequestCeSubmissionDbInsertV1
       @max_db_identifier_size = 30
       @using_oracle = true
     else
+      jdbc_url_opts.concat("&") if jdbc_url_opts.empty? == false && jdbc_url_opts[-1] != "&"
       @max_db_identifier_size = 64 if @info_values["jdbc_database_id"].downcase == "postgresql"
-      @db = Sequel.connect("jdbc:#{@info_values["jdbc_database_id"]}://#{host}:#{port}/#{database_name}?user=#{user}&password=#{password}", :max_connections => max_connections, :pool_timeout => pool_timeout)
+      # TODO: Fix JDBC URL connection string to not take unsanitized user info values and separate username/password from connection string.
+      @db = Sequel.connect("jdbc:#{@info_values["jdbc_database_id"]}://#{host}:#{port}/#{database_name}?#{jdbc_url_opts}user=#{user}&password=#{password}", :max_connections => max_connections, :pool_timeout => pool_timeout)
     end
     
     # Output SQL statements if the 'trace' level info parameter is set to true.
@@ -655,7 +662,7 @@ class KineticRequestCeSubmissionDbInsertV1
   def get_form_table_name(kapp_slug, form_slug, options = {})
     # Default to datastore for form table name...
     form_table_name = "app_#{form_slug}"
-    if kapp_slug.nil? == false then
+    if kapp_slug.to_s.strip.empty? == false then
       form_table_name = "#{kapp_slug}_#{form_slug}"
     end
     form_table_name.prepend(@table_temp_prefix) if options[:is_temporary]

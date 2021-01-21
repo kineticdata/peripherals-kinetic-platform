@@ -5,6 +5,7 @@
   <info name="api_password" description="Password for the API user" type="encrypted"></info>
   <info name="space_slug" description="Slug of the Space where the User will be created."></info>
   <info name="jdbc_database_id" description="The JDBC Id from the connection string for the database being used. ie. (oracle, sqlserver, postgresql, mysql).">sqlserver</info>
+  <info name="jdbc_url_opts" description="Additional JDBC URL connection string options, such as ssl=true&amp;sslmode=verify-full for Postgres."></info>
   <info name="host" description="IP address or hostname of the SQL reporting database server."></info>
   <info name="port" description="Port number the SQL server is listening on."></info>
   <info name="database_name" description="SQL database name used for storing CE submissions."></info>
