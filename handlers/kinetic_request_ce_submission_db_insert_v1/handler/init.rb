@@ -570,7 +570,7 @@ class KineticRequestCeSubmissionDbInsertV1
             puts "Inserted the submission #{submission["id"]}" if @enable_debug_logging
           else
             submission_update_count = db_submissions.where(
-              Sequel.lit('"c_id" = ? and "c_updatedAt" < ?', submission['id'], form_db_submission[:c_updatedAt])
+              Sequel.lit('"c_id" = ? and "c_updatedAt" < ?', submission['id'], db_submission_values[:c_updatedAt])
             )
               .call(
                 :update,
