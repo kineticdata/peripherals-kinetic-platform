@@ -1,0 +1,7 @@
+<results>
+    <result name="Handler Error Message">.+</result>
+	<result name="To">.+</result>
+	<result name="Subject">.+</result>
+	<result name="HTML Body">.+</result>
+	<result name="Text Body">.+</result>	  
+</results>

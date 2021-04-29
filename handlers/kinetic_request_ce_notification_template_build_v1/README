@@ -1,0 +1,32 @@
+== Kinetic Request CE Notification Template Build
+Builds an email notification using a template defined in Kinetic Request CE
+
+=== Parameters
+[Error Handling]
+  Determine what to return if an error is encountered.
+[Space Slug]
+  The slug of the Space in which notifications and messages should be retrieved from
+[Recipient Json Object]
+  A JSON object representing a user and their preferences including Email, Notification Preferences, Language & Region
+[Notification Template Name]
+  The name of a valid notification TEMPLATE that is Active in Kinetic Request CE
+[Replacement Values]
+  A JSON Object of Values that should be replaced.
+[Submission Id]
+  The submission id of the originating request.
+  
+=== Results
+[Handler Error Message]
+  The handler error message (if any)
+[To]
+  The intended recipient of the notification
+[Subject]
+  The subject line of the notification
+[HTML Body]
+  The HTML body of the notification
+[Text Body]
+  The text body of the notification
+  
+== Details
+
+This handler is only compatible with CE version 2.1 or later as it leverages the built in CE Datastore.
