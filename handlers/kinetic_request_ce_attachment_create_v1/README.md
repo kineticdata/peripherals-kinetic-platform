@@ -14,6 +14,8 @@
   The name of the file to create.
 [File Content]
   The content for the file being created.
+[Input Encoding]
+  Tell the handler if the input was already encoded for Base64.
 
 === Sample Configuration
 Error Handling:         Raise Error
@@ -22,13 +24,14 @@ Kapp Slug:              acme
 Form Slug:              attachment-form
 Filename:               hello-world.txt
 File Content:           Hello World! This is a sample file!
+Input Encoding:         Plain
 
 === Results
 [Handler Error Message]
   Error message if an error was encountered and Error Handling is set to "Error Message".
 [Files]
   The JSON response that is returned from Kinetic Request CE after uploading a
-  file. This will the text that should be submited as an attachment question
+  file. This will the text that should be submitted as an attachment question
   value for a Submission Create call.
 
 === Detailed Description
