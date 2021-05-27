@@ -27,3 +27,7 @@ Kinetic Platform [bridge-adapter] (2021-01-21)
     * updated readme to have qualification mapping examples
   * [kinetic_request_ce_submission_db_insert_v1]
     * Fix datastore submission delete. Addd custom JDBC connection options
+
+Kinetic Platform [handlers] (2021-05-27)
+  * [kinetic_request_ce_submission_create_v1]
+    * added support for base 64 input
