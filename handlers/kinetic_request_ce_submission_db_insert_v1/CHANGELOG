@@ -8,3 +8,6 @@ Kinetic Request CE Submission DB Insert V1.1 (2018-06-05)
 Kinetic Request CE Submission DB Insert V1.2 (2020-10-29)
 * Fixed bug for datastore submission deletions not working.
 * Added info value for providing custom JDBC connection options
+
+Kinetic Request CE Submission DB Insert V1.3 (2021-03-10)
+* Fixed bug submissions not getting updated in the database.

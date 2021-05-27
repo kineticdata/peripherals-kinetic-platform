@@ -28,6 +28,11 @@ Kinetic Platform [bridge-adapter] (2021-01-21)
   * [kinetic_request_ce_submission_db_insert_v1]
     * Fix datastore submission delete. Addd custom JDBC connection options
 
+Kinetic Platform [handlers] (2021-04-29)
+  * [kinetic_request_ce_notification_template_build_v1]
+    * initial commit.
+
 Kinetic Platform [handlers] (2021-05-27)
   * [kinetic_request_ce_submission_create_v1]
     * added support for base 64 input
+
