@@ -24,7 +24,7 @@
         <parameter id="filename" label="Filename" required="true"
           tooltip="Filename new name of file being uploaded."/>
     </parameters>
-    <handler name="kinetic_request_ce_upload_attachment" version="1">
+    <handler name="kinetic_request_ce_attachment_upload" version="1">
         <infos>
             <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
             <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
