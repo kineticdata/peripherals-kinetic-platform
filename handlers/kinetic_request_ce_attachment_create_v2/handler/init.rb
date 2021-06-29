@@ -1,7 +1,7 @@
 # Require the dependencies file to load the vendor libraries
 require File.expand_path(File.join(File.dirname(__FILE__), 'dependencies'))
 
-class KineticRequestCeAttachmentCreateV1
+class KineticRequestCeAttachmentCreateV2
   def initialize(input)
     # Set the input document attribute
     @input_document = REXML::Document.new(input)
@@ -38,7 +38,10 @@ class KineticRequestCeAttachmentCreateV1
       error_message = nil
 
       filename = @parameters["filename"]
-      file_content = @parameters["file_content"]
+      # To support Base64 as an input it must be decoded.  
+      file_content =  @parameters["input_encoding"] == "Base64" ?
+        Base64.decode64(@parameters["file_content"]) :
+        @parameters["file_content"] 
 
       http_client = DefaultHttpClient.new
       httppost = HttpPost.new("#{server}/#{@parameters["kapp_slug"]}/#{@parameters["form_slug"]}/files")
@@ -64,7 +67,7 @@ class KineticRequestCeAttachmentCreateV1
     return <<-RESULTS
     <results>
       <result name="Files">#{error_message.nil? ? escape(resp) : ""}</result>
-      <result name="Handler Error Message">#{escape(resp)}</result>
+      <result name="Handler Error Message">#{escape(error_message)}</result>
     </results>
     RESULTS
   end

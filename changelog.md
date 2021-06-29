@@ -33,6 +33,6 @@ Kinetic Platform [handlers] (2021-04-29)
     * initial commit.
 
 Kinetic Platform [handlers] (2021-05-27)
-  * [kinetic_request_ce_submission_create_v1]
+  * [kinetic_request_ce_submission_create_v2]
     * added support for base 64 input
 

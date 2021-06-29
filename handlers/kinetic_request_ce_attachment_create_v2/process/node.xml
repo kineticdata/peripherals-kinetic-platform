@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<taskDefinition id="kinetic_request_ce_attachment_create" name="Kinetic Request CE Attachment Create" schema_version="1.0" version="1">
+<taskDefinition id="kinetic_request_ce_attachment_create" name="Kinetic Request CE Attachment Create" schema_version="1.0" version="2">
     <author>support@kineticdata.com</author>
     <description>
-        Creates a plaintext attachment and uploads it to a Kinetic Request CE Form.
+        Creates an attachment and uploads it to a Kinetic Request CE Form.
     </description>
     <helpurl></helpurl>
     <visible>false</visible>
@@ -21,8 +21,10 @@
             tooltip="The name of the file to create."/>
         <parameter id="file_content" label="File Content" required="true"
             tooltip="The content for the file being created."/>
+        <parameter id="input_encoding" label="Input Encoding" required="true" menu="Plain,Base64"
+          tooltip="This parameter specifies file content input is encoded to.">Plain</parameter>
     </parameters>
-    <handler name="kinetic_request_ce_attachment_create" version="1">
+    <handler name="kinetic_request_ce_attachment_create" version="2">
         <infos>
             <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
             <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
@@ -38,6 +40,7 @@
             <parameter name="form_slug">&lt;%= @parameters['form_slug'] %&gt;</parameter>
             <parameter name="filename">&lt;%= @parameters['filename'] %&gt;</parameter>
             <parameter name="file_content">&lt;%= @parameters['file_content'] %&gt;</parameter>
+            <parameter name="input_encoding">&lt;%= @parameters['input_encoding'] %&gt;</parameter>
         </parameters>
     </handler>
     <results format="xml">
