@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_attachment_create" name="Kinetic Request CE Attachment Create" schema_version="1.0" version="2">
+    <author>support@kineticdata.com</author>
+    <description>
+        Creates an attachment and uploads it to a Kinetic Request CE Form.
+    </description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="space_slug" label="Space Slug" required="false"
+            tooltip="The space to upload the newly created file to (defaults to info value if not provided)."/>
+        <parameter id="kapp_slug" label="Kapp Slug" required="true"
+            tooltip="The kapp to upload the newly created file to."/>
+        <parameter id="form_slug" label="Form Slug" required="true"
+            tooltip="The form to upload the newly created file to."/>
+        <parameter id="filename" label="Filename" required="true"
+            tooltip="The name of the file to create."/>
+        <parameter id="file_content" label="File Content" required="true"
+            tooltip="The content for the file being created."/>
+        <parameter id="input_encoding" label="Input Encoding" required="true" menu="Plain,Base64"
+          tooltip="This parameter specifies file content input is encoded to.">Plain</parameter>
+    </parameters>
+    <handler name="kinetic_request_ce_attachment_create" version="2">
+        <infos>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters['space_slug'] %&gt;</parameter>
+            <parameter name="kapp_slug">&lt;%= @parameters['kapp_slug'] %&gt;</parameter>
+            <parameter name="form_slug">&lt;%= @parameters['form_slug'] %&gt;</parameter>
+            <parameter name="filename">&lt;%= @parameters['filename'] %&gt;</parameter>
+            <parameter name="file_content">&lt;%= @parameters['file_content'] %&gt;</parameter>
+            <parameter name="input_encoding">&lt;%= @parameters['input_encoding'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Files"/>
+        <result name="Handler Error Message"/>
+    </results>
+</taskDefinition>
