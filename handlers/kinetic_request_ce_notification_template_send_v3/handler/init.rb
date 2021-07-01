@@ -313,6 +313,10 @@ class KineticRequestCeNotificationTemplateSendV3
   end
 
   def apply_attachments(mail, attachmentList)
+    if @submission_id.nil? || @submission_id.empty?
+      raise "Related submission required for adding attachments"
+    end
+
     puts "Applying attachments" if @debug_logging_enabled
     #Extract the keys from the replacement_values attribute
      
@@ -325,63 +329,73 @@ class KineticRequestCeNotificationTemplateSendV3
     FileUtils.mkdir_p @tmp_dir
     
     # Submission API Route including Values
-      submission_api_route = @api_server +
-                             "/app/api/v1/submissions/" +
-                             URI.escape(@submission_id) +
-                             "/?include=values"
-        puts "Getting from submission: #{submission_api_route}" if @debug_logging_enabled
-      # Retrieve the Submission Values
-      submission_result = RestClient::Resource.new(
-        submission_api_route,
-        user: @api_username,
-        password: @api_password
-      ).get
+    submission_api_route = @api_server +
+                            "/app/api/v1/submissions/" +
+                            URI.escape(@submission_id) +
+                            "/?include=values"
+      puts "Getting from submission: #{submission_api_route}" if @debug_logging_enabled
+    # Retrieve the Submission Values
+    submission_result = RestClient::Resource.new(
+      submission_api_route,
+      user: @api_username,
+      password: @api_password
+    ).get
 
-      puts "Got from submission: #{submission_api_route}" if @debug_logging_enabled
-      # If the submission exists
-      unless submission_result.nil?
-        submission = JSON.parse(submission_result)["submission"]
-        attachmentList.gsub(/\$\{attachment\('(.*?)'\)\}/) do
-        field_value = submission["values"][$1]
-        # If the attachment field value exists
-        unless field_value.nil?
-          files = []
-          # Attachment field values are stored as arrays, one map for each file attachment
-          field_value.each_index do |index|
-            file_info = field_value[index]
-            tmp_file_name = File.join(@tmp_dir, file_info['name'])
-            # The attachment file name is stored in the 'name' property
-            # API route to get the generated attachment download link from Kinetic Request CE.
-            # "/{spaceSlug}/app/api/v1/submissions/{submissionId}/files/{fieldName}/{fileIndex}/{fileName}/url"
+    puts "Got from submission: #{submission_api_route}" if @debug_logging_enabled
+    # If the submission exists
+    unless submission_result.nil?
+      submission = JSON.parse(submission_result)["submission"]
+      attachmentList.gsub(/\$\{attachment\('(.*?)'\)\}/) do
+      field_value = submission["values"][$1]
+      # If the attachment field value exists
+      unless field_value.nil?
+        # Attachment field values are stored as arrays, one map for each file attachment
+        field_value.each_index do |index|
+          file_info = field_value[index]
+          tmp_file_name = File.join(@tmp_dir, file_info['name'])
+          # The attachment file name is stored in the 'name' property
+          # API route to get the generated attachment download link from Kinetic Request CE.
+          # "/{spaceSlug}/app/api/v1/submissions/{submissionId}/files/{fieldName}/{fileIndex}/{fileName}/url"
 
-            attachment_download_api_route = @api_server +
-              '/app/api/v1' +
-              '/submissions/' + URI.escape(@submission_id) +
-              '/files/' + URI.escape($1) +
-              '/' + index.to_s +
-              '/' + URI.escape(file_info['name']) +
-              '/url'
-            puts "Getting attachment from submission: #{file_info['name']} from field #{$1}" if @debug_logging_enabled
-            # Retrieve the URL to download the attachment from Kinetic Request CE.
-            # This URL will only be valid for a short amount of time before it expires
-            # (usually about 5 seconds).
-            attachment_download_result = RestClient::Resource.new(
-              attachment_download_api_route,
-              user: @api_username,
-              password: @api_password
-            ).get
+          attachment_download_api_route = @api_server +
+            '/app/api/v1' +
+            '/submissions/' + URI.escape(@submission_id) +
+            '/files/' + URI.escape($1) +
+            '/' + index.to_s +
+            '/' + URI.escape(file_info['name']) +
+            '/url'
+          
+          puts "Getting attachment from submission: #{file_info['name']} from field #{$1}" if @debug_logging_enabled
 
-            unless attachment_download_result.nil?
-                # get the filehub url to download the file
-                fileUrl = JSON.parse(attachment_download_result)['url']
-                puts "Downloading file: #{file_info['name']} from #{fileUrl}" if @debug_logging_enabled
+          attachment_download_result = RestClient::Resource.new(
+            attachment_download_api_route,
+            user: @api_username,
+            password: @api_password
+          ).get
 
-                puts "Downloading file to memory" if @enable_debug_logging
-                mail.attachments[file_info['name']] = RestClient.get(fileUrl).to_java_bytes
-            end
-         end
-         
+          unless attachment_download_result.nil?
+              # get the filehub url to download the file
+              file_url = JSON.parse(attachment_download_result)['url']
+              puts "Downloading file: #{file_info['name']} from #{file_url}" if @debug_logging_enabled
+
+              # In 2.x of core there was a redirect url that lasted 5 seconds.  
+              # This was updated to a direct call to core post 2.x.  
+              # Both legacy and modern are supported
+              params = CGI.parse(URI(file_url).query || "")
+              is_legacy = params.has_key?('signature') && params.has_key?('signature')
+              puts "Using #{is_legacy ? "legacy" : "modern"} url" if @enable_debug_logging
+
+              puts "Downloading file to memory" if @enable_debug_logging
+              mail.attachments[file_info['name']] = is_legacy ? 
+                RestClient.get(file_url).to_java_bytes : 
+                RestClient::Resource.new(
+                  file_url,
+                  user: @api_username,
+                  password: @api_password
+                ).get().to_java_bytes
+          end
         end
+      end
     end
     
     end
@@ -438,7 +452,7 @@ class KineticRequestCeNotificationTemplateSendV3
         embedded_images = {}
 
         # Iterate over the body and embed necessary images
-        htmlbody.scan(/"cid:(.*?)"/) do |match|
+        htmlbody.scan(/"cid:(.*)"/) do |match|
           # The match variable is an array of Regex groups (specified with
           # parentheses); in this case the first match is the url
           url = match.first

@@ -17,6 +17,9 @@ Sends an email notification using a template defined in Kinetic Request CE
 [Replacement Values]
   A JSON Object of Values that should be replaced.
 
+[Submission Id]
+  The id of the related record that is use with attachments.
+
 ### Results
 
 [Email Id]
