@@ -32,6 +32,10 @@ Kinetic Platform [handlers] (2021-04-29)
   * [kinetic_request_ce_notification_template_build_v1]
     * initial commit.
 
-Kinetic Platform [handlers] (2021-04-29)
+Kinetic Platform [handlers] (2021-06-27)
   * [kinetic_request_ce_notification_template_send_v3]
     * initial commit and modification.
+
+Kinetic Platform [handlers] (2021-07-01)
+  * [kinetic_request_ce_notification_template_send_v3]
+    * added support for auth to fetch files from filehub.
