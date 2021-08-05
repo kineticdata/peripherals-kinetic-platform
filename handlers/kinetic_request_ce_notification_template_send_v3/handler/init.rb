@@ -102,7 +102,7 @@ class KineticRequestCeNotificationTemplateSendV3
 
       # If the User has an email address and want to receive notifications
       email_results = {}
-      if !@recipient_json["smtpaddress"].to_s.empty? && @recipient_json["email notifications"].to_s.downcase != 'no'
+      if (!@recipient_json["smtpaddress"].to_s.empty? || !@recipient_json["smtpaddress_cc"].to_s.empty? || !@recipient_json["smtpaddress_bcc"].to_s.empty?) && @recipient_json["email notifications"].to_s.downcase != 'no'
         email_results = sendEmailMessage(template_to_use)
       else
         @error_message = @error_message + "\nNo Email Address or CE User was provided"
@@ -429,6 +429,8 @@ class KineticRequestCeNotificationTemplateSendV3
 
       # Send out Message VIA SMTP
       to           = @recipient_json["smtpaddress"]
+      cc           = @recipient_json["smtpaddress_cc"]
+      bcc          = @recipient_json["smtpaddress_bcc"]
       from         = @smtp_from
       display_name = @smtp_from
       subject      = template_to_use["Subject"]
@@ -438,6 +440,8 @@ class KineticRequestCeNotificationTemplateSendV3
       mail = Mail.new do
         from          "#{display_name} <#{from}>"
         to            "#{to}"
+        cc            "#{cc}"
+        bcc           "#{bcc}"
         subject       "#{subject}"
 
         text_part do
