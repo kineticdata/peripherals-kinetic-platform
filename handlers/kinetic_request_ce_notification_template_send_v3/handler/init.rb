@@ -77,11 +77,16 @@ class KineticRequestCeNotificationTemplateSendV3
 
     # Build Recipient JSON Based on input value. If not JSON, assume it's an email address
     begin
-       @recipient_json = JSON.parse(@parameters["recipient_json"])
+      @recipient_json = JSON.parse(@parameters["recipient_json"])
+      
     rescue
-       @recipient_json =  { "smtpaddress" => @parameters["recipient_json"], "type" => "smtp", "email notifications" => 'yes' }
-    end
+       @recipient_json =  { "smtpaddress" => {"to" => @parameters["recipient_json"]}, "type" => "smtp", "email notifications" => 'yes' }
 
+    end
+    
+    # Check for a legacy format where smtpaddress was a string. Make correction to convert smtpaddress to an object.
+    @recipient_json["smtpaddress"] =  {"to" => @recipient_json["smtpaddress"]} if @recipient_json["smtpaddress"].is_a?(String)
+      
     # Build Up Template with snippet Replacements
     template_to_use = mergeTemplateAndsnippets(@template_name)
 
@@ -428,9 +433,9 @@ class KineticRequestCeNotificationTemplateSendV3
       end
 
       # Send out Message VIA SMTP
-      to           = @recipient_json["smtpaddress"]
-      cc           = @recipient_json["smtpaddress_cc"]
-      bcc          = @recipient_json["smtpaddress_bcc"]
+      to           = @recipient_json["smtpaddress"]["to"]
+      cc           = @recipient_json["smtpaddress"]["cc"]
+      bcc          = @recipient_json["smtpaddress"]["bcc"]
       from         = @smtp_from
       display_name = @smtp_from
       subject      = template_to_use["Subject"]
@@ -448,7 +453,6 @@ class KineticRequestCeNotificationTemplateSendV3
           body "#{textbody}"
         end
       end
-      
 
       # Embed linked images into the html body if present
       unless htmlbody.nil? || htmlbody.empty?

@@ -10,6 +10,17 @@ Sends an email notification using a template defined in Kinetic Request CE
 
 [Recipient Json Object]
   A JSON object representing a user and their preferences including Email, Notification Preferences, Language & Region.
+    {
+     "region":"test",
+     "type":"user",
+     "smtpaddress":{
+        "to":"test@kineticdata.com",
+        "cc":"test@kineticdata.com",
+        "bcc":"test@kineticdata.com"
+     },
+     "language":"EN",
+     "email notifications":"yes"
+    }
 
 [Notification Template Name]
   The name of a valid notification TEMPLATE that is Active in Kinetic Request CE.
