@@ -13,7 +13,7 @@
         <parameter id="space_slug" label="Space Slug" required="false"
           tooltip="The id of the space from which the submission is being retrieved."/>
         <parameter id="recipient_json" label="Recipient Json Object" required="true"
-          tooltip="The recipient object should look like this. {&quot;type&quot;:&quot;user&quot;,&quot;username&quot;:&quot;test@mycompany.com&quot;,&quot;smtpaddress&quot;:&quot;test@mycompany.com&quot;,&quot;language&quot;:&quot;- Default -&quot;,&quot;email notifications&quot;:&quot;yes&quot;}  "/>
+          tooltip="The recipient object should look like this. {&quot;type&quot;:&quot;user&quot;,&quot;username&quot;:&quot;test@mycompany.com&quot;,&quot;smtpaddress&quot;:{&quot;to&quot;:&quot;to_test@mycompany.com&quot;,&quot;cc&quot;:&quot;cc_test@mycompany.com&quot;,&quot;bcc&quot;:&quot;bcc_test@mycompany.com&quot;},&quot;language&quot;:&quot;- Default -&quot;,&quot;email notifications&quot;:&quot;yes&quot;}  "/>
         <parameter id="notification_template_name" label="Notification Template Name" required="true"
           tooltip="The notification template name being used."/>
         <parameter id="replacement_values" label="Replacement Values" required="false"
