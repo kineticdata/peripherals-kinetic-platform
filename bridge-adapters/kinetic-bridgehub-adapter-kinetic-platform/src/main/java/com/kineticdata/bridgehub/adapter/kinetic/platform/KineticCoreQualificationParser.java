@@ -2,6 +2,7 @@ package com.kineticdata.bridgehub.adapter.kinetic.platform;
 
 import com.kineticdata.bridgehub.adapter.BridgeError;
 import com.kineticdata.bridgehub.adapter.QualificationParser;
+import com.sun.media.jfxmedia.logging.Logger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -67,6 +68,7 @@ public class KineticCoreQualificationParser extends QualificationParser {
             result = value.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
                 .replace("&", TEMP_ENCODED_AMPERSAND);
+            logger.debug(String.format("The values: %s was encoded to: %s", value, result));
         }
         return result;
     }

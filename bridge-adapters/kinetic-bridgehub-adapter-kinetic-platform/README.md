@@ -55,6 +55,12 @@ Supports all queries that Core api supports for the given context.  An id parame
 ### Example Qualifications
 * Get a form and its fields: `q=slug="${parameters("Form Slug")}"&include=fields`
 * Get teams by their parent name: `q=parentName="${parameters('Parent')}"`
+* Get datastore submissions by status and user: `index=values[Status],values[Assigned Individual]&q=values[Status]="${parameters('Status')}" AND values[Assigned Individual]="${parameters('Username')}"`
+
+## Importent notes
+* Ampersands in the qualification mapping that are not intended to split parameters must be encoded. ex: `index=values[foo],values[bar]&q=values[foo]="Fizz %26 Buzz" AND values[bar]=""` 
+* Ampersand can be in values represented by `${parameter(...)}`. ex: `index=values[foo],values[bar]&q=values[foo]="${parameter("foo")}" AND values[bar]=""` where `${parameter("foo")}` == Fizz & Buzz
+
 # General Bridgehub Information
 ---
 ## What is a Bridgehub adapter?
