@@ -4,13 +4,20 @@ import com.kineticdata.bridgehub.adapter.BridgeError;
 import com.kineticdata.bridgehub.adapter.QualificationParser;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class is has helpers used to parser the qualification mapping value. 
  */
 public class KineticCoreQualificationParser extends QualificationParser {
-     /** Defines the logger */
+    /** 
+     * Temporarily encoding '&' in request parameters to fix KP-3631.  This prevents
+     * getParameters method from splitting on ampersands that are in parameter values.
+     */
+    private static final String TEMP_ENCODED_AMPERSAND = "%26";
+    
+    /** Defines the logger */
     protected static final org.slf4j.Logger logger 
         = LoggerFactory.getLogger(KineticCoreAdapter.class);
     
@@ -18,9 +25,10 @@ public class KineticCoreQualificationParser extends QualificationParser {
         throws BridgeError {
       
         Map<String, String> parameters = new HashMap<>();
-
+        
         // Return empyt map if no query was provided from reqeust.
         if (!queryString.isEmpty()) {
+            // Regex allows for & to be in field names.
             String[] queries = queryString.split("&(?=[^&]*?=)");
             for (String query : queries) {
                 // Split the query on the = to determine the field/value key-pair. 
@@ -42,6 +50,13 @@ public class KineticCoreQualificationParser extends QualificationParser {
                 }
             }
         }
+
+        parameters = parameters.entrySet().stream()
+            .collect(Collectors.toMap(
+                    Map.Entry::getKey, 
+                    entry -> entry.getValue().replaceAll(TEMP_ENCODED_AMPERSAND, "&")
+            ));
+        
         return parameters;
     }
     
@@ -49,7 +64,9 @@ public class KineticCoreQualificationParser extends QualificationParser {
     public String encodeParameter(String name, String value) {
         String result = null;
         if (value != null) {
-            result = value.replace("\\", "\\\\").replace("\"", "\\\"");
+            result = value.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("&", TEMP_ENCODED_AMPERSAND);
         }
         return result;
     }

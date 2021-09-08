@@ -299,6 +299,7 @@ public class KineticCoreAdapter implements BridgeAdapter {
         KineticCoreMapping mapping = getMapping(structureArray[0]);
         // get a map of parameters from the request
         Map<String, String> parameters = parser.getParameters(request.getQuery());
+        
         parameters = addImplicitIncludes(parameters, mapping.getImplicitIncludes());
         
         // memorize the requested limit (it may be overwritten when adapter side

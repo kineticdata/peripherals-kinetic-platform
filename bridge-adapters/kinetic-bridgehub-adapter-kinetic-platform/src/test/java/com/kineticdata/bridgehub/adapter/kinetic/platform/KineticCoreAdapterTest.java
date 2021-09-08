@@ -546,6 +546,24 @@ public class KineticCoreAdapterTest extends BridgeAdapterTestBase {
     }
     
     @Test
+    public void test_search_submissions_by_query() throws Exception {
+        BridgeRequest request = new BridgeRequest();
+        request.setStructure("Submissions > services > aaa-test-form");
+        request.setQuery("q=values[Test Text]=\"<%=parameter[\"Field Value\"]%>\"");
+        
+        Map parameters = new HashMap();
+        parameters.put("Field Value", "Foo & Bar");
+        request.setParameters(parameters);
+        
+        List<String> fields = Arrays.asList("createdAt", "label",
+            "values[Test Text]","values[Dropdown Field]");
+        request.setFields(fields);
+        
+        RecordList records = getAdapter().search(request);
+        Assert.assertTrue(records.getRecords().size() > 0);
+    }
+    
+    @Test
     public void test_search_submissions_order_limit_2() throws Exception {
         BridgeRequest request = new BridgeRequest();
         request.setStructure("Submissions > services > bbb-test-form");
@@ -573,6 +591,43 @@ public class KineticCoreAdapterTest extends BridgeAdapterTestBase {
         
         RecordList records3 = getAdapter().search(request);
         Assert.assertTrue(records3.getRecords().size() > 0);
+    }
+    
+    @Test
+    public void test_search_datastore_by_query() throws Exception {
+        BridgeRequest request = new BridgeRequest();
+        request.setStructure("Datastore Submissions > test");
+        request.setQuery("index=values[Test Text]&"
+                + "q=values[Test Text]=\"<%=parameter[\"Field Value\"]%>\"");
+        
+        Map parameters = new HashMap();
+        parameters.put("Field Value", "Foo & Bar");
+        request.setParameters(parameters);
+        
+        List<String> fields = Arrays.asList("createdAt", "label", "values[Test Text]");
+        request.setFields(fields);
+        
+        RecordList records = getAdapter().search(request);
+        Assert.assertTrue(records.getRecords().size() > 0);
+    }
+    
+    @Test
+    public void test_search_datastore_multi_by_query() throws Exception {
+        BridgeRequest request = new BridgeRequest();
+        request.setStructure("Datastore Submissions > test");
+        request.setQuery("index=values[Test Text],values[Text 2]&"
+                + "q=values[Test Text]=\"<%=parameter[\"Field Value\"]%>\" AND"
+                + " values[Text 2]=\"\"");
+        
+        Map parameters = new HashMap();
+        parameters.put("Field Value", "Foo & Bar");
+        request.setParameters(parameters);
+        
+        List<String> fields = Arrays.asList("createdAt", "label", "values[Test Text]");
+        request.setFields(fields);
+        
+        RecordList records = getAdapter().search(request);
+        Assert.assertTrue(records.getRecords().size() > 0);
     }
     
     @Test
