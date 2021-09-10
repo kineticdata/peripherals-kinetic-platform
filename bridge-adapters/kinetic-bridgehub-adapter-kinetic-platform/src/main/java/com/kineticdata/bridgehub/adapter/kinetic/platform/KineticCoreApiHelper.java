@@ -141,7 +141,7 @@ public class KineticCoreApiHelper {
         
         if(jsonResponse.get("error") != null) {
             throw new BridgeError(String.format("The server responded with an "
-                + "error %s", jsonResponse.toJSONString()));
+                + "error: %s", jsonResponse.toJSONString()));
         }
         
         return jsonResponse;

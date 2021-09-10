@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 public class KineticCoreQualificationParserTest {
@@ -83,7 +84,66 @@ public class KineticCoreQualificationParserTest {
         assertEquals(parameterMap, constantMap);
     }
     
-        @Test
+    @Test
+    public void test_get_parameter_ampersand() throws Exception {
+        String queryString = "index=values[Test Text] & q=values[foo]=\"Fizz & Buzz\" ";
+        Map <String, String> parameterMap = parser.getParameters(queryString);
+        
+        Map <String, String> constantMap = new HashMap<>();
+        constantMap.put("index", "values[Test Text]");
+        constantMap.put("q", "values[foo]=\"Fizz & Buzz\"");
+        
+        assertEquals(parameterMap, constantMap);;
+    }
+    
+    @Test
+    public void test_get_parameter_multi_index_ampersand() throws Exception {
+        String queryString = "index=values[foo],values[bar]&"
+            + "q=values[foo]=\"Fizz %26 Buzz\" AND values[bar]=\"\"";
+        Map <String, String> parameterMap = parser.getParameters(queryString);
+        
+        Map <String, String> constantMap = new HashMap<>();
+        constantMap.put("index", "values[foo],values[bar]");
+        constantMap.put("q", "values[foo]=\"Fizz & Buzz\" AND values[bar]=\"\"");
+        
+        assertEquals(parameterMap, constantMap);;
+    }
+    
+    @Test
+    public void test_get_parameter_ampersand_field_name() throws Exception {
+        String queryString = "index=values[foo &]&"
+            + "q=values[foo &]=\"bazz\"";
+        Map <String, String> parameterMap = parser.getParameters(queryString);
+        
+        Map <String, String> constantMap = new HashMap<>();
+        constantMap.put("index", "values[foo &]");
+        constantMap.put("q", "values[foo &]=\"bazz\"");
+        
+        assertEquals(parameterMap, constantMap);;
+    }
+    
+    @Test
+    public void test_get_parameter_hardcoded_ampersand() throws Exception {
+        String queryString = "index=values[foo],values[bar]&"
+            + "q=values[foo]=\"Fizz & Buzz\" AND values[bar]=\"Cat & Dog\"";
+        Map <String, String> parameterMap = parser.getParameters(queryString);
+        
+        Map <String, String> constantMap = new HashMap<>();
+        constantMap.put("index", "values[foo],values[bar]");
+        constantMap.put("q", "values[foo]=\"Fizz & Buzz\" AND values[bar]=\"Cat & Dog\"");
+        
+        // Assertion should fail because hardcoded '&' that are used as parameters
+        // are not supported.
+        assertNotEquals(parameterMap, constantMap);
+        
+        queryString = "index=values[foo],values[bar]&"
+            + "q=values[foo]=\"Fizz %26 Buzz\" AND values[bar]=\"Cat %26 Dog\"";
+        parameterMap = parser.getParameters(queryString);
+        
+        assertEquals(parameterMap, constantMap);;
+    }
+    
+    @Test
     public void test_get_parameter_none() throws Exception {
         String queryString = "";
         Map <String, String> parameterMap = parser.getParameters(queryString);
