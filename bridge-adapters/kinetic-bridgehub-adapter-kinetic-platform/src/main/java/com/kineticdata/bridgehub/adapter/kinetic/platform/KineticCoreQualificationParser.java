@@ -2,7 +2,6 @@ package com.kineticdata.bridgehub.adapter.kinetic.platform;
 
 import com.kineticdata.bridgehub.adapter.BridgeError;
 import com.kineticdata.bridgehub.adapter.QualificationParser;
-import com.sun.media.jfxmedia.logging.Logger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
