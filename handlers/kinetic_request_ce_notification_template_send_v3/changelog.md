@@ -12,4 +12,7 @@
  - updated the regex for image cid.  The previous regex was greedy and took too much.
 
 2021-07-01
- - added support for modern url to fetch attachments
+ - added support for modern url to fetch attachments.
+
+2021-10-14
+ - fixed regression that was caused in previous commit.
