@@ -460,7 +460,7 @@ class KineticRequestCeNotificationTemplateSendV3
         embedded_images = {}
 
         # Iterate over the body and embed necessary images
-        htmlbody.scan(/"cid:(.*)"/) do |match|
+        htmlbody.scan(/"cid:(.*?)"/) do |match|
           # The match variable is an array of Regex groups (specified with
           # parentheses); in this case the first match is the url
           url = match.first

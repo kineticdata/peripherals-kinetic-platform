@@ -47,3 +47,7 @@ Kinetic Platform [handlers] (2021-07-01)
 Kinetic Platform [bridge-adapter] (2021-09-08)
   * [kinetic-bridgehub-adapter-kinetic-platform]
     * Fixed ampersands in parameters issue KP-3631.
+
+Kinetic Platform [handlers] (2021-10-14)
+  * [kinetic_request_ce_notification_template_send_v3]
+    * fixed regression caused in previous update.  
