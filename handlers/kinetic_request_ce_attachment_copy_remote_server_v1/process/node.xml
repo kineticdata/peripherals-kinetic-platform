@@ -12,9 +12,9 @@
         <parameter id="source_space_slug" label="Source Space Slug" required="false"
             tooltip="Slug of the Space where the handler should be imported"/>
         <parameter id="source_kapp_slug" label="Source Kapp Slug" required="true"
-          tooltip="The Kapp the receiving form is in."/>
+          tooltip="The Kapp the containing form is in."/>
         <parameter id="source_form_slug" label="Source Form Slug" required="true"
-          tooltip="The Form receiving the attachment."/>
+          tooltip="The Form containing the attachment."/>
         <parameter id="source_submission_id" label="Source Submission Id" required="true"
             tooltip="Submission Id that contains the attached file to copy"/>
         <parameter id="source_field_name" label="Source Form Field Name" required="true"
