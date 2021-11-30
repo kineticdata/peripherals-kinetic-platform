@@ -1,7 +1,7 @@
-== Kinetic Request CE Attachment Copy Remote Server
+## Kinetic Request CE Attachment Copy Remote Server
     This handler is used to copy an attachment from one submission to another on different servers.
 
-=== Parameters
+### Parameters
     [Error Handling]
         How to handle error conditions in the handler: raise the error, or return error message
     [Source Space Slug]
@@ -25,7 +25,7 @@
     [Destination Form Field Name]
         Name of the file attachment field on the Kinetic Request CE form to copy from.
 
-=== Results
+### Results
 [Handler Error Message]
   Error message if an error was encountered and Error Handling is set to "Error Message".
 [Files]
@@ -33,7 +33,7 @@
 [Space Slug]
   The space slug that was used.
 
-==== Sample Configuration
+#### Sample Configuration
 Error Handling:             Raise Error
 source_space_slug:  
 source_kapp_slug:           public
@@ -46,7 +46,7 @@ destination_form_slug:      access-request-signature-verification
 destination_field_name:     Signed Document
 destination_submission_id:  a5da180d-4d62-11ec-b963-a54dee5dbbd6
 
-=== Detailed Description
+### Detailed Description
 This handler uses the Kinetic Request CE REST API to retrieve the file the user submitted in one
 submission to download it and upload a copy into another specified submission on another server. Note: this is
 particularly helpful when passing attachments from service to queue task or from queue task to
