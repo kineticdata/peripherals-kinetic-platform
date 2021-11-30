@@ -1,23 +1,29 @@
-== Kinetic Request CE Attachment Copy
-    This handler is used to copy an attachment from one submission to another.
+== Kinetic Request CE Attachment Copy Remote Server
+    This handler is used to copy an attachment from one submission to another on different servers.
 
 === Parameters
     [Error Handling]
         How to handle error conditions in the handler: raise the error, or return error message
-    [Space Slug]
+    [Source Space Slug]
         Slug of the Space where the handler should be imported
-    [From Submission Id]
+    [Source Kapp Slug]
+        The Kapp the containing form is in.
+    [Source Form Slug]
+        The Form containing the attachment.
+    [Source Submission Id]
         Submission Id that contains the attached file to copy.
-    [From Form Field Name]
-        Name of the file attachment field on the Kinetic Request CE form to copy from
-    [To Kapp Slug]
-        The Kapp the receiving form is in
-    [To Form Slug]
+    [Source Form Field Name]
+        Name of the file attachment field on the Kinetic Request CE form to copy from.
+    [Destination Space Slug]
+        Slug of the Space where the handler should be imported.
+    [Destination Kapp Slug]
+        The Kapp the receiving form is in.
+    [Destination Form Slug]
         The Form receiving the attachment.
-    [To Submission Id]
-        Submission Id that contains the attached file to copy to
-    [To Form Field Name]
-        Name of the file attachment field on the Kinetic Request CE form to copy to
+    [Destination Submission Id]
+        Submission Id that contains the attached file to copy to.
+    [Destination Form Field Name]
+        Name of the file attachment field on the Kinetic Request CE form to copy from.
 
 === Results
 [Handler Error Message]
@@ -28,17 +34,20 @@
   The space slug that was used.
 
 ==== Sample Configuration
-Error Handling:          Raise Error
-Space Slug:
-From Submission Id:      69825435-2b7b-11e7-983f-0748e4ca60e1
-From Form Field Name:    File to Review
-To Kapp Slug:            services
-To Form Slug:            file-review
-To Submission Id:        2a003fbf-2b8a-11e7-983f-c7d5681811fa
-To Form Field Name:      File to Review
+Error Handling:             Raise Error
+source_space_slug:  
+source_kapp_slug:           public
+source_form_slug:           request    
+source_field_name:          Confidentiality Statement Form
+source_submission_id:       e5d08566-4d60-11ec-b100-99b36abf0f1e
+destination_space_slug:
+destination_kapp_slug:      queue
+destination_form_slug:      access-request-signature-verification   
+destination_field_name:     Signed Document
+destination_submission_id:  a5da180d-4d62-11ec-b963-a54dee5dbbd6
 
 === Detailed Description
 This handler uses the Kinetic Request CE REST API to retrieve the file the user submitted in one
-submission to download it and upload a copy into another specified submission. Note: this is
+submission to download it and upload a copy into another specified submission on another server. Note: this is
 particularly helpful when passing attachments from service to queue task or from queue task to
 queue task.
