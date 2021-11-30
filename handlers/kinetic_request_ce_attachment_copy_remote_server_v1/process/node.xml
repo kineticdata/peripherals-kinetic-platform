@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_attachment_copy_remote_server" name="Kinetic Request CE Attachment Copy Remote Server" schema_version="1.0" version="1">
+    <author>support@kineticdata.com</author>
+    <description>This handler is used to copy an attachment from one submission to one on another server.</description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered."
+          menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="source_space_slug" label="Source Space Slug" required="false"
+            tooltip="Slug of the Space where the handler should be imported"/>
+        <parameter id="source_kapp_slug" label="Source Kapp Slug" required="true"
+          tooltip="The Kapp the receiving form is in."/>
+        <parameter id="source_form_slug" label="Source Form Slug" required="true"
+          tooltip="The Form receiving the attachment."/>
+        <parameter id="source_submission_id" label="Source Submission Id" required="true"
+            tooltip="Submission Id that contains the attached file to copy"/>
+        <parameter id="source_field_name" label="Source Form Field Name" required="true"
+            tooltip="Name of the file attachment field on the Kinetic Request CE form to copy from"/>
+        <parameter id="destination_space_slug" label="Destination Space Slug" required="false"
+            tooltip="Slug of the Space where the handler should be imported"/>
+        <parameter id="destination_kapp_slug" label="Destination Kapp Slug" required="true"
+          tooltip="The Kapp the receiving form is in."/>
+        <parameter id="destination_form_slug" label="Destination Form Slug" required="true"
+          tooltip="The Form receiving the attachment."/>
+        <parameter id="destination_submission_id" label="Destination Submission Id" required="true"
+            tooltip="Submission Id that contains the attached file to copy to"/>
+        <parameter id="destination_field_name" label="Destination Form Field Name" required="true"
+            tooltip="Name of the file attachment field on the Kinetic Request CE form to copy from"/> 
+    </parameters>
+    <handler name="kinetic_request_ce_attachment_copy_remote_server" version="1">
+        <infos>
+            <info name="source_api_server">&lt;%= @info['source_api_server'] %&gt;</info>
+            <info name="source_api_username">&lt;%= @info['source_api_username'] %&gt;</info>
+            <info name="source_api_password">&lt;%= @info['source_api_password'] %&gt;</info>
+            <info name="source_space_slug">&lt;%= @info['source_space_slug'] %&gt;</info>
+            <info name="destination_api_server">&lt;%= @info['destination_api_server'] %&gt;</info>
+            <info name="destination_api_username">&lt;%= @info['destination_api_username'] %&gt;</info>
+            <info name="destination_api_password">&lt;%= @info['destination_api_password'] %&gt;</info>
+            <info name="destination_space_slug">&lt;%= @info['destination_space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ?
+                @parameters["error_handling"] : "Raise Error" %&gt;</parameter>
+            <parameter name="source_space_slug">&lt;%= @parameters['source_space_slug'] %&gt;</parameter>
+            <parameter name="source_kapp_slug">&lt;%= @parameters['source_kapp_slug'] %&gt;</parameter>
+            <parameter name="source_form_slug">&lt;%= @parameters['source_form_slug'] %&gt;</parameter>
+            <parameter name="source_submission_id">&lt;%= @parameters['source_submission_id'] %&gt;</parameter>
+            <parameter name="source_field_name">&lt;%= @parameters['source_field_name'] %&gt;</parameter>
+            <parameter name="destination_space_slug">&lt;%= @parameters['destination_space_slug'] %&gt;</parameter>
+            <parameter name="destination_kapp_slug">&lt;%= @parameters['destination_kapp_slug'] %&gt;</parameter>
+            <parameter name="destination_form_slug">&lt;%= @parameters['destination_form_slug'] %&gt;</parameter>
+            <parameter name="destination_submission_id">&lt;%= @parameters['destination_submission_id'] %&gt;</parameter>
+            <parameter name="destination_field_name">&lt;%= @parameters['destination_field_name'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="Files"/>
+        <result name="Space Slug"/>
+    </results>
+</taskDefinition>

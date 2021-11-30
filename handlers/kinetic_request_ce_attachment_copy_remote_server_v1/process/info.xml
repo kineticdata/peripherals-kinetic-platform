@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskInfo version="1.0">
+  <info name="source_api_server" description="Kinetic Request CE API Web Application">http://server:port/kinetic</info>
+  <info name="source_api_username" description="Username for an account that has permission to use the API"></info>
+  <info name="source_api_password" description="Password for the API user" type="encrypted"></info>
+  <info name="source_space_slug" description="The space slug (can also be set as a parameter)."></info>
+  <info name="destination_api_server" description="Kinetic Request CE API Web Application">http://server:port/kinetic</info>
+  <info name="destination_api_username" description="Username for an account that has permission to use the API"></info>
+  <info name="destination_api_password" description="Password for the API user" type="encrypted"></info>
+  <info name="destination_space_slug" description="The space slug (can also be set as a parameter)."></info>
+  <info name="enable_debug_logging" description="Enable debug logging if the value is set to 'Yes'.">No</info>
+</taskInfo>
