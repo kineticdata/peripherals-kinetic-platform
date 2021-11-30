@@ -55,4 +55,3 @@ Kinetic Platform [handlers] (2021-10-14)
 Kinetic Platform [handlers] (2021-10-30)
   * [kinetic_request_ce_attachment_copy_remote_server_v1]
     * initial commit.
-
