@@ -51,3 +51,8 @@ Kinetic Platform [bridge-adapter] (2021-09-08)
 Kinetic Platform [handlers] (2021-10-14)
   * [kinetic_request_ce_notification_template_send_v3]
     * fixed regression caused in previous update.  
+
+Kinetic Platform [handlers] (2021-10-30)
+  * [kinetic_request_ce_attachment_copy_remote_server_v1]
+    * initial commit.
+
