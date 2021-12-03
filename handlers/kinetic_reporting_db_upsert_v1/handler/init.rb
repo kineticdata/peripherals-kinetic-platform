@@ -137,6 +137,7 @@ class KineticReportingDbUpsertV1
     end
     
     @using_oracle = false
+    Sequel.default_timezone = :utc
 
     # Attempt to connect to the database
     if @info_values["jdbc_database_id"].downcase == "sqlserver"
@@ -148,7 +149,6 @@ class KineticReportingDbUpsertV1
       @max_db_identifier_size = 128
       @table_temp_prefix.prepend("#")
     elsif @info_values["jdbc_database_id"].downcase == "oracle"
-      Sequel.database_timezone = :utc
       @db = Sequel.connect("jdbc:#{@info_values["jdbc_database_id"]}:thin:#{user}/#{password}@#{host}:#{port}:#{database_name}", :max_connections => max_connections, :pool_timeout => pool_timeout)
       @db.extension :identifier_mangling
       @db.identifier_input_method = nil
@@ -192,7 +192,6 @@ class KineticReportingDbUpsertV1
 
     # Initialize a thread to do the work
     thread = java.lang.Thread.new do
-      # Try to do work
       begin
         puts "Starting kapp submission streaming" if @enable_debug_logging
         submission_upsert_start = Time.now
