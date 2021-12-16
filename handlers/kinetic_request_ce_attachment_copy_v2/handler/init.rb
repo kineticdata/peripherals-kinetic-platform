@@ -1,6 +1,6 @@
 require File.expand_path(File.join(File.dirname(__FILE__), 'dependencies'))
 
-class KineticRequestCeAttachmentCopyV1
+class KineticRequestCeAttachmentCopyV2
   def initialize(input)
      
     # Set the input document attribute
