@@ -11,6 +11,7 @@
     'enable_debug_logging' => 'Yes'
   },
   'parameters' => {
+    'error_handling' => 'Raise Error',
     'source_space_slug' => '',
     'source_kapp_slug' => '',
     'source_form_slug' => '',    

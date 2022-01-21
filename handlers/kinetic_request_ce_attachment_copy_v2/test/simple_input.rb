@@ -7,6 +7,7 @@
     'enable_debug_logging' => 'Yes'
   },
   'parameters' => {
+    'error_handling' => 'Raise Error',
     'space_slug' => '',
     'field_name' => '',
     'submission_id' => '',

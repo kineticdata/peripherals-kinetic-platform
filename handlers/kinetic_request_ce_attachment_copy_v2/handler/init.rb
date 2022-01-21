@@ -1,6 +1,17 @@
+require 'erb'
+require 'fileutils'
+require 'json'
+require 'securerandom'
+require 'tmpdir'
+
 require File.expand_path(File.join(File.dirname(__FILE__), 'dependencies'))
+require File.expand_path(File.join(File.dirname(__FILE__), 'helpers_http'))
+
 
 class KineticRequestCeAttachmentCopyV2
+
+  include HandlerHelpers::Http
+
   def initialize(input)
      
     # Set the input document attribute
@@ -19,20 +30,14 @@ class KineticRequestCeAttachmentCopyV2
       @parameters[node.attribute('name').value] = node.text.to_s
     end
 
-    @enable_debug_logging = @info_values['enable_debug_logging'].downcase == 'yes' ||
-                            @info_values['enable_debug_logging'].downcase == 'true'
+    @enable_debug_logging = ["yes", "true"].include?(@info_values['enable_debug_logging'].downcase)
+    @raise_error = @parameters["error_handling"] == "Raise Error"
+
     puts "Parameters: #{@parameters.inspect}" if @enable_debug_logging
-
-    # determine this file's current directory
-    pwd = File.dirname(File.expand_path(__FILE__))
-
-    # create the temp file directory if it doesn't exist
-    @tmp_dir = File.join(pwd, 'tmp_filecopy_zips')
-    FileUtils.mkdir_p @tmp_dir
   end
 
+
   def execute() 
-    
     space_slug = @parameters["space_slug"].empty? ? @info_values["space_slug"] : @parameters["space_slug"]
     if @info_values['api_server'].include?("${space}")
       server = @info_values['api_server'].gsub("${space}", space_slug)
@@ -42,151 +47,150 @@ class KineticRequestCeAttachmentCopyV2
       server = @info_values['api_server']
     end
 
-    user            = @info_values["api_username"]
-    pass            = @info_values["api_password"]
-    error_handling  = @parameters["error_handling"]
-    kapp_slug       = @parameters["kapp_slug"]
-    form_slug       = @parameters["form_slug"]
-    submission_id        = @parameters["submission_id"]
-    to_submission_id        = @parameters["to_submission_id"]
-    to_field_name        = @parameters["to_field_name"]
-    field_name      = @parameters["field_name"]
-    imported_files = []
-    imported_file_details = []
+    #Server Variables
+    user             = @info_values["api_username"]
+    pass             = @info_values["api_password"]
+    kapp_slug        = @parameters["kapp_slug"]
+    form_slug        = @parameters["form_slug"]
+    #Source Submission Variables
+    submission_id    = @parameters["submission_id"]
+    field_name       = @parameters["field_name"]
+    #Destination Submission Variables
+    to_submission_id = @parameters["to_submission_id"]
+    to_field_name    = @parameters["to_field_name"]
+    #Other Variables
+    imported_files = []         # used in handler results
+    imported_file_details = []  # used in the destination submission field value
 
-     # Submission API Route including Values
-      puts submission_api_route = "#{server}/app/api/v1/submissions/#{URI.escape(submission_id)}/?include=values"
-      puts("Core submission API Route: \n#{submission_api_route}") if @debug_logging_enabled  
-      # Retrieve the Submission Values
-      submission_result = RestClient::Resource.new(
-        submission_api_route,
-        user: user,
-        password: pass
-      ).get
+    # Headers for server: Authorization, Accept, Content-Type
+    headers = http_basic_headers(user, pass)
 
-      puts "Got from submission: #{submission_api_route}"
-      # If the submission exists
-      unless submission_result.nil?
-        submission = JSON.parse(submission_result)["submission"]
-        field_value = submission["values"][field_name]
-        # If the attachment field value exists
-        unless field_value.nil?
-          files = []
-          # Attachment field values are stored as arrays, one map for each file attachment
-          field_value.each_index do |index|
-            file_info = field_value[index]
-            tmp_file_name = File.join(@tmp_dir, file_info['name'])
-            # The attachment file name is stored in the 'name' property
-            # API route to get the generated attachment download link from Kinetic Request CE.
-            attachment_download_api_route = server +
-              '/app/api/v1' +
-              '/submissions/' + URI.escape(submission_id) +
-              '/files/' + URI.escape(field_name) +
-              '/' + index.to_s +
-              '/' + URI.escape(file_info['name']) +
-              '/url'
-            
-            puts "Getting attachment from submission: #{file_info['name']} from field #{field_name}" if @enable_debug_logging
-            
-            # Download file
-            attachment_download_result = RestClient::Resource.new(
-              attachment_download_api_route,
-              user: user,
-              password: pass
-            ).get
 
-            unless attachment_download_result.nil?
-                # get the filehub url to download the file
-                fileUrl = JSON.parse(attachment_download_result)['url']
-                puts "Downloading file: #{file_info['name']} from #{fileUrl}" if @enable_debug_logging
+    # Retrieve the source submission
+    puts "Retrieving source submission: #{submission_id}" if @enable_debug_logging
+    # Submission API Route
+    source_submission_route = "#{server}/app/api/v1/submissions/#{submission_id}/?include=values"
+    # Retrieve the submission and values
+    res = http_get(source_submission_route, { "include" => "values" }, headers)
+    if !res.kind_of?(Net::HTTPSuccess)
+      message = "Failed to retrieve source submission #{submission_id}"
+      return handle_exception(message, res)
+    end
+    submission = JSON.parse(res.body)["submission"]
+    puts "Received source submission #{submission['id']}" if @enable_debug_logging
 
-                puts "Downloading file to memory" if @enable_debug_logging
-                file_content = RestClient::Resource.new(
-                  fileUrl,
-                  user: user,
-                  password: pass
-                ).get.to_java_bytes
 
-                # upload the handler file to the space task server
-                  http_client = DefaultHttpClient.new
-                  httppost = HttpPost.new("#{server}/#{kapp_slug}/#{form_slug}/files")
-                  httppost.setHeader("Authorization", "Basic " + Base64.encode64(user + ':' + pass).gsub("\n",''))
-                  httppost.setHeader("Accept", "application/json")
-                  reqEntity = MultipartEntity.new
-                  mime_type = MIME::Types.type_for(file_info['name']).first.content_type
-                  if mime_type.nil?
-                    mime_type = "text/plain"
-                  end
-                  byte = ByteArrayBody.new(file_content, mime_type, file_info['name'])
-                  reqEntity.addPart("file", byte)
-                  httppost.setEntity(reqEntity)
-                  puts "Sending the request to import the handler" if @enable_debug_logging
-                  response = http_client.execute(httppost)
-                  entity = response.getEntity
-                  resp = EntityUtils.toString(entity)
-                  jsonfileDetails = JSON.parse(resp)[0]
-                  imported_file_details.push(jsonfileDetails) 
+    # Check if the there are any attachments in the source field
+    field_value = submission["values"][field_name]
 
-                # remove the downloaded file
-                FileUtils.rm tmp_file_name, :force => true
+    # If the attachment field value exists
+    if !field_value.nil?
+      # Attachment field values are stored as arrays, one map for each file attachment.
+      #
+      # This isn't the real attachment info though, this is just metadata about the attachment
+      # that can be retrieved to get a link to the attachment in Filehub.
+      #
+      # Process each attachment file
+      field_value.each_with_index do |attachment_info, index|
+        begin
+          # The attachment file name is stored in the 'name' property
+          attachment_name = attachment_info['name']
 
-                # add the name of the handler file to the result variable
-                imported_files << file_info['name']
+          # Temporary file to stream contents to
+          tempdir = "#{Dir.tmpdir}/#{SecureRandom.hex(8)}"
+          tempfile = "#{tempdir}/#{attachment_name}"
+          FileUtils.mkdir_p(tempdir)
 
-            end
 
-            file_info.delete("link")
-            files << file_info
+          # Retrieve the attachment download link from the server
+          puts "Retrieving attachment download link from source submission: #{attachment_name} for field #{field_name}" if @enable_debug_logging
+
+          # API route to get the generated attachment download link from Kinetic Request CE.
+          # "/{spaceSlug}/app/api/v1/submissions/{submissionId}/files/{fieldName}/{fileIndex}/{fileName}/url"
+          download_link_api_route = "#{server}/app/api/v1" <<
+            "/submissions/#{submission_id}" <<
+            "/files/#{URI.escape(field_name)}" <<
+            "/#{index.to_s}/#{URI.escape(attachment_name)}/url"
+
+
+          # Retrieve the URL to download the attachment from Kinetic Request CE.
+          # This URL will only be valid for a short amount of time before it expires
+          # (usually about 5 seconds).
+          res = http_get(download_link_api_route, {}, headers)
+          if !res.kind_of?(Net::HTTPSuccess)
+            message = "Failed to retrieve link for attachment #{attachment_name} from source submission"
+            return handle_exception(message, res)
           end
-            #now we have the file uploaded, we need to attach it to the specific submission and field
-            api_route = "#{server}/app/api/v1/submissions/#{to_submission_id}"
+          file_download_url = JSON.parse(res.body)['url']
+          puts "Received link for attachment #{attachment_name} from source submission" if @enable_debug_logging
 
-            puts "Update submission API ROUTE: #{api_route}" if @enable_debug_logging
 
-            resource = RestClient::Resource.new(api_route, { :user => user, :password => pass })
-            values = {to_field_name => imported_file_details}
-            # Building the object that will be sent to Kinetic Core
-            data = {}
-            data.tap do |json|
-              json[:values] = values
-            end
-            # Post to the API
-            puts "Posting #{values.to_json} to submission #{to_submission_id}" if @enable_debug_logging
-            result = resource.put(data.to_json, { :accept => "json", :content_type => "json" })
+          # Download the attachment from the source submission
+          puts "Downloading attachment #{attachment_name} from #{file_download_url}" if @enable_debug_logging
+          res = stream_file_download(tempfile, file_download_url, {}, headers)
+          if !res.kind_of?(Net::HTTPSuccess)
+            message = "Failed to download attachment #{attachment_name} from the server"
+            return handle_exception(message, res)
+          end
+
+          # Upload the attachment to the destination submission
+          file_upload_url = "#{server}/#{kapp_slug}/#{form_slug}/files"
+          puts "Uploading attachment file: #{attachment_name} to #{file_upload_url}" if @enable_debug_logging
+          res = upload_file(tempfile, file_upload_url, {}, headers)
+          if !res.kind_of?(Net::HTTPSuccess)
+            message = "Failed to upload attachment #{attachment_name} to the server"
+            return handle_exception(message, res)
+          end
+          file_upload_details = JSON.parse(res.body)[0]
+
+          # add the uploaded attachment info to the array of imported file details
+          puts "Uploaded attachment details: #{file_upload_details}"
+          imported_file_details.push(file_upload_details)
+
+
+          # add the name of the attachment to the result variable
+          imported_files << attachment_name
+        ensure
+          # Remove the temp directory along with the downloaded attachment
+          FileUtils.rm_rf(tempdir)
         end
-
-            puts "Returning results" if @enable_debug_logging
-            return <<-RESULTS
-            <results>
-              <result name="Handler Error Message"></result>
-              <result name="Files">#{ERB::Util.html_escape(imported_files.to_json)}</result>
-              <result name="Space Slug">#{space_slug}</result>
-            </results>
-            RESULTS
       end
+    else
+      puts "Source submission attachment field value is empty: #{field_name}" if @enable_debug_logging
+    end
 
-    puts "Returning results" if @enable_debug_logging
-    return <<-RESULTS
+    results = handle_results(space_slug, "", imported_files)
+    puts "Returning results: #{results}" if @enable_debug_logging
+    results
+  end
+
+
+  def handle_results(space_slug, error_msg, files)
+    <<-RESULTS
     <results>
-      <result name="Handler Error Message"></result>
-      <result name="Files">#{ERB::Util.html_escape(imported_files.to_json)}</result>
-      <result name="Space Slug">#{space_slug}</result>
+      <result name="Handler Error Message">#{ERB::Util.html_escape(error_msg)}</result>
+      <result name="Files">#{ERB::Util.html_escape(files.to_json)}</result>
+      <result name="Space Slug">#{ERB::Util.html_escape(space_slug)}</result>
     </results>
     RESULTS
+  end
 
-    rescue RestClient::Exception => error
-      error_message = error
-      if error_handling == "Raise Error"
-        raise error_message
-      else
-        return <<-RESULTS
-        <results>
-          <result name="Handler Error Message">#{error.http_code}: #{ERB::Util.html_escape(error_message)}</result>
-          <result name="Files">#{ERB::Util.html_escape(imported_files.to_json)}</result>
-          <result name="Space Slug">#{space_slug}</result>
-        </results>
-        RESULTS
-      end
+
+
+  def handle_exception(message, error)
+    if error.is_a? java.io.IOException
+      error_message = "#{message}: #{error.get_message}"
+      error_message << " caused by: #{error.get_cause.get_message}" if !error.get_cause.nil?
+    elsif error.is_a? Net::HTTPResponse
+      error_message = "#{message}: #{error.code} #{error.message}"
+    elsif error.respond_to? :message
+      error_message = "#{message}: #{error.message}"
+    else
+      error_message = "#{message}: #{error.inspect}"
+    end
+    puts error_message
+    raise error_message if @raise_error
+    handle_results(nil, error_message, nil)
   end
 
 end
