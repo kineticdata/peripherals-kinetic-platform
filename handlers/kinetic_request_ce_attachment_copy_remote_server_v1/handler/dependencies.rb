@@ -1,3 +1,11 @@
+require "base64"
+require 'erb'
+require 'fileutils'
+require 'json'
+require 'net/https'
+require 'securerandom'
+require 'tmpdir'
+
 # If the Kinetic Task version is under 4, NOT Supported
 if KineticTask::VERSION.split(".").first.to_i < 4
   raise StandarError.new "This handler requires Task v4 or greater"
