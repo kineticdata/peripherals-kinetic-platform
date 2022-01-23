@@ -1,4 +1,11 @@
-require File.expand_path(File.join(File.dirname(__FILE__), 'dependencies'))
+require "base64"
+require 'erb'
+require 'fileutils'
+require 'json'
+require 'net/https'
+require 'securerandom'
+require 'tmpdir'
+
 
 class KineticRequestCeAttachmentCopyRemoteServerV1
   def initialize(input)
@@ -140,7 +147,7 @@ class KineticRequestCeAttachmentCopyRemoteServerV1
           # Upload the attachment to the destination server
           file_upload_url = "#{destination_server}/#{destination_kapp_slug}/#{destination_form_slug}/files"
           puts "Uploading attachment file: #{attachment_name} to #{file_upload_url}" if @enable_debug_logging
-          res = upload_file(tempfile, file_upload_url, {}, dest_headers)
+          res = stream_file_upload(tempfile, file_upload_url, {}, dest_headers)
           if !res.kind_of?(Net::HTTPSuccess)
             message = "Failed to upload attachment #{attachment_name} to the destination server"
             return handle_exception(message, res)
@@ -197,15 +204,21 @@ class KineticRequestCeAttachmentCopyRemoteServerV1
 
 
   def handle_exception(message, error)
-    if error.is_a? java.io.IOException
-      error_message = "#{message}: #{error.get_message}"
-      error_message << " caused by: #{error.get_cause.get_message}" if !error.get_cause.nil?
-    elsif error.is_a? Net::HTTPResponse
-      error_message = "#{message}: #{error.code} #{error.message}"
-    elsif error.respond_to? :message
-      error_message = "#{message}: #{error.message}"
+    case error
+    when Net::HTTPResponse
+      begin
+        content = JSON.parse(error.body)
+        error_key = content["errorKey"] || error.code
+        error_msg = content["error"] || ""
+        error_message = "#{message}:\n\tError Key: #{error_key}\n\tError: #{error_msg}"
+      rescue StandardError => e
+        error_key = error.code
+        error_message = "#{message}:\n\tError Key: #{error_key}\n\tError: #{error.body}"
+      end
+    when NilClass
+      error_message = "0: No response from server"
     else
-      error_message = "#{message}: #{error.inspect}"
+      error_message = "Unexpected error: #{error.inspect}"
     end
     puts error_message
     raise error_message if @raise_error
@@ -290,11 +303,11 @@ class KineticRequestCeAttachmentCopyRemoteServerV1
   # ATTACHMENT METHODS
   #-----------------------------------------------------------------------------
 
-  def stream_file_download(file, url, parameters, headers)
+  def stream_file_download(file, url, parameters, headers, http_options={})
     uri = URI.parse(url)
     uri.query = URI.encode_www_form(parameters) unless parameters.empty?
 
-    http = build_http(uri)
+    http = build_http(uri, http_options)
     request = Net::HTTP::Get.new(uri, headers)
 
     http.request(request) do |response|
@@ -307,28 +320,17 @@ class KineticRequestCeAttachmentCopyRemoteServerV1
   end
 
 
-  def upload_file(file, url, parameters, headers)
+  def stream_file_upload(file, url, parameters, headers, http_options={})
     uri = URI.parse(url)
     uri.query = URI.encode_www_form(parameters) unless parameters.empty?
 
-    boundary = SecureRandom.hex(16)
-    headers["Content-Type"] = "multipart/form-data; boundary=#{boundary}"
-
-    mime_types = MIME::Types.type_for(file)
-    mime_type = (!mime_types.empty? && !mime_types.first.nil?) ? mime_types.first.content_type : "application/octet-stream"
-
-    payload = []
-    payload << "--#{boundary}\r\n"
-    payload << "Content-Disposition: form-data; name=\"file\"; filename=\"#{File.basename(file)}\"\r\n"
-    payload << "Content-Type: #{mime_type}\r\n\r\n"
-    payload << File.read(file)
-    payload << "\r\n\r\n--#{boundary}--\r\n"
-
-    http = build_http(uri)
     request = Net::HTTP::Post.new(uri, headers)
-    request.body = payload.join
-    
-    http.request(request)
+    request.set_form([[ "f", File.open(file) ]], "multipart/form-data")
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+      configure_http(http, http_options)
+      http.request(request)
+    end
   end
 
 
@@ -337,21 +339,27 @@ class KineticRequestCeAttachmentCopyRemoteServerV1
   #-----------------------------------------------------------------------------
 
   def send_request(request, http_options={})
-    http = build_http(request.uri, http_options)
-    http.request(request)
+    uri = request.uri
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+      configure_http(http, http_options)
+      http.request(request)
+    end
   end
   
   
   def build_http(uri, http_options={})
-    http_options.transform_keys!(&:to_sym)
     http = Net::HTTP.new(uri.host, uri.port)
-    if (uri.scheme == 'https')
-      http.use_ssl = true
-      http.verify_mode = http_options[:ssl_verify] || OpenSSL::SSL::VERIFY_PEER
-    end
-    http.read_timeout= http_options[:read_timeout] || 30
-    http.open_timeout= http_options[:open_timeout] || 30
+    http.use_ssl= true if (uri.scheme == 'https')
+    configure_http(http, http_options)
     http
+  end
+
+
+  def configure_http(http, http_options={})
+    http_options_sym = (http_options || {}).inject({}) { |h, (k,v)| h[k.to_sym] = v; h }
+    http.verify_mode = http_options_sym[:ssl_verify] || OpenSSL::SSL::VERIFY_PEER if http.use_ssl?
+    http.read_timeout= http_options_sym[:read_timeout] unless http_options_sym[:read_timeout].nil?
+    http.open_timeout= http_options_sym[:open_timeout] unless http_options_sym[:open_timeout].nil?
   end
 
 end
