@@ -7,9 +7,9 @@ require 'securerandom'
 require 'tmpdir'
 
 
-class KineticRequestCeAttachmentCopyRemoteServerV1
+class KineticRequestCeAttachmentCopyV2
   def initialize(input)
-
+     
     # Set the input document attribute
     @input_document = REXML::Document.new(input)
 
@@ -33,67 +33,51 @@ class KineticRequestCeAttachmentCopyRemoteServerV1
   end
 
 
-  def execute()
-    source_space_slug = @parameters["source_space_slug"].empty? ? @info_values["source_space_slug"] : @parameters["source_space_slug"]
-    if @info_values['source_api_server'].include?("${space}")
-      source_server = @info_values['source_api_server'].gsub("${space}", source_space_slug)
-    elsif !source_space_slug.to_s.empty?
-      source_server = @info_values['source_api_server']+"/"+source_space_slug
+  def execute() 
+    space_slug = @parameters["space_slug"].empty? ? @info_values["space_slug"] : @parameters["space_slug"]
+    if @info_values['api_server'].include?("${space}")
+      server = @info_values['api_server'].gsub("${space}", space_slug)
+    elsif !space_slug.to_s.empty?
+      server = @info_values['api_server']+"/"+space_slug
     else
-      source_server = @info_values['source_api_server']
+      server = @info_values['api_server']
     end
 
-    
-    destination_space_slug = @parameters["source_space_slug"].empty? ? @info_values["destination_space_slug"] : @parameters["destination_space_slug"]
-    if @info_values['destination_api_server'].include?("${space}")
-      destination_server = @info_values['destination_api_server'].gsub("${space}", destination_space_slug)
-    elsif !destination_space_slug.to_s.empty?
-      destination_server = @info_values['destination_api_server']+"/"+destination_space_slug
-    else
-      destination_server = @info_values['destination_api_server']
-    end
-   
-    #Source Variables
-    source_user            = @info_values["source_api_username"]
-    source_pass            = @info_values["source_api_password"]
-    source_kapp_slug       = @parameters["source_kapp_slug"]
-    source_form_slug       = @parameters["source_form_slug"]
-    source_submission_id   = @parameters["source_submission_id"]
-    source_field_name      = @parameters["source_field_name"]
-    #Destination Variables
-    destination_user            = @info_values["destination_api_username"]
-    destination_pass            = @info_values["destination_api_password"]
-    destination_kapp_slug       = @parameters["destination_kapp_slug"]
-    destination_form_slug       = @parameters["destination_form_slug"]
-    destination_submission_id   = @parameters["destination_submission_id"]    
-    destination_field_name      = @parameters["destination_field_name"]
+    #Server Variables
+    user             = @info_values["api_username"]
+    pass             = @info_values["api_password"]
+    kapp_slug        = @parameters["kapp_slug"]
+    form_slug        = @parameters["form_slug"]
+    #Source Submission Variables
+    submission_id    = @parameters["submission_id"]
+    field_name       = @parameters["field_name"]
+    #Destination Submission Variables
+    to_submission_id = @parameters["to_submission_id"]
+    to_field_name    = @parameters["to_field_name"]
     #Other Variables
     imported_files = []         # used in handler results
     imported_file_details = []  # used in the destination submission field value
 
-
-    # Headers for each server: Authorization, Accept, Content-Type
-    dest_headers = http_basic_headers(destination_user, destination_pass)
-    source_headers = http_basic_headers(source_user, source_pass)
+    # Headers for server: Authorization, Accept, Content-Type
+    headers = http_basic_headers(user, pass)
 
 
     # Retrieve the source submission
-    puts "Retrieving source submission #{source_submission_id}" if @enable_debug_logging
+    puts "Retrieving source submission: #{submission_id}" if @enable_debug_logging
     # Submission API Route
-    source_submission_route = "#{source_server}/app/api/v1/submissions/#{source_submission_id}/?include=values"
+    source_submission_route = "#{server}/app/api/v1/submissions/#{submission_id}/?include=values"
     # Retrieve the submission and values
-    res = http_get(source_submission_route, { "include" => "values" }, source_headers)
+    res = http_get(source_submission_route, { "include" => "values" }, headers)
     if !res.kind_of?(Net::HTTPSuccess)
-      message = "Failed to retrieve source submission #{source_submission_id}"
+      message = "Failed to retrieve source submission #{submission_id}"
       return handle_exception(message, res)
     end
     submission = JSON.parse(res.body)["submission"]
     puts "Received source submission #{submission['id']}" if @enable_debug_logging
-  
+
 
     # Check if the there are any attachments in the source field
-    field_value = submission["values"][source_field_name]
-
+    field_value = submission["values"][field_name]
 
     # If the attachment field value exists
     if !field_value.nil?
@@ -114,19 +98,21 @@ class KineticRequestCeAttachmentCopyRemoteServerV1
           FileUtils.mkdir_p(tempdir)
 
 
-          # Retrieve the attachment download link from the source server
-          puts "Retrieving attachment download link from source submission: #{attachment_name} for field #{source_field_name}" if @enable_debug_logging
+          # Retrieve the attachment download link from the server
+          puts "Retrieving attachment download link from source submission: #{attachment_name} for field #{field_name}" if @enable_debug_logging
+
           # API route to get the generated attachment download link from Kinetic Request CE.
           # "/{spaceSlug}/app/api/v1/submissions/{submissionId}/files/{fieldName}/{fileIndex}/{fileName}/url"
-          download_link_api_route = "#{source_server}/app/api/v1" <<
-            "/submissions/#{source_submission_id}" <<
-            "/files/#{URI.escape(source_field_name)}" <<
+          download_link_api_route = "#{server}/app/api/v1" <<
+            "/submissions/#{submission_id}" <<
+            "/files/#{URI.escape(field_name)}" <<
             "/#{index.to_s}/#{URI.escape(attachment_name)}/url"
+
 
           # Retrieve the URL to download the attachment from Kinetic Request CE.
           # This URL will only be valid for a short amount of time before it expires
           # (usually about 5 seconds).
-          res = http_get(download_link_api_route, {}, source_headers)
+          res = http_get(download_link_api_route, {}, headers)
           if !res.kind_of?(Net::HTTPSuccess)
             message = "Failed to retrieve link for attachment #{attachment_name} from source submission"
             return handle_exception(message, res)
@@ -135,25 +121,23 @@ class KineticRequestCeAttachmentCopyRemoteServerV1
           puts "Received link for attachment #{attachment_name} from source submission" if @enable_debug_logging
 
 
-          # Download the attachment from the source server
+          # Download the attachment from the source submission
           puts "Downloading attachment #{attachment_name} from #{file_download_url}" if @enable_debug_logging
-          res = stream_file_download(tempfile, file_download_url, {}, source_headers)
+          res = stream_file_download(tempfile, file_download_url, {}, headers)
           if !res.kind_of?(Net::HTTPSuccess)
-            message = "Failed to download attachment #{attachment_name} from the source server"
+            message = "Failed to download attachment #{attachment_name} from the server"
             return handle_exception(message, res)
           end
 
-
-          # Upload the attachment to the destination server
-          file_upload_url = "#{destination_server}/#{destination_kapp_slug}/#{destination_form_slug}/files"
+          # Upload the attachment to the destination submission
+          file_upload_url = "#{server}/#{kapp_slug}/#{form_slug}/files"
           puts "Uploading attachment file: #{attachment_name} to #{file_upload_url}" if @enable_debug_logging
-          res = stream_file_upload(tempfile, file_upload_url, {}, dest_headers)
+          res = stream_file_upload(tempfile, file_upload_url, {}, headers)
           if !res.kind_of?(Net::HTTPSuccess)
-            message = "Failed to upload attachment #{attachment_name} to the destination server"
+            message = "Failed to upload attachment #{attachment_name} to the server"
             return handle_exception(message, res)
           end
           file_upload_details = JSON.parse(res.body)[0]
-
 
           # add the uploaded attachment info to the array of imported file details
           puts "Uploaded attachment details: #{file_upload_details}"
@@ -167,28 +151,14 @@ class KineticRequestCeAttachmentCopyRemoteServerV1
           FileUtils.rm_rf(tempdir)
         end
       end
-
-
-      # Update the submission on the destination server
-      destination_submission_route = "#{destination_server}/app/api/v1/submissions/#{destination_submission_id}"
-      puts "Update submission #{destination_submission_id} on the destination server: #{destination_submission_route}" if @enable_debug_logging
-
-      payload = { values: { destination_field_name => imported_file_details } }
-      res = http_put(destination_submission_route, payload, {}, dest_headers)
-      if !res.kind_of?(Net::HTTPSuccess)
-        message = "Failed to update submission #{destination_submission_id} on the destination server"
-        return handle_exception(message, res)
-      end
-
     else
-      puts "Submission attachment field value is empty on the source server: #{source_field_name}" if @enable_debug_logging
+      puts "Source submission attachment field value is empty: #{field_name}" if @enable_debug_logging
     end
 
-    results = handle_results(destination_space_slug, "", imported_files)
+    results = handle_results(space_slug, "", imported_files)
     puts "Returning results: #{results}" if @enable_debug_logging
     results
   end
-
 
 
   def handle_results(space_slug, error_msg, files)
