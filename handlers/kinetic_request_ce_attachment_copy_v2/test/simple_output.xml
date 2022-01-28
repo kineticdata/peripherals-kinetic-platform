@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<results>
+  <result name="Handler Error Message"></result>
+  <result name="Files" type="Regexp">.*</result>
+  <result name="Space Slug" type="Regexp">.*</result>
+</results>

@@ -1,3 +1,8 @@
+Kinetic Platform [handlers] (2021-12-16)
+  * [kinetic_request_ce_attachment_create_v2]
+    * Initial Version of v2
+    * Updated code to retrieve the attachment using authentication
+  
 Kinetic Platform [bridge-adapter] (2019-11-25)
   * [kinetic-bridge-adapter-kinetic-platform]
     * initial commit.
