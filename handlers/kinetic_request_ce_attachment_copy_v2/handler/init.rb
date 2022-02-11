@@ -1,4 +1,5 @@
 require "base64"
+require "cgi"
 require 'erb'
 require 'fileutils'
 require 'json'
@@ -121,13 +122,21 @@ class KineticRequestCeAttachmentCopyV2
           puts "Received link for attachment #{attachment_name} from source submission" if @enable_debug_logging
 
 
+          # Inspect the attachment URL to determine if using FileHub or Agent
+          attachment_uri = URI(file_download_url)
+          query_params = CGI::parse(attachment_uri.query || "")
+          # If url contains a signature query parameter, using FileHub (no authorization header)
+          filestore_headers = query_params.has_key?("signature") && !query_params["signature"].empty? ? {} : headers
+
+
           # Download the attachment from the source submission
           puts "Downloading attachment #{attachment_name} from #{file_download_url}" if @enable_debug_logging
-          res = stream_file_download(tempfile, file_download_url, {}, headers)
+          res = stream_file_download(tempfile, file_download_url, {}, filestore_headers)
           if !res.kind_of?(Net::HTTPSuccess)
-            message = "Failed to download attachment #{attachment_name} from the server"
+            message = "Failed to download attachment #{attachment_name} from the filestore server"
             return handle_exception(message, res)
           end
+
 
           # Upload the attachment to the destination submission
           file_upload_url = "#{server}/#{kapp_slug}/#{form_slug}/files"
@@ -151,6 +160,19 @@ class KineticRequestCeAttachmentCopyV2
           FileUtils.rm_rf(tempdir)
         end
       end
+
+
+      # Update the destination submission
+      destination_submission_route = "#{server}/app/api/v1/submissions/#{to_submission_id}"
+      puts "Update destination submission #{to_submission_id}" if @enable_debug_logging
+
+      payload = { values: { to_field_name => imported_file_details } }
+      res = http_put(destination_submission_route, payload, {}, headers)
+      if !res.kind_of?(Net::HTTPSuccess)
+        message = "Failed to update destination submission #{to_submission_id}"
+        return handle_exception(message, res)
+      end
+
     else
       puts "Source submission attachment field value is empty: #{field_name}" if @enable_debug_logging
     end
