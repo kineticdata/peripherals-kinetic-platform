@@ -1,3 +1,6 @@
+Kinetic Request CE Attachment Copy V2 (2022-02-10)
+* PER-252 Distinguish downloading attachments from Agent or Filehub and adjust headers accordingly.
+
 Kinetic Request CE Attachment Copy V2 (2021-12-16)
 * Initial Version of v2
 * Updated code to retrieve the attachment using authentication
