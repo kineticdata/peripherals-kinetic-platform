@@ -160,6 +160,19 @@ class KineticRequestCeAttachmentCopyV2
           FileUtils.rm_rf(tempdir)
         end
       end
+
+
+      # Update the destination submission
+      destination_submission_route = "#{server}/app/api/v1/submissions/#{to_submission_id}"
+      puts "Update destination submission #{to_submission_id}" if @enable_debug_logging
+
+      payload = { values: { to_field_name => imported_file_details } }
+      res = http_put(destination_submission_route, payload, {}, headers)
+      if !res.kind_of?(Net::HTTPSuccess)
+        message = "Failed to update destination submission #{to_submission_id}"
+        return handle_exception(message, res)
+      end
+
     else
       puts "Source submission attachment field value is empty: #{field_name}" if @enable_debug_logging
     end
