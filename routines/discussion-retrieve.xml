@@ -1,0 +1,180 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_discussion_retrieve_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Discussion Retrieve</name>
+        <author></author>
+        <notes></notes>
+        <lastID>6</lastID>
+        <taskDefinition id="routine_kinetic_discussion_retrieve_v1" name="Discussion Retrieve" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Discussion Id" label="Discussion Id" required="true" tooltip="The id of the discussion to retrieve"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Id" tooltip="The id of the discussion"></result>
+                <result name="Title" tooltip="The title of the discussion"></result>
+                <result name="Description" tooltip="The description of the discussion"></result>
+                <result name="Is Archived" tooltip="Archived discussions do not allow new messages"></result>
+                <result name="Is Private" tooltip="Private discussions only allow explicitly invited users to view"></result>
+                <result name="Join Policy JSON" tooltip="JSON object containing the security policy name for allowing people to join"></result>
+                <result name="Owning Users JSON" tooltip="JSON array of Core users allowed to manage the discussion"></result>
+                <result name="Owning Teams JSON" tooltip="JSON array of Core teams allowed to manage the discussion"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_discussions_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_discussions_api_v1" id="kinetic_discussions_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /discussions/:discussionsId/messages/:messageId">&lt;%="/discussions/#{@inputs['Discussion Id']}"%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i != 404">routine_handler_failure_error_process_v1_3</task>
+                    <task label="Has 404 Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i == 404">system_tree_return_v1_6</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The id of the discussion">&lt;%=JSON.parse(@results['API']['Response Body'])['discussion']['id']%&gt;</parameter>
+                    <parameter id="Title" label="Title" required="false" tooltip="The title of the discussion">&lt;%=JSON.parse(@results['API']['Response Body'])['discussion']['title']%&gt;</parameter>
+                    <parameter id="Description" label="Description" required="false" tooltip="The description of the discussion">&lt;%=JSON.parse(@results['API']['Response Body'])['discussion']['description']%&gt;</parameter>
+                    <parameter id="Is Archived" label="Is Archived" required="false" tooltip="Archived discussions do not allow new messages">&lt;%=JSON.parse(@results['API']['Response Body'])['discussion']['isArchived']%&gt;</parameter>
+                    <parameter id="Is Private" label="Is Private" required="false" tooltip="Private discussions only allow explicitly invited users to view">&lt;%=JSON.parse(@results['API']['Response Body'])['discussion']['isPrivate']%&gt;</parameter>
+                    <parameter id="Join Policy JSON" label="Join Policy JSON" required="false" tooltip="JSON object containing the security policy name for allowing people to join">&lt;%=JSON.parse(@results['API']['Response Body'])['discussion']['joinPolicy'].to_json%&gt;</parameter>
+                    <parameter id="Owning Users JSON" label="Owning Users JSON" required="false" tooltip="JSON array of Core users allowed to manage the discussion">&lt;%=JSON.parse(@results['API']['Response Body'])['discussion']['owningUsers'].to_json%&gt;</parameter>
+                    <parameter id="Owning Teams JSON" label="Owning Teams JSON" required="false" tooltip="JSON array of Core teams allowed to manage the discussion">&lt;%=JSON.parse(@results['API']['Response Body'])['discussion']['owningTeams'].to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_6" name="Return - Does Not Exist" x="402" y="187">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The id of the discussion"></parameter>
+                    <parameter id="Title" label="Title" required="false" tooltip="The title of the discussion"></parameter>
+                    <parameter id="Description" label="Description" required="false" tooltip="The description of the discussion"></parameter>
+                    <parameter id="Is Archived" label="Is Archived" required="false" tooltip="Archived discussions do not allow new messages"></parameter>
+                    <parameter id="Is Private" label="Is Private" required="false" tooltip="Private discussions only allow explicitly invited users to view"></parameter>
+                    <parameter id="Join Policy JSON" label="Join Policy JSON" required="false" tooltip="JSON object containing the security policy name for allowing people to join"></parameter>
+                    <parameter id="Owning Users JSON" label="Owning Users JSON" required="false" tooltip="JSON array of Core users allowed to manage the discussion"></parameter>
+                    <parameter id="Owning Teams JSON" label="Owning Teams JSON" required="false" tooltip="JSON array of Core teams allowed to manage the discussion"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">DISCUSSIONS API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_discussion_retrieve_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_discussion_retrieve_v1" id="routine_kinetic_discussion_retrieve_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Discussion Id" label="Discussion Id" menu="" required="true" tooltip="The id of the discussion to retrieve">&lt;%=@results['Error Process']['Discussion Id']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The id of the discussion">&lt;%=@results['Retry']['Id']%&gt;</parameter>
+                    <parameter id="Title" label="Title" required="false" tooltip="The title of the discussion">&lt;%=@results['Retry']['Title']%&gt;</parameter>
+                    <parameter id="Description" label="Description" required="false" tooltip="The description of the discussion">&lt;%=@results['Retry']['Description']%&gt;</parameter>
+                    <parameter id="Is Archived" label="Is Archived" required="false" tooltip="Archived discussions do not allow new messages">&lt;%=@results['Retry']['Is Archived']%&gt;</parameter>
+                    <parameter id="Is Private" label="Is Private" required="false" tooltip="Private discussions only allow explicitly invited users to view">&lt;%=@results['Retry']['Is Private']%&gt;</parameter>
+                    <parameter id="Join Policy JSON" label="Join Policy JSON" required="false" tooltip="JSON object containing the security policy name for allowing people to join">&lt;%=@results['Retry']['Join Policy JSON']%&gt;</parameter>
+                    <parameter id="Owning Users JSON" label="Owning Users JSON" required="false" tooltip="JSON array of Core users allowed to manage the discussion">&lt;%=@results['Retry']['Owning Users JSON']%&gt;</parameter>
+                    <parameter id="Owning Teams JSON" label="Owning Teams JSON" required="false" tooltip="JSON array of Core teams allowed to manage the discussion">&lt;%=@results['Retry']['Owning Teams JSON']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

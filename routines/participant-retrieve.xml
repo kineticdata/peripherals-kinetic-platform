@@ -1,0 +1,186 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_participant_retrieve_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Participant Retrieve</name>
+        <author></author>
+        <notes></notes>
+        <lastID>6</lastID>
+        <taskDefinition id="routine_kinetic_participant_retrieve_v1" name="Participant Retrieve" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Discussion Id" label="Discussion Id" required="true" tooltip="The id of the discussion"></parameter>
+                <parameter id="Username" label="Username" required="true" tooltip="Username of the participant user"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="User" tooltip="Username of the participant user"></result>
+                <result name="Invited At" tooltip="The timestamp when the participant was invited"></result>
+                <result name="Invited By JSON" tooltip="The user that invited the participant"></result>
+                <result name="Joined At" tooltip="The timestamp when the participant joined the discussion"></result>
+                <result name="Last Invited At" tooltip="The timestamp when the participant was last invited"></result>
+                <result name="Last Invited By JSON" tooltip="The user that last invited the participant"></result>
+                <result name="Last Notified At" tooltip="The timestamp when the participant was last notified"></result>
+                <result name="Last Seen  At" tooltip="The timestamp when the participant was last seen"></result>
+                <result name="Muted" tooltip="(true | false) When muted, notifications for this discussion are not sent to the user"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_discussions_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_discussions_api_v1" id="kinetic_discussions_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /discussions/:discussionsId/messages/:messageId">&lt;%="/discussions/#{@inputs['Discussion Id']}/participants/#{ERB::Util.url_encode(@inputs['Username'])}"%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i != 404">routine_handler_failure_error_process_v1_3</task>
+                    <task label="Has 404 Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i == 404">system_tree_return_v1_6</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="User" label="User" required="false" tooltip="Username of the participant user">&lt;%=JSON.parse(@results['API']['Response Body'])['participant']['user']%&gt;</parameter>
+                    <parameter id="Invited At" label="Invited At" required="false" tooltip="The timestamp when the participant was invited">&lt;%=JSON.parse(@results['API']['Response Body'])['participant']['invitedAt']%&gt;</parameter>
+                    <parameter id="Invited By JSON" label="Invited By JSON" required="false" tooltip="The user that invited the participant">&lt;%=JSON.parse(@results['API']['Response Body'])['participant']['invitedBy'].to_json%&gt;</parameter>
+                    <parameter id="Joined At" label="Joined At" required="false" tooltip="The timestamp when the participant joined the discussion">&lt;%=JSON.parse(@results['API']['Response Body'])['participant']['joinedAt']%&gt;</parameter>
+                    <parameter id="Last Invited At" label="Last Invited At" required="false" tooltip="The timestamp when the participant was last invited">&lt;%=JSON.parse(@results['API']['Response Body'])['participant']['lastInvitedAt']%&gt;</parameter>
+                    <parameter id="Last Invited By JSON" label="Last Invited By JSON" required="false" tooltip="The user that last invited the participant">&lt;%=JSON.parse(@results['API']['Response Body'])['participant']['lastInvitedBy'].to_json%&gt;</parameter>
+                    <parameter id="Last Notified At" label="Last Notified At" required="false" tooltip="The timestamp when the participant was last notified">&lt;%=JSON.parse(@results['API']['Response Body'])['participant']['lastNotifiedAt']%&gt;</parameter>
+                    <parameter id="Last Seen  At" label="Last Seen  At" required="false" tooltip="The timestamp when the participant was last seen">&lt;%=JSON.parse(@results['API']['Response Body'])['participant']['lastSeenAt']%&gt;</parameter>
+                    <parameter id="Muted" label="Muted" required="false" tooltip="(true | false) When muted, notifications for this discussion are not sent to the user">&lt;%=JSON.parse(@results['API']['Response Body'])['participant']['isMuted']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_6" name="Return - Does Not Exist" x="402" y="187">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="User" label="User" required="false" tooltip="Username of the participant user"></parameter>
+                    <parameter id="Invited At" label="Invited At" required="false" tooltip="The timestamp when the participant was invited"></parameter>
+                    <parameter id="Invited By JSON" label="Invited By JSON" required="false" tooltip="The user that invited the participant"></parameter>
+                    <parameter id="Joined At" label="Joined At" required="false" tooltip="The timestamp when the participant joined the discussion"></parameter>
+                    <parameter id="Last Invited At" label="Last Invited At" required="false" tooltip="The timestamp when the participant was last invited"></parameter>
+                    <parameter id="Last Invited By JSON" label="Last Invited By JSON" required="false" tooltip="The user that last invited the participant"></parameter>
+                    <parameter id="Last Notified At" label="Last Notified At" required="false" tooltip="The timestamp when the participant was last notified"></parameter>
+                    <parameter id="Last Seen  At" label="Last Seen  At" required="false" tooltip="The timestamp when the participant was last seen"></parameter>
+                    <parameter id="Muted" label="Muted" required="false" tooltip="(true | false) When muted, notifications for this discussion are not sent to the user"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">DISCUSSIONS API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_participant_retrieve_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_participant_retrieve_v1" id="routine_kinetic_participant_retrieve_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Discussion Id" label="Discussion Id" menu="" required="true" tooltip="The id of the discussion">&lt;%=@results['Error Process']['Discussion Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Username" label="Username" menu="" required="true" tooltip="Username of the participant user">&lt;%=@results['Error Process']['Username']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="User" label="User" required="false" tooltip="Username of the participant user">&lt;%=@results['Retry']['Email']%&gt;</parameter>
+                    <parameter id="Invited At" label="Invited At" required="false" tooltip="The timestamp when the participant was invited">&lt;%=@results['Retry']['Invited At']%&gt;</parameter>
+                    <parameter id="Invited By JSON" label="Invited By JSON" required="false" tooltip="The user that invited the participant">&lt;%=@results['Retry']['Invited By JSON']%&gt;</parameter>
+                    <parameter id="Joined At" label="Joined At" required="false" tooltip="The timestamp when the participant joined the discussion">&lt;%=@results['Retry']['Joined At']%&gt;</parameter>
+                    <parameter id="Last Invited At" label="Last Invited At" required="false" tooltip="The timestamp when the participant was last invited">&lt;%=@results['Retry']['Last Invited At']%&gt;</parameter>
+                    <parameter id="Last Invited By JSON" label="Last Invited By JSON" required="false" tooltip="The user that last invited the participant">&lt;%=@results['Retry']['Last Invited By JSON']%&gt;</parameter>
+                    <parameter id="Last Notified At" label="Last Notified At" required="false" tooltip="The timestamp when the participant was last notified">&lt;%=@results['Retry']['Last Notified At']%&gt;</parameter>
+                    <parameter id="Last Seen  At" label="Last Seen  At" required="false" tooltip="The timestamp when the participant was last seen">&lt;%=@results['Retry']['Last Seen At']%&gt;</parameter>
+                    <parameter id="Muted" label="Muted" required="false" tooltip="(true | false) When muted, notifications for this discussion are not sent to the user">&lt;%=@results['Retry']['Muted']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

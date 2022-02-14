@@ -1,0 +1,208 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_user_retrieve_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>User Retrieve</name>
+        <author></author>
+        <notes></notes>
+        <lastID>6</lastID>
+        <taskDefinition id="routine_kinetic_user_retrieve_v1" name="User Retrieve" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Username" label="Username" required="true" tooltip="The User's username"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Attributes Map JSON" tooltip="A JSON representation of the users attributes"></result>
+                <result name="Created At" tooltip="Date/Time the user was created"></result>
+                <result name="Created By" tooltip="The username of the user who created the user"></result>
+                <result name="Display Name" tooltip="The Display Name of the user that was retreived"></result>
+                <result name="Email" tooltip="The Email of the user that was retreived"></result>
+                <result name="Enabled" tooltip="If the user that was retreived is enabled"></result>
+                <result name="Exists" tooltip="If the user exists in the system"></result>
+                <result name="Memberships JSON" tooltip="A JSON representation of the users team memberships"></result>
+                <result name="Preferred Locale" tooltip="The Preferred Locale of the user that was retreived"></result>
+                <result name="Profile Attributes Map JSON" tooltip="A JSON representation of the users profile attributes"></result>
+                <result name="Space Admin" tooltip="If the user that was retreived is a Space Admin"></result>
+                <result name="Timezone" tooltip="The Timezone of the user that was retreived"></result>
+                <result name="Updated At" tooltip="Date/Time the user was updated"></result>
+                <result name="Updated By" tooltip="The username of the user who last updated the retrieved user"></result>
+                <result name="Username" tooltip="The Username of the user that was retreived"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_core_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_core_api_v1" id="kinetic_core_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /kapps/:kappSlug/forms/:formSlug">/users/&lt;%=ERB::Util.url_encode(@inputs['Username'])%&gt;?include=details,memberships,attributesMap,profileAttributesMap</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i != 404">routine_handler_failure_error_process_v1_3</task>
+                    <task label="Has 404 Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i == 404">system_tree_return_v1_6</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Attributes Map JSON" label="Attributes Map JSON" required="false" tooltip="A JSON representation of the users attributes">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['attributesMap'].to_json%&gt;</parameter>
+                    <parameter id="Created At" label="Created At" required="false" tooltip="Date/Time the user was created">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['createdAt']%&gt;</parameter>
+                    <parameter id="Created By" label="Created By" required="false" tooltip="The username of the user who created the user">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['createdBy']%&gt;</parameter>
+                    <parameter id="Display Name" label="Display Name" required="false" tooltip="The Display Name of the user that was retreived">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['displayName']%&gt;</parameter>
+                    <parameter id="Email" label="Email" required="false" tooltip="The Email of the user that was retreived">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['email']%&gt;</parameter>
+                    <parameter id="Enabled" label="Enabled" required="false" tooltip="If the user that was retreived is enabled">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['enabled']%&gt;</parameter>
+                    <parameter id="Exists" label="Exists" required="false" tooltip="If the user exists in the system">true</parameter>
+                    <parameter id="Memberships JSON" label="Memberships JSON" required="false" tooltip="A JSON representation of the users team memberships">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['memberships'].to_json%&gt;</parameter>
+                    <parameter id="Preferred Locale" label="Preferred Locale" required="false" tooltip="The Preferred Locale of the user that was retreived">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['preferredLocale']%&gt;</parameter>
+                    <parameter id="Profile Attributes Map JSON" label="Profile Attributes Map JSON" required="false" tooltip="A JSON representation of the users profile attributes">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['profileAttributesMap'].to_json%&gt;</parameter>
+                    <parameter id="Space Admin" label="Space Admin" required="false" tooltip="If the user that was retreived is a Space Admin">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['spaceAdmin']%&gt;</parameter>
+                    <parameter id="Timezone" label="Timezone" required="false" tooltip="The Timezone of the user that was retreived">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['timezone']%&gt;</parameter>
+                    <parameter id="Updated At" label="Updated At" required="false" tooltip="Date/Time the user was updated">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['updatedAt']%&gt;</parameter>
+                    <parameter id="Updated By" label="Updated By" required="false" tooltip="The username of the user who last updated the retrieved user">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['updatedBy']%&gt;</parameter>
+                    <parameter id="Username" label="Username" required="false" tooltip="The Username of the user that was retreived">&lt;%=JSON.parse(@results['API']['Response Body'])['user']['username']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_6" name="Return - Does Not Exist" x="402" y="187">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Attributes Map JSON" label="Attributes Map JSON" required="false" tooltip="A JSON representation of the users attributes"></parameter>
+                    <parameter id="Created At" label="Created At" required="false" tooltip="Date/Time the user was created"></parameter>
+                    <parameter id="Created By" label="Created By" required="false" tooltip="The username of the user who created the user"></parameter>
+                    <parameter id="Display Name" label="Display Name" required="false" tooltip="The Display Name of the user that was retreived"></parameter>
+                    <parameter id="Email" label="Email" required="false" tooltip="The Email of the user that was retreived"></parameter>
+                    <parameter id="Enabled" label="Enabled" required="false" tooltip="If the user that was retreived is enabled"></parameter>
+                    <parameter id="Exists" label="Exists" required="false" tooltip="If the user exists in the system">false</parameter>
+                    <parameter id="Memberships JSON" label="Memberships JSON" required="false" tooltip="A JSON representation of the users team memberships"></parameter>
+                    <parameter id="Preferred Locale" label="Preferred Locale" required="false" tooltip="The Preferred Locale of the user that was retreived"></parameter>
+                    <parameter id="Profile Attributes Map JSON" label="Profile Attributes Map JSON" required="false" tooltip="A JSON representation of the users profile attributes"></parameter>
+                    <parameter id="Space Admin" label="Space Admin" required="false" tooltip="If the user that was retreived is a Space Admin"></parameter>
+                    <parameter id="Timezone" label="Timezone" required="false" tooltip="The Timezone of the user that was retreived"></parameter>
+                    <parameter id="Updated At" label="Updated At" required="false" tooltip="Date/Time the user was updated"></parameter>
+                    <parameter id="Updated By" label="Updated By" required="false" tooltip="The username of the user who last updated the retrieved user"></parameter>
+                    <parameter id="Username" label="Username" required="false" tooltip="The Username of the user that was retreived"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">CORE API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_user_retrieve_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_user_retrieve_v1" id="routine_kinetic_user_retrieve_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Username" label="Username" menu="" required="true" tooltip="The User's username">&lt;%=@results['Error Process']['Username']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Attributes Map JSON" label="Attributes Map JSON" required="false" tooltip="A JSON representation of the users attributes">&lt;%=@results['Retry']['Attributes Map JSON']%&gt;</parameter>
+                    <parameter id="Created At" label="Created At" required="false" tooltip="Date/Time the user was created">&lt;%=@results['Retry']['Created At']%&gt;</parameter>
+                    <parameter id="Created By" label="Created By" required="false" tooltip="The username of the user who created the user">&lt;%=@results['Retry']['Created By']%&gt;</parameter>
+                    <parameter id="Display Name" label="Display Name" required="false" tooltip="The Display Name of the user that was retreived">&lt;%=@results['Retry']['Display Name']%&gt;</parameter>
+                    <parameter id="Email" label="Email" required="false" tooltip="The Email of the user that was retreived">&lt;%=@results['Retry']['Email']%&gt;</parameter>
+                    <parameter id="Enabled" label="Enabled" required="false" tooltip="If the user that was retreived is enabled">&lt;%=@results['Retry']['Enabled']%&gt;</parameter>
+                    <parameter id="Exists" label="Exists" required="false" tooltip="If the user exists in the system">&lt;%=@results['Retry']['Exists']%&gt;</parameter>
+                    <parameter id="Memberships JSON" label="Memberships JSON" required="false" tooltip="A JSON representation of the users team memberships">&lt;%=@results['Retry']['Memberships JSON']%&gt;</parameter>
+                    <parameter id="Preferred Locale" label="Preferred Locale" required="false" tooltip="The Preferred Locale of the user that was retreived">&lt;%=@results['Retry']['Preferred Locale']%&gt;</parameter>
+                    <parameter id="Profile Attributes Map JSON" label="Profile Attributes Map JSON" required="false" tooltip="A JSON representation of the users profile attributes">&lt;%=@results['Retry']['Profile Attributes Map JSON']%&gt;</parameter>
+                    <parameter id="Space Admin" label="Space Admin" required="false" tooltip="If the user that was retreived is a Space Admin">&lt;%=@results['Retry']['Space Admin']%&gt;</parameter>
+                    <parameter id="Timezone" label="Timezone" required="false" tooltip="The Timezone of the user that was retreived">&lt;%=@results['Retry']['Timezone']%&gt;</parameter>
+                    <parameter id="Updated At" label="Updated At" required="false" tooltip="Date/Time the user was updated">&lt;%=@results['Retry']['Updated At']%&gt;</parameter>
+                    <parameter id="Updated By" label="Updated By" required="false" tooltip="The username of the user who last updated the retrieved user">&lt;%=@results['Retry']['Updated By']%&gt;</parameter>
+                    <parameter id="Username" label="Username" required="false" tooltip="The Username of the user that was retreived">&lt;%=@results['Retry']['Username']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

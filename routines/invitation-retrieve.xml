@@ -1,0 +1,180 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_invitation_retrieve_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Invitation Retrieve</name>
+        <author></author>
+        <notes></notes>
+        <lastID>6</lastID>
+        <taskDefinition id="routine_kinetic_invitation_retrieve_v1" name="Invitation Retrieve" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Discussion Id" label="Discussion Id" required="true" tooltip="The id of the discussion"></parameter>
+                <parameter id="Email" label="Email" required="false" tooltip="Email address the invitation was sent to (blank for existing User invitation)"></parameter>
+                <parameter id="Key" label="Key" required="true" tooltip="The value used to send the invitation (email or username)"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Email" tooltip="Email address the invitation was sent to (blank for existing User invitation)"></result>
+                <result name="User" tooltip="User the invitation was sent to (blank for non-existing User invitation)"></result>
+                <result name="Invited At" tooltip="The timestamp when the invitation was created"></result>
+                <result name="Invited By JSON" tooltip="The user that sent the invitation"></result>
+                <result name="Last Invited At" tooltip="The timestamp when the invitation was last updated"></result>
+                <result name="Last Invited By JSON" tooltip="The user that last sent the invitation"></result>
+                <result name="Message" tooltip="The message sent with the invitation"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_discussions_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_discussions_api_v1" id="kinetic_discussions_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /discussions/:discussionsId/messages/:messageId">&lt;%="/discussions/#{@inputs['Discussion Id']}/invitations/#{ERB::Util.url_encode(@inputs['Key'])}?email=#{ERB::Util.url_encode(@inputs['Email'])}"%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i != 404">routine_handler_failure_error_process_v1_3</task>
+                    <task label="Has 404 Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i == 404">system_tree_return_v1_6</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Email" label="Email" required="false" tooltip="Email address the invitation was sent to (blank for existing User invitation)">&lt;%=JSON.parse(@results['API']['Response Body'])['invitation']['email']%&gt;</parameter>
+                    <parameter id="User" label="User" required="false" tooltip="User the invitation was sent to (blank for non-existing User invitation)">&lt;%=JSON.parse(@results['API']['Response Body'])['invitation']['user']%&gt;</parameter>
+                    <parameter id="Invited At" label="Invited At" required="false" tooltip="The timestamp when the invitation was created">&lt;%=JSON.parse(@results['API']['Response Body'])['invitation']['invitedAt']%&gt;</parameter>
+                    <parameter id="Invited By JSON" label="Invited By JSON" required="false" tooltip="The user that sent the invitation">&lt;%=JSON.parse(@results['API']['Response Body'])['invitation']['invitedBy'].to_json%&gt;</parameter>
+                    <parameter id="Last Invited At" label="Last Invited At" required="false" tooltip="The timestamp when the invitation was last updated">&lt;%=JSON.parse(@results['API']['Response Body'])['invitation']['lastInvitedAt']%&gt;</parameter>
+                    <parameter id="Last Invited By JSON" label="Last Invited By JSON" required="false" tooltip="The user that last sent the invitation">&lt;%=JSON.parse(@results['API']['Response Body'])['invitation']['lastInvitedBy'].to_json%&gt;</parameter>
+                    <parameter id="Message" label="Message" required="false" tooltip="The message sent with the invitation">&lt;%=JSON.parse(@results['API']['Response Body'])['invitation']['message']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_6" name="Return - Does Not Exist" x="402" y="187">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Email" label="Email" required="false" tooltip="Email address the invitation was sent to (blank for existing User invitation)"></parameter>
+                    <parameter id="User" label="User" required="false" tooltip="User the invitation was sent to (blank for non-existing User invitation)"></parameter>
+                    <parameter id="Invited At" label="Invited At" required="false" tooltip="The timestamp when the invitation was created"></parameter>
+                    <parameter id="Invited By JSON" label="Invited By JSON" required="false" tooltip="The user that sent the invitation"></parameter>
+                    <parameter id="Last Invited At" label="Last Invited At" required="false" tooltip="The timestamp when the invitation was last updated"></parameter>
+                    <parameter id="Last Invited By JSON" label="Last Invited By JSON" required="false" tooltip="The user that last sent the invitation"></parameter>
+                    <parameter id="Message" label="Message" required="false" tooltip="The message sent with the invitation"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">DISCUSSIONS API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_invitation_retrieve_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_invitation_retrieve_v1" id="routine_kinetic_invitation_retrieve_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Discussion Id" label="Discussion Id" menu="" required="true" tooltip="The id of the discussion">&lt;%=@results['Error Process']['Discussion Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Email" label="Email" menu="" required="false" tooltip="Email address the invitation was sent to (blank for existing User invitation)">&lt;%=@results['Error Process']['Email']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Key" label="Key" menu="" required="true" tooltip="The value used to send the invitation (email or username)">&lt;%=@results['Error Process']['Key']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Email" label="Email" required="false" tooltip="Email address the invitation was sent to (blank for existing User invitation)">&lt;%=@results['Retry']['Email']%&gt;</parameter>
+                    <parameter id="User" label="User" required="false" tooltip="User the invitation was sent to (blank for non-existing User invitation)">&lt;%=@results['Retry']['Email']%&gt;</parameter>
+                    <parameter id="Invited At" label="Invited At" required="false" tooltip="The timestamp when the invitation was created">&lt;%=@results['Retry']['Invited At']%&gt;</parameter>
+                    <parameter id="Invited By JSON" label="Invited By JSON" required="false" tooltip="The user that sent the invitation">&lt;%=@results['Retry']['Invited By JSON']%&gt;</parameter>
+                    <parameter id="Last Invited At" label="Last Invited At" required="false" tooltip="The timestamp when the invitation was last updated">&lt;%=@results['Retry']['Last Invited At']%&gt;</parameter>
+                    <parameter id="Last Invited By JSON" label="Last Invited By JSON" required="false" tooltip="The user that last sent the invitation">&lt;%=@results['Retry']['Last Invited By JSON']%&gt;</parameter>
+                    <parameter id="Message" label="Message" required="false" tooltip="The message sent with the invitation">&lt;%=@results['Retry']['Message']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>
