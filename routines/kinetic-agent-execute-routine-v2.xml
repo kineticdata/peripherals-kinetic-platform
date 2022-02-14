@@ -1,0 +1,140 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_agent_execute_routine_v2</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="">
+        <name>Kinetic Agent Execute Routine V2</name>
+        <author></author>
+        <notes></notes>
+        <lastID>26</lastID>
+        <taskDefinition id="routine_kinetic_agent_execute_routine_v2" name="Kinetic Agent Execute Routine V2" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Error Handling" label="Error Handling" required="false" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                <parameter id="Handler Slug" label="Handler Slug" required="false" tooltip="The name of the handler slug to execute. ex foo_bar"></parameter>
+                <parameter id="Payload" label="Payload" required="false" tooltip="A json structure that matches the handlers parameters. ie {&quot;baz&quot;: &quot;buz&quot;}"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Handler Error Message" tooltip=""></result>
+                <result name="output" tooltip=""></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="10.9943" y="10.9943">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages></messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_agent_handler_execute_v3_25</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_9" name="Return" x="787" y="15">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Error Message" label="Handler Error Message" menu="" required="false" tooltip="">&lt;%= @results['Run Agent']['Handler Error Message'] %&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="output" label="output" menu="" required="false" tooltip="">&lt;%= @results['Agent Results to JSON']['output'] %&gt;</parameter>
+                </parameters>
+                <messages></messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_16" name="Error Process" x="291" y="220">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message ">&lt;%= @results['Run Agent']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">Kinetic Agent Handler Execute</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages></messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_agent_execute_routine_v2_17</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_agent_execute_routine_v2" id="routine_kinetic_agent_execute_routine_v2_17" name="Retry" x="285" y="419">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Handling" label="Error Handling" menu="" required="false" tooltip="Determine what to return if an error is encountered.">&lt;%=@results['Error Process']['Error Handling']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Slug" label="Handler Slug" menu="" required="false" tooltip="The name of the handler slug to execute. ex foo_bar">&lt;%=@results['Error Process']['Handler Slug']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Payload" label="Payload" menu="" required="false" tooltip="A json structure that matches the handlers parameters. ie {&quot;baz&quot;: &quot;buz&quot;}">&lt;%=@results['Error Process']['Payload']%&gt;</parameter>
+                </parameters>
+                <messages></messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_18</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_18" name="Manual Return" x="279" y="616">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Error Message" label="Handler Error Message" menu="" required="false" tooltip="">&lt;%= @results['Retry']['Handler Error Message'] %&gt;
+</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="output" label="output" menu="" required="false" tooltip="">&lt;%= @results['Retry']['output'] %&gt;</parameter>
+                </parameters>
+                <messages></messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="kinetic_agent_handler_execute_v3" id="kinetic_agent_handler_execute_v3_25" name="Run Agent" x="263" y="12">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>true</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="agent_slug" label="Agent Slug" menu="" required="true" tooltip="The slug of the agent that contains the handler to execute. (Configured in Space &gt; Platform Components &gt; Agents)">emory-agent</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="handler_slug" label="Handler Slug" menu="" required="true" tooltip="The slug of the handler to execute. ex on-prem-incident-create">&lt;%= @inputs['Handler Slug'] %&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="payload" label="Payload" menu="" required="false" tooltip="The parameter-to-value mappings of the handler that is being executed in JSON format.             ie {&quot;baz&quot;: &quot;buz&quot;}">&lt;%= @inputs['Payload'] %&gt;</parameter>
+                </parameters>
+                <messages></messages>
+                <dependents>
+                    <task label="" type="Complete" value="">utilities_echo_v1_26</task>
+                </dependents>
+            </task>
+            <task definition_id="utilities_echo_v1" id="utilities_echo_v1_26" name="Agent Results to JSON" x="503" y="15.5">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>true</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="input" label="Input" menu="" required="true" tooltip="">&lt;%= 
+#@results['Run Agent'].to_json 
+new_hash = Hash[@results['Run Agent'].collect{|key,value| [key,value.nil? ? "" : value]}].to_json
+
+
+%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="JSON.parse(@results['Agent Results to JSON']['output'])['Handler Error Message'].empty?">system_tree_return_v1_9</task>
+                    <task label="Has Error" type="Complete" value="!JSON.parse(@results['Agent Results to JSON']['output'])['Handler Error Message'].empty?">routine_handler_failure_error_process_v1_16</task>
+                </dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

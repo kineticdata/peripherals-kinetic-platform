@@ -1,0 +1,152 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_workflow_retrieve_list_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Workflow Retrieve List</name>
+        <author></author>
+        <notes></notes>
+        <lastID>5</lastID>
+        <taskDefinition id="routine_kinetic_workflow_retrieve_list_v1" name="Workflow Retrieve List" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Source" label="Source" required="true" tooltip="Name of the source to retrieve workflow processes for"></parameter>
+                <parameter id="Group" label="Group" required="true" tooltip="Name of the source group to retrieve workflow processes for"></parameter>
+                <parameter id="Names" label="Names" required="false" tooltip="Names of workflow processes to retrieve (comma-separated, leave blank to retrieve all workflow processes)"></parameter>
+                <parameter id="Limit" label="Limit" required="false" tooltip="Maximum number of workflow processes to return (default 1000)"></parameter>
+                <parameter id="Offset" label="Offset" required="false" tooltip="The offset to start if there are more results than the specified limit (default 0)"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Workflow List JSON" tooltip="JSON list of workflow processes found"></result>
+                <result name="Count" tooltip="Total number of workflow processes that match the search"></result>
+                <result name="Limit" tooltip="Maximum number of workflow processes to return"></result>
+                <result name="Offset" tooltip="Index of first process"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_task_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_task_api_v1" id="kinetic_task_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /trees/:title">&lt;%="/trees?source=#{ERB::Util.url_encode(@inputs['Source'])}&amp;sourceGroup=#{ERB::Util.url_encode(@inputs['Group'])}&amp;names=#{ERB::Util.url_encode(@inputs['Names'])}&amp;limit=#{@inputs['Limit']}&amp;offset=#{@inputs['Offset']}"%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty?">routine_handler_failure_error_process_v1_3</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Workflow List JSON" label="Workflow List JSON" required="false" tooltip="JSON list of workflow processes found">&lt;%=JSON.parse(@results['API']['Response Body'])['trees'].to_json%&gt;</parameter>
+                    <parameter id="Count" label="Count" required="false" tooltip="Total number of workflow processes that match the search">&lt;%=JSON.parse(@results['API']['Response Body'])['count']%&gt;</parameter>
+                    <parameter id="Limit" label="Limit" required="false" tooltip="Maximum number of workflow processes to return">&lt;%=JSON.parse(@results['API']['Response Body'])['limit']%&gt;</parameter>
+                    <parameter id="Offset" label="Offset" required="false" tooltip="Index of first process">&lt;%=JSON.parse(@results['API']['Response Body'])['offset']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">Task API v2</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_workflow_retrieve_list_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_workflow_retrieve_list_v1" id="routine_kinetic_workflow_retrieve_list_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Source" label="Source" menu="" required="true" tooltip="Name of the source to retrieve workflow processes for">&lt;%=@results['Error Process']['Source']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Group" label="Group" menu="" required="true" tooltip="Name of the source group to retrieve workflow processes for">&lt;%=@results['Error Process']['Group']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Names" label="Names" menu="" required="false" tooltip="Names of workflow processes to retrieve (comma-separated, leave blank to retrieve all workflow processes)">&lt;%=@results['Error Process']['Names']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Limit" label="Limit" menu="" required="false" tooltip="Maximum number of workflow processes to return (default 1000)">&lt;%=@results['Error Process']['Limit']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Offset" label="Offset" menu="" required="false" tooltip="The offset to start if there are more results than the specified limit (default 0)">&lt;%=@results['Error Process']['Offset']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Workflow List JSON" label="Workflow List JSON" required="false" tooltip="JSON list of workflow processes found">&lt;%=@results['Retry']['Workflow List JSON']%&gt;</parameter>
+                    <parameter id="Count" label="Count" required="false" tooltip="Total number of workflow processes that match the search">&lt;%=@results['Retry']['Count']%&gt;</parameter>
+                    <parameter id="Limit" label="Limit" required="false" tooltip="Maximum number of workflow processes to return">&lt;%=@results['Retry']['Limit']%&gt;</parameter>
+                    <parameter id="Offset" label="Offset" required="false" tooltip="Index of first process">&lt;%=@results['Retry']['Offset']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

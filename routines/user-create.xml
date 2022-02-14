@@ -1,0 +1,156 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_user_create_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>User Create</name>
+        <author></author>
+        <notes></notes>
+        <lastID>5</lastID>
+        <taskDefinition id="routine_kinetic_user_create_v1" name="User Create" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Username" label="Username" required="true" tooltip="The value the User will use to login to the application"></parameter>
+                <parameter id="Email" label="Email" required="true" tooltip="The email address to send notifications to the user"></parameter>
+                <parameter id="Display Name" label="Display Name" required="true" tooltip="The name that is displayed for the user"></parameter>
+                <parameter id="Attributes Map JSON" label="Attributes Map JSON" required="false" tooltip="JSON representation of the attributes associated to the user"></parameter>
+                <parameter id="Profile Attributes Map JSON" label="Profile Attributes Map JSON" required="false" tooltip="JSON representation of the profile attributes associated to the user"></parameter>
+                <parameter id="Is Space Admin" label="Is Space Admin" required="false" tooltip="(True | False) Whether the user is a super administrator user"></parameter>
+                <parameter id="Is Enabled" label="Is Enabled" required="false" tooltip="(True | False) Whether the user is enabled"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml"></results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_core_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_core_api_v1" id="kinetic_core_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">POST</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /kapps/:kappSlug/forms/:formSlug">/users</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)">&lt;%= 
+ # Convert boolean properties from string 
+ enabled = @inputs['Is Enabled'].to_s.empty? ? true : ['true','yes'].include?(@inputs['Is Enabled'].to_s.downcase) 
+ spaceAdmin = @inputs['Is Space Admin'].to_s.empty? ? false : ['true','yes'].include?(@inputs['Is Space Admin'].to_s.downcase) 
+ 
+ data = {} 
+ data.tap do |json| 
+ 	 json['username'] = @inputs['Username'] if !@inputs['Username'].to_s.empty? 
+ 	 json['email'] = @inputs['Email'] if !@inputs['Email'].to_s.empty? 
+ 	 json['displayName'] = @inputs['Display Name'] if !@inputs['Display Name'].to_s.empty? 
+ 	 json['attributesMap'] = JSON.parse((@inputs['Attributes Map JSON'] || '{}')) 
+ 	 json['profileAttributesMap'] = JSON.parse((@inputs['Profile Attributes Map JSON'] || '{}')) 
+ 	 json['spaceAdmin'] = spaceAdmin 
+ 	 json['enabled'] = enabled 
+ end 
+ data.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty?">routine_handler_failure_error_process_v1_3</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">CORE API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_user_create_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_user_create_v1" id="routine_kinetic_user_create_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Username" label="Username" menu="" required="true" tooltip="The value the User will use to login to the application">&lt;%=@results['Error Process']['Username']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Email" label="Email" menu="" required="true" tooltip="The email address to send notifications to the user">&lt;%=@results['Error Process']['Email']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Display Name" label="Display Name" menu="" required="true" tooltip="The name that is displayed for the user">&lt;%=@results['Error Process']['Display Name']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Attributes Map JSON" label="Attributes Map JSON" menu="" required="false" tooltip="JSON representation of the attributes associated to the user">&lt;%=@results['Error Process']['Attributes Map JSON']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Profile Attributes Map JSON" label="Profile Attributes Map JSON" menu="" required="false" tooltip="JSON representation of the profile attributes associated to the user">&lt;%=@results['Error Process']['Profile Attributes Map JSON']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Is Space Admin" label="Is Space Admin" menu="" required="false" tooltip="(True | False) Whether the user is a super administrator user">&lt;%=@results['Error Process']['Is Space Admin']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Is Enabled" label="Is Enabled" menu="" required="false" tooltip="(True | False) Whether the user is enabled">&lt;%=@results['Error Process']['Is Enabled']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

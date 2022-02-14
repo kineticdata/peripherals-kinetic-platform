@@ -1,0 +1,93 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_discussion_archive_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="">
+        <name>Discussion Archive</name>
+        <author></author>
+        <notes></notes>
+        <lastID>40</lastID>
+        <taskDefinition id="routine_kinetic_discussion_archive_v1" name="Discussion Archive" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Discussion Id" label="Discussion Id" required="true" tooltip="The Id of the Discussion to Close"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml"></results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="400" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages></messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_discussion_update_v1_40</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_37" name="Return" x="396" y="254">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_finish_v1_39</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_finish_v1" id="routine_kinetic_finish_v1_39" name="Finish" x="397" y="341">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Run Id" label="Run Id" menu="" required="false" tooltip="The Id of the completed run">&lt;%=@run['Id']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_kinetic_discussion_update_v1" id="routine_kinetic_discussion_update_v1_40" name="Update Discussion as Archived" x="397" y="143">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Current Id" label="Current Id" menu="" required="true" tooltip="The current id of the discussion">&lt;%=@inputs['Discussion Id']%&gt;</parameter>
+                    <parameter id="Updated - Title" label="Updated - Title" menu="" required="false" tooltip="The title of the discussion"></parameter>
+                    <parameter id="Updated - Description" label="Updated - Description" menu="" required="false" tooltip="The description of the discussion"></parameter>
+                    <parameter id="Updated - Is Archived" label="Updated - Is Archived" menu="" required="false" tooltip="Archived discussions do not allow new messages">true</parameter>
+                    <parameter id="Updated - Is Private" label="Updated - Is Private" menu="" required="false" tooltip="Private discussions only allow explicitly invited users to view"></parameter>
+                    <parameter id="Updated - Join Policy Name" label="Updated - Join Policy Name" menu="" required="false" tooltip="The name of the security policy for allowing users to join"></parameter>
+                    <parameter id="Updated - Owning Users" label="Updated - Owning Users" menu="" required="false" tooltip="A comma separated list of usernames allowed to manage the discussion"></parameter>
+                    <parameter id="Updated - Owning Teams" label="Updated - Owning Teams" menu="" required="false" tooltip="A comma separated list of team names allowed to manage the discussion"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_37</task>
+                </dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

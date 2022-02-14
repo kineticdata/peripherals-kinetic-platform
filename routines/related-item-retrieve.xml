@@ -1,0 +1,168 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_related_item_retrieve_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Related Item Retrieve</name>
+        <author></author>
+        <notes></notes>
+        <lastID>6</lastID>
+        <taskDefinition id="routine_kinetic_related_item_retrieve_v1" name="Related Item Retrieve" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Discussion Id" label="Discussion Id" required="true" tooltip="The id of the discussion"></parameter>
+                <parameter id="Key" label="Key" required="true" tooltip="Unique identifier for the related item"></parameter>
+                <parameter id="Type" label="Type" required="true" tooltip="Type of related item relationship (name or label)"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Key" tooltip="Unique identifier for the related item"></result>
+                <result name="Type" tooltip="Type of related item relationship (name or label)"></result>
+                <result name="Created At" tooltip="The timestamp when the related item relationship was created"></result>
+                <result name="Created By JSON" tooltip="The user that created the related item relationship"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_discussions_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_discussions_api_v1" id="kinetic_discussions_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /discussions/:discussionsId/messages/:messageId">&lt;%="/discussions/#{@inputs['Discussion Id']}/relatedItems/#{ERB::Util.url_encode(@inputs['Type'])}/#{ERB::Util.url_encode(@inputs['Key'])}"%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i != 404">routine_handler_failure_error_process_v1_3</task>
+                    <task label="Has 404 Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i == 404">system_tree_return_v1_6</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Key" label="Key" required="false" tooltip="Unique identifier for the related item">&lt;%=JSON.parse(@results['API']['Response Body'])['relatedItem']['key']%&gt;</parameter>
+                    <parameter id="Type" label="Type" required="false" tooltip="Type of related item relationship (name or label)">&lt;%=JSON.parse(@results['API']['Response Body'])['relatedItem']['type']%&gt;</parameter>
+                    <parameter id="Created At" label="Created At" required="false" tooltip="The timestamp when the related item relationship was created">&lt;%=JSON.parse(@results['API']['Response Body'])['relatedItem']['createdAt']%&gt;</parameter>
+                    <parameter id="Created By JSON" label="Created By JSON" required="false" tooltip="The user that created the related item relationship">&lt;%=JSON.parse(@results['API']['Response Body'])['relatedItem']['createdBy'].to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_6" name="Return - Does Not Exist" x="402" y="187">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Key" label="Key" required="false" tooltip="Unique identifier for the related item"></parameter>
+                    <parameter id="Type" label="Type" required="false" tooltip="Type of related item relationship (name or label)"></parameter>
+                    <parameter id="Created At" label="Created At" required="false" tooltip="The timestamp when the related item relationship was created"></parameter>
+                    <parameter id="Created By JSON" label="Created By JSON" required="false" tooltip="The user that created the related item relationship"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">DISCUSSIONS API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_related_item_retrieve_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_related_item_retrieve_v1" id="routine_kinetic_related_item_retrieve_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Discussion Id" label="Discussion Id" menu="" required="true" tooltip="The id of the discussion">&lt;%=@results['Error Process']['Discussion Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Key" label="Key" menu="" required="true" tooltip="Unique identifier for the related item">&lt;%=@results['Error Process']['Key']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Type" label="Type" menu="" required="true" tooltip="Type of related item relationship (name or label)">&lt;%=@results['Error Process']['Type']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Key" label="Key" required="false" tooltip="Unique identifier for the related item">&lt;%=@results['Retry']['Key']%&gt;</parameter>
+                    <parameter id="Type" label="Type" required="false" tooltip="Type of related item relationship (name or label)">&lt;%=@results['Retry']['Type']%&gt;</parameter>
+                    <parameter id="Created At" label="Created At" required="false" tooltip="The timestamp when the related item relationship was created">&lt;%=@results['Retry']['Created At']%&gt;</parameter>
+                    <parameter id="Created By JSON" label="Created By JSON" required="false" tooltip="The user that created the related item relationship">&lt;%=@results['Retry']['Created By JSON']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>
