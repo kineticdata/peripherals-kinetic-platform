@@ -2,7 +2,7 @@
 require File.expand_path(File.join(File.dirname(__FILE__), "dependencies"))
 require 'logger'
 
-class KineticReportingDbUpsertV1
+class KineticRequestCeSubmissionDbBulkUpsertV1
 
   @@activeThread = java.util.concurrent.atomic.AtomicReference.new()
   @@made_definition_tables = java.util.concurrent.atomic.AtomicReference.new()
