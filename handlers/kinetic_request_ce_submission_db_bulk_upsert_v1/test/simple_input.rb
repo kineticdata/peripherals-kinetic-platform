@@ -1,6 +1,7 @@
 {
   'info' => {
     'jdbc_database_id' => 'postgresql',
+    'jdbc_url_opts' => '',
     'host' => 'localhost',
     'port' => '5432',
     'database_name' => 'submission_reporting',
