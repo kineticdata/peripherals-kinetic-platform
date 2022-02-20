@@ -1,7 +1,7 @@
-== Kinetic Request CE Submission Clone
+# Kinetic Request CE Submission Clone
 Clones a submission
 
-=== Parameters
+## Parameters
 [Error Handling]
   Determine what to return if an error is encountered.
 [Space Slug]
@@ -23,7 +23,7 @@ Clones a submission
 [Type]
   Type of Submission (overrides forms type).
 
-=== Sample Configuration
+## Sample Configuration
 Error Handling:            Error Message
 Space Slug:
 Original Submission Id:    02edc019-e553-11e5-9c32-351e42075226
@@ -35,11 +35,11 @@ Origin ID:
 Parent ID:
 Type:                      Approval
 
-=== Results
+## Results
 [Handler Error Message]
   Error message if an error was encountered and Error Handling is set to "Error Message".
 [Submission ID]
   Id for the new submission that was cloned.
 
-=== Detailed Description
+## Detailed Description
 ...

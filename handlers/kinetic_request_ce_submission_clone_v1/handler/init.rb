@@ -25,13 +25,12 @@ class KineticRequestCeSubmissionCloneV1
 
   def execute
     space_slug = @parameters["space_slug"].empty? ? @info_values["space_slug"] : @parameters["space_slug"]
-
-    if @info_values['api_server'].include?("${space}")
-      server = @info_values['api_server'].gsub("${space}", space_slug)
+    
+    server = @info_values['api_server'].chomp("/")
+    if server.include?("${space}")
+      server = server.gsub("${space}", space_slug)
     elsif !space_slug.to_s.empty?
-      server = @info_values['api_server'].chomp("/")+"/"+space_slug
-    else
-      server = @info_values['api_server'].chomp("/")
+      server = "#{server}/#{space_slug}"
     end
 
     error_handling  = @parameters["error_handling"]
@@ -72,17 +71,17 @@ class KineticRequestCeSubmissionCloneV1
       resource = RestClient::Resource.new(api_route, { :user => api_username, :password => api_password })
 
       # Building the object that will be sent to Kinetic Core
-      data = {}
-      data.tap do |json|
-        json[:currentPage] = {
-                               "name" => (@parameters["current_page_name"] if !@parameters["current_page_name"].empty?),
-                               "navigation" => (@parameters["current_page_navigation"] if !@parameters["current_page_navigation"].empty?)
-                             }
-        json[:coreState] = @parameters["state"] if !@parameters["state"].empty?
-        json[:origin] = {"id" => @parameters["origin_id"]} if !@parameters["origin_id"].empty?
-        json[:parent] = {"id" => @parameters["parent_id"]} if !@parameters["parent_id"].empty?
-        json[:values] = orig_values.empty? ? {} : orig_values
-      end
+      data = {
+        :currentPage => 
+          {
+            "name" => (@parameters["current_page_name"] if !@parameters["current_page_name"].empty?),
+            "navigation" => (@parameters["current_page_navigation"] if !@parameters["current_page_navigation"].empty?)
+          },
+        :coreState => (@parameters["state"] if !@parameters["state"].empty?),
+        :origin => ({"id" => @parameters["origin_id"]} if !@parameters["origin_id"].empty?),
+        :parent => ({"id" => @parameters["parent_id"]} if !@parameters["parent_id"].empty?),
+        :values => orig_values.empty? ? {} : orig_values
+        }
 
       # Post to the API
       result = resource.post(data.to_json, { :accept => "json", :content_type => "json" })
