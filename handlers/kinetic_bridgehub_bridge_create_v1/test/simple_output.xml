@@ -1,7 +1,0 @@
-<results>
-    <result name="adapterClass">com.kineticdata.bridgehub.adapter.kineticcore.KineticCoreAdapter</result>
-    <result name="ipAddresses">*</result>
-    <result name="name">Request CE Space - Spunky Weasel 555</result>
-    <result name="slug">spunky_weasel_555</result>
-    <result name="properties">{"Username":"user@kineticdata.com","Password":"password","Kinetic Core Space Url":"http://localhost:7666/kinetic/spunky_weasel_555"}</result>
-</results>

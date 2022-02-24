@@ -1,6 +1,7 @@
-# Kinetic Core Bridgehub Adapter
-A Kinetic Bridgehub adapter for the Kinetic Request: Core Edition platform.
-This adapter works with Core 2.4+
+# Kinetic Platform Bridgehub Adapter
+This bridge adapter is used for setting up bridges to interact with the Kinetic Platform itself. This adapter replaced the Kinetic Core Bridge Adapter which is now depricated.
+
+Common uses for the Kinetic Platform Bridge Adapter are to populate dropdowns and checkboxes within a Kinetic Form based from other Kinetic Forms or a list of Kinetic Platform users. 
 
 * [Kinetic Core Bridgehub Adapter Information](#kinetic-core-bridgehub-adapter-information)
   * [Configuration Values](#configuration-values)
@@ -16,19 +17,14 @@ This adapter works with Core 2.4+
 
 # Kinetic Core Bridgehub Adapter Information
 ---
-## Configuration Values
-| Name                    | Description |
-| :---------------------- | :------------------------- |
-| Username                | The username that will be used to access the Kinetic Core information |
-| Password                | The password that is associated with the username |
-| Kinetic Core Space Url  | The url of the Kinetic Core instance up to and including the space that up want to be retrieving the data from |
+## Configuration
 
-## Example Configuration
-| Name | Value |
-| :---- | :--- |
-| Username | user@acme.com |
-| Password | secret-password |
-| Kinetic Core Space Url | https://localhost:8080/kinetic/space-slug |
+| Name  | Description | Sample | 
+| ------------- | ------------- | ------------- |
+| api_server    | Kinetic Request CE API Web Application | http://server:port/kinetic |
+| api_username  | Username for an account that has permission to use the API | integration-user |
+| api_password  | Password for the API user | P@ssw0rd | 
+| enable_debug_logging | Enable debug logging if the value is set to 'Yes'. | No |
 
 ## Supported Structures
 | Name | Description |

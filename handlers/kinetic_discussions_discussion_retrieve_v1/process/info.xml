@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<taskInfo version="1.0">
-  <info name="discussions_server_url" description="The server url for Kinetic Discussions." />
-  <info name="ce_server_url" description="The url of the server that the new host should be created on." />
-  <info name="space_slug" description="The CE space to retrieve discussions from." />
-  <info name="ce_client_id" description="The CE OAuth client id for the given space." />
-  <info name="ce_client_secret" type="encrypted" description="The CE OAuth client secret for the given space." />
-</taskInfo>

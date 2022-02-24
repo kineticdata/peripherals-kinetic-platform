@@ -1,9 +1,0 @@
-Kinetic Request CE Datastore Submission Retrieve V1.1 (2018-06-8)
-* Updated handler to return current page
-
-Kinetic Request CE Datastore Submission Retrieve V1.1 (2018-05-25)
-* API Server Info Value changed to allow ${space} in the url for subdomain support
-(ie. https://${space}.localhost:8080/kinetic)
-
-Kinetic Request CE Datastore Submission Retrieve V1 (2018-05-03)
-* Initial version.  See README for details.

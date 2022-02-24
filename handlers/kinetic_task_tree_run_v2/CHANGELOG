@@ -1,8 +1,0 @@
-kinetic_task_tree_run_v1 (2014-09-08)
-* Initial version.  See README for details.
-
-kinetic_task_tree_run_v2 (2017-08-19)
-* Added signature headers if configured with signature key and secret.
-
-kinetic_task_tree_run_v2 (2018-09-14)
-* error in signature method. 
