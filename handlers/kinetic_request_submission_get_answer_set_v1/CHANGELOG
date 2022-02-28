@@ -1,3 +1,0 @@
-(2017-06-21)
-* Update dependencies.rb to only load JSON in Task 3 and below to make it
-  compatible with Task 4 and above

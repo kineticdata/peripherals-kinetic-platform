@@ -1,6 +1,0 @@
-Kinetic Request CE Team Delete V1 (2019-01-16)
- * Changed from requiring a team slug to a team name. 
- Slug will be generated using an MD5 from the name.
-
-Kinetic Request CE Team Delete V1 (2019-01-15)
- * Initial version.  See README for details.

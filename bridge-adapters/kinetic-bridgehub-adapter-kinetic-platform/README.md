@@ -1,15 +1,18 @@
-# Kinetic Core Bridgehub Adapter
-A Kinetic Bridgehub adapter for the Kinetic Request: Core Edition platform.
-This adapter works with Core 2.4+
+# Kinetic Platform Bridgehub Adapter
+This bridge adapter is used for setting up bridges to interact with the Kinetic Platform itself. This adapter replaced the Kinetic Core Bridge Adapter which is now depricated.
+
+Common uses for the Kinetic Platform Bridge Adapter are to populate dropdowns and checkboxes within a Kinetic Form based from other Kinetic Forms or a list of Kinetic Platform users. 
 
 ## Configuration Values
+Configuration Values provide connection information that configures where and how the adapter connects to the target system. Configuration values are set inside the Kinetic Platform admin console under Space > Settings > Plugins > Bridge Adapters > _Specific Adapter_.
+
 | Name                    | Description | Example Value |
 | :---------------------- | :------------------------- | :------------------------- |
 | Username                | The username that will be used to access the Kinetic Core information | user@acme.com |
 | Password                | The password that is associated with the username | secret-password |
 | Kinetic Core Space Url  | The url of the Kinetic Core instance up to and including the space that up want to be retrieving the data from | https://localhost:8080/kinetic/space-slug |
 
-## Supported Structures
+## Supported Structures=
 | Name | Description |
 | :---------------------- | :------------------------- |
 | Space | Get space |
@@ -24,12 +27,16 @@ This adapter works with Core 2.4+
 | Teams | Get teams |
 | Users | Get Users |
 
-## Fields
-Fields that will be returned with the record.  If no fields are provided then all fields will be
-returned.
+## Attributes and Fields
+Attributes are a mapping between a _Name_ that can be referenced in the Platform and _Fields_.  Fields are accessors to values in the source system that will be returned with the record.  Attributes are set inside the Kinetic Platform admin console under Space > Models > _Specific Model_ > Attributes.
 
-## Qualification (Query)
-Supports all queries that Core api supports for the given context.  An id parameter is required for datastore submission and kapp submission lookups.
+* If no fields are provided then all fields will be returned.
+
+## Qualifications (Query)
+Qualifications are definition for a request made by the bridge adapter.  Qualifications are set inside the Kinetic Platform admin console under Space > Models > _Specific Model_ > Qualifications.
+
+* This adapter supports all queries that Core api supports for the given context.  
+* An id parameter is required for datastore submission and kapp submission lookups.
 
 ### Example Qualifications
 * Get a form and its fields: `q=slug="${parameters("Form Slug")}"&include=fields`

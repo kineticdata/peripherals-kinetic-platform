@@ -1,6 +1,0 @@
-<results>
-    <result name="Handler Error Message" type="Regexp"></result>
-    <result name="Count" type="RegExp">.+</result>
-    <result name="Next Page Token" type="RegExp">.+</result>
-    <result name="Result" type="RegExp">.+</result>
-</results>
