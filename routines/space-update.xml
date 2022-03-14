@@ -1,0 +1,166 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_space_update_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Space Update</name>
+        <author></author>
+        <notes></notes>
+        <lastID>5</lastID>
+        <taskDefinition id="routine_kinetic_space_update_v1" name="Space Update" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Current Slug" label="Current Slug" required="false" tooltip="The current slug of the space"></parameter>
+                <parameter id="Updated - Name" label="Updated - Name" required="false" tooltip="The name of the space"></parameter>
+                <parameter id="Updated - Slug" label="Updated - Slug" required="false" tooltip="A JSON representation of the spaces attributes"></parameter>
+                <parameter id="Updated - After Logout Path" label="Updated - After Logout Path" required="false" tooltip="The path in which users will be routed upon logout"></parameter>
+                <parameter id="Updated - Attributes Map JSON" label="Updated - Attributes Map JSON" required="false" tooltip="A JSON representation of the spaces attributes"></parameter>
+                <parameter id="Updated - Bundle Path" label="Updated - Bundle Path" required="false" tooltip="The bundle path configured for the space"></parameter>
+                <parameter id="Updated - Default Locale" label="Updated - Default Locale" required="false" tooltip="The Default Locale of the space"></parameter>
+                <parameter id="Updated - Default Timezone" label="Updated - Default Timezone" required="false" tooltip="The Default Timezone of the space"></parameter>
+                <parameter id="Updated - Display Type" label="Updated - Display Type" required="false" tooltip="The Display Type of the space"></parameter>
+                <parameter id="Updated - Display Value" label="Updated - Display Value" required="false" tooltip="The Display Value of the space"></parameter>
+                <parameter id="Updated - Enabled Locales JSON" label="Updated - Enabled Locales JSON" required="false" tooltip="A JSON representation of the spaces enabled locales"></parameter>
+                <parameter id="Updated - Security Policies JSON" label="Updated - Security Policies JSON" required="false" tooltip="A JSON representation of the spaces security policies"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml"></results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_core_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_core_api_v1" id="kinetic_core_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">PUT</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /kapps/:kappSlug/forms/:formSlug">/space</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)">&lt;%= 
+ data = {} 
+ data.tap do |json| 
+ 	 json['name'] = @inputs['Updated - Name'] if !@inputs['Updated - Name'].to_s.empty? 
+ 	 json['slug'] = @inputs['Updated - Slug'] if !@inputs['Updated - Slug'].to_s.empty? 
+ 	 json['afterLogoutPath'] = @inputs['Updated - After Logout Path'] if !@inputs['Updated - After Logout Path'].to_s.empty? 
+ 	 json['attributesMap'] = JSON.parse((@inputs['Updated - Attributes Map JSON'] || '{}')) if !JSON.parse((@inputs['Updated - Attributes Map JSON'] || '{}')).empty? 
+ 	 json['bundlePath'] = @inputs['Updated - Bundle Path'] if !@inputs['Updated - Bundle Path'].to_s.empty? 
+ 	 json['defaultLocale'] = @inputs['Updated - Default Locale'] if !@inputs['Updated - Default Locale'].to_s.empty? 
+ 	 json['defaultTimezone'] = @inputs['Updated - Default Timezone'] if !@inputs['Updated - Default Timezone'].to_s.empty? 
+ 	 json['displayType'] = @inputs['Updated - Display Type'] if !@inputs['Updated - Display Type'].to_s.empty? 
+ 	 json['displayValue'] = @inputs['Updated - Display Value'] if !@inputs['Updated - Display Value'].to_s.empty? 
+ 	 json['enabledLocales'] = JSON.parse((@inputs['Updated - Enabled Locales JSON'] || '[]')) if !JSON.parse((@inputs['Updated - Enabled Locales JSON'] || '[]')).empty? 
+ 	 json['securityPolicies'] = JSON.parse((@inputs['Updated - Security Policies JSON'] || '[]')) if !JSON.parse((@inputs['Updated - Security Policies JSON'] || '[]')).empty? 
+ end 
+ data.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty?">routine_handler_failure_error_process_v1_3</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">CORE API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_space_update_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_space_update_v1" id="routine_kinetic_space_update_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Current Slug" label="Current Slug" menu="" required="false" tooltip="The current slug of the space">&lt;%=@results['Error Process']['Current Slug']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Name" label="Updated - Name" menu="" required="false" tooltip="The name of the space">&lt;%=@results['Error Process']['Updated - Name']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Slug" label="Updated - Slug" menu="" required="false" tooltip="A JSON representation of the spaces attributes">&lt;%=@results['Error Process']['Updated - Slug']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - After Logout Path" label="Updated - After Logout Path" menu="" required="false" tooltip="The path in which users will be routed upon logout">&lt;%=@results['Error Process']['Updated - After Logout Path']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Attributes Map JSON" label="Updated - Attributes Map JSON" menu="" required="false" tooltip="A JSON representation of the spaces attributes">&lt;%=@results['Error Process']['Updated - Attributes Map JSON']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Bundle Path" label="Updated - Bundle Path" menu="" required="false" tooltip="The bundle path configured for the space">&lt;%=@results['Error Process']['Updated - Bundle Path']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Default Locale" label="Updated - Default Locale" menu="" required="false" tooltip="The Default Locale of the space">&lt;%=@results['Error Process']['Updated - Default Locale']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Default Timezone" label="Updated - Default Timezone" menu="" required="false" tooltip="The Default Timezone of the space">&lt;%=@results['Error Process']['Updated - Default Timezone']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Display Type" label="Updated - Display Type" menu="" required="false" tooltip="The Display Type of the space">&lt;%=@results['Error Process']['Updated - Display Type']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Display Value" label="Updated - Display Value" menu="" required="false" tooltip="The Display Value of the space">&lt;%=@results['Error Process']['Updated - Display Value']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Enabled Locales JSON" label="Updated - Enabled Locales JSON" menu="" required="false" tooltip="A JSON representation of the spaces enabled locales">&lt;%=@results['Error Process']['Updated - Enabled Locales JSON']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Security Policies JSON" label="Updated - Security Policies JSON" menu="" required="false" tooltip="A JSON representation of the spaces security policies">&lt;%=@results['Error Process']['Updated - Security Policies JSON']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

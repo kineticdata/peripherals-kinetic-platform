@@ -1,0 +1,164 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_workflow_create_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Workflow Create</name>
+        <author></author>
+        <notes></notes>
+        <lastID>5</lastID>
+        <taskDefinition id="routine_kinetic_workflow_create_v1" name="Workflow Create" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Structure" label="Structure" required="true" tooltip="The workflow XML document. This is the content of the tree/routine export file."></parameter>
+                <parameter id="Source" label="Source" required="false" tooltip="Override to the value set in structure. Use '-' for a global routine."></parameter>
+                <parameter id="Group" label="Group" required="false" tooltip="Override to the value set in structure. Use '-' for any routine."></parameter>
+                <parameter id="Name" label="Name" required="false" tooltip="Override to the value set in the structure. The workflow (tree/routine) name."></parameter>
+                <parameter id="Definition Id" label="Definition Id" required="false" tooltip="Override to the value set in the structure."></parameter>
+                <parameter id="Notes" label="Notes" required="false" tooltip="Override to the value set in the structure."></parameter>
+                <parameter id="Owner Email" label="Owner Email" required="false" tooltip="Override to the value set in the structure."></parameter>
+                <parameter id="Status" label="Status" required="false" tooltip="Override to the value set in the structure."></parameter>
+                <parameter id="Type" label="Type" required="false" tooltip="Override to the value set in the structure."></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Id" tooltip="The tree id"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_task_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_task_api_v1" id="kinetic_task_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">POST</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /trees/:title">/import-tree</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)">&lt;%= 
+ data = {} 
+ data.tap do |json| 
+ 	 json['structure'] = @inputs['Structure'] 
+ 	 json['source'] = @inputs['Source'] if !@inputs['Source'].to_s.empty? 
+ 	 json['sourceGroup'] = @inputs['Group'] if !@inputs['Group'].to_s.empty? 
+ 	 json['name'] = @inputs['Name'] if !@inputs['Name'].to_s.empty? 
+ 	 json['definitionId'] = @inputs['Definition Id'] if !@inputs['Definition Id'].to_s.empty? 
+ 	 json['notes'] = @inputs['Notes'] if !@inputs['Notes'].to_s.empty? 
+ 	 json['ownerEmail'] = @inputs['Owner Email'] if !@inputs['Owner Email'].to_s.empty? 
+ 	 json['status'] = @inputs['Status'] if !@inputs['Status'].to_s.empty? 
+ 	 json['type'] = @inputs['Type'] if !@inputs['Type'].to_s.empty? 
+ end 
+ data.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty?">routine_handler_failure_error_process_v1_3</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The tree id">&lt;%=JSON.parse(@results['API']['Response Body'])['tree']['id']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">Task API v2</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_workflow_create_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_workflow_create_v1" id="routine_kinetic_workflow_create_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Structure" label="Structure" menu="" required="true" tooltip="The workflow XML document. This is the content of the tree/routine export file.">&lt;%=@results['Error Process']['Structure']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Source" label="Source" menu="" required="false" tooltip="Override to the value set in structure. Use '-' for a global routine.">&lt;%=@results['Error Process']['Source']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Group" label="Group" menu="" required="false" tooltip="Override to the value set in structure. Use '-' for any routine.">&lt;%=@results['Error Process']['Group']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Name" label="Name" menu="" required="false" tooltip="Override to the value set in the structure. The workflow (tree/routine) name.">&lt;%=@results['Error Process']['Name']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Definition Id" label="Definition Id" menu="" required="false" tooltip="Override to the value set in the structure.">&lt;%=@results['Error Process']['Definition Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Notes" label="Notes" menu="" required="false" tooltip="Override to the value set in the structure.">&lt;%=@results['Error Process']['Notes']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Owner Email" label="Owner Email" menu="" required="false" tooltip="Override to the value set in the structure.">&lt;%=@results['Error Process']['Owner Email']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Status" label="Status" menu="" required="false" tooltip="Override to the value set in the structure.">&lt;%=@results['Error Process']['Status']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Type" label="Type" menu="" required="false" tooltip="Override to the value set in the structure.">&lt;%=@results['Error Process']['Type']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The tree id">&lt;%=@results['Retry']['Id']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

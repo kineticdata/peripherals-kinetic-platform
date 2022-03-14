@@ -25,12 +25,12 @@ class KineticRequestCeSubmissionCloneV1
 
   def execute
     space_slug = @parameters["space_slug"].empty? ? @info_values["space_slug"] : @parameters["space_slug"]
-    if @info_values['api_server'].include?("${space}")
-      server = @info_values['api_server'].gsub("${space}", space_slug)
+    
+    server = @info_values['api_server'].chomp("/")
+    if server.include?("${space}")
+      server = server.gsub("${space}", space_slug)
     elsif !space_slug.to_s.empty?
-      server = @info_values['api_server']+"/"+space_slug
-    else
-      server = @info_values['api_server']
+      server = "#{server}/#{space_slug}"
     end
 
     error_handling  = @parameters["error_handling"]
@@ -41,45 +41,51 @@ class KineticRequestCeSubmissionCloneV1
 
     begin
       # API Route to Get Original Submissions Values
-      api_route = "#{server}/app/api/v1/submissions/#{submission_id}/?include=values,origin,parent,children,descendents,form,type,form.kapp"
+      api_route = "#{server}/app/api/v1/submissions/#{@parameters['submission_id']}?include=values,origin,parent,children,descendents,form,type,form.kapp"
+      
+      puts "Original API URL: #{api_route}" if @enable_debug_logging
+      
       # Build Resource to get orig submission
       resource = RestClient::Resource.new(api_route, { :user => api_username, :password => api_password })
       # Get Orig Submission
       result = resource.get({ :accept => "json", :content_type => "json" })
 
       # Build Variables for submitting cloned submission
-      origSubmission = JSON.parse(result)['submission']
-      kappSlug = origSubmission['form']['kapp']['slug']
-      formSlug = origSubmission['form']['slug']
-      newValues = @parameters["values"].empty? ? {} : JSON.parse(@parameters["values"])
-      origValues = origSubmission['values']
+      orig_submission = JSON.parse(result)['submission']
+      kapp_slug = orig_submission['form']['kapp']['slug']
+      form_slug = orig_submission['form']['slug']
+      new_values = @parameters["values"].empty? ? {} : JSON.parse(@parameters["values"])
+      orig_values = orig_submission['values']
 
       # Replace Existing Values with New Values
-      newValues.each do |key,value|
-        origValues[key] = value
+      new_values.each do |key,value|
+        orig_values[key] = value
       end
 
       # API Route to Create Cloned Submission
-      api_route = "#{server}/app/api/v1/kapps/#{kappSlug}/forms/#{formSlug}/submissions?completed=false"
+      api_route = "#{server}/app/api/v1/kapps/#{kapp_slug}/forms/#{form_slug}/submissions?completed=false"
+
+      puts "API Route for Clone: #{api_route}" if @enable_debug_logging
+
       # Build Resource to create new submission
       resource = RestClient::Resource.new(api_route, { :user => api_username, :password => api_password })
 
       # Building the object that will be sent to Kinetic Core
-      data = {}
-      data.tap do |json|
-        json[:currentPage] = {
-                               "name" => (@parameters["current_page_name"] if !@parameters["current_page_name"].empty?),
-                               "navigation" => (@parameters["current_page_navigation"] if !@parameters["current_page_navigation"].empty?)
-                             }
-        json[:coreState] = @parameters["state"] if !@parameters["state"].empty?
-        json[:origin] = {"id" => @parameters["origin_id"]} if !@parameters["origin_id"].empty?
-        json[:parent] = {"id" => @parameters["parent_id"]} if !@parameters["parent_id"].empty?
-        json[:values] = origValues.empty? ? {} : origValues
-      end
+      data = {
+        :currentPage => 
+          {
+            "name" => (@parameters["current_page_name"] if !@parameters["current_page_name"].empty?),
+            "navigation" => (@parameters["current_page_navigation"] if !@parameters["current_page_navigation"].empty?)
+          },
+        :coreState => (@parameters["state"] if !@parameters["state"].empty?),
+        :origin => ({"id" => @parameters["origin_id"]} if !@parameters["origin_id"].empty?),
+        :parent => ({"id" => @parameters["parent_id"]} if !@parameters["parent_id"].empty?),
+        :values => orig_values.empty? ? {} : orig_values
+        }
 
       # Post to the API
       result = resource.post(data.to_json, { :accept => "json", :content_type => "json" })
-      newSubmissionId = JSON.parse(result)['submission']['id']
+      new_submission_id = JSON.parse(result)['submission']['id']
 
       # Patch the Submission Type if a type was provided (This only needs to be done if a type is provided)
       if !@parameters["type"].empty?
@@ -89,7 +95,7 @@ class KineticRequestCeSubmissionCloneV1
         end
 
         # Build route for patch
-        api_route = "#{server}/app/api/v1/submissions/#{newSubmissionId}"
+        api_route = "#{server}/app/api/v1/submissions/#{new_submission_id}"
         # Build resource for patch
         resource = RestClient::Resource.new(api_route, { :user => api_username, :password => api_password })
         # Patch to the API
@@ -106,7 +112,7 @@ class KineticRequestCeSubmissionCloneV1
     <<-RESULTS
     <results>
       <result name="Handler Error Message">#{escape(error_message)}</result>
-      <result name="Submission ID">#{escape(newSubmissionId)}</result>
+      <result name="Submission ID">#{escape(new_submission_id)}</result>
     </results>
     RESULTS
   end

@@ -1,6 +1,0 @@
-<results>
-    <result name="Handler Error Message" type="Regexp"></result>
-    <result name="Space Attributes" type="Regexp">.+</result>
-    <result name="Kapp Attributes" type="Regexp">.+</result>
-    <result name="Form Attributes" type="Regexp">.+</result>
-</results>

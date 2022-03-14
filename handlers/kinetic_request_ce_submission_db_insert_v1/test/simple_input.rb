@@ -1,6 +1,7 @@
 {
   'info' => {
     'jdbc_database_id' => 'postgresql',
+    'jdbc_url_opts' => '',
     'host' => 'localhost',
     'port' => '5432',
     'database_name' => 'submission_reporting',
@@ -19,6 +20,7 @@
     'space_slug' => 'kinetic-data',
     'kapp_slug' => 'services',
     'form_slug' => 'general-support-request',
+    'datastore' => '',
     'submission_id' => "a6c3114d-302e-11e7-a02c-912ba6cf418f",
     'submission_deletion_timestamp' => ''
   }

@@ -1,0 +1,161 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_submissions_retrieve_list_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Submissions Retrieve List</name>
+        <author></author>
+        <notes></notes>
+        <lastID>5</lastID>
+        <taskDefinition id="routine_kinetic_submissions_retrieve_list_v1" name="Submissions Retrieve List" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Kapp Slug" label="Kapp Slug" required="true" tooltip="The slug of the Kapp to find submissions in."></parameter>
+                <parameter id="Form Slug" label="Form Slug" required="false" tooltip="The slug of the Form to find submissions in. If none provided, can only use Kapp Fields in search query"></parameter>
+                <parameter id="Form Type" label="Form Type" required="false" tooltip="The Type of Form to find submissions in."></parameter>
+                <parameter id="Core State" label="Core State" required="false" tooltip="Searches for submissions that have a core state that matches this parameter. If no value is provided, the results will contain submissions in all core states."></parameter>
+                <parameter id="Limit" label="Limit" required="false" tooltip="Limit the number of results returned. If not provided, the server will limit the results to 25 submissions. Maximum limit 1000"></parameter>
+                <parameter id="Query" label="Query" required="false" tooltip="Query to use to fetch submissions. (i.e values[First Name]=&quot;Fred&quot;)"></parameter>
+                <parameter id="Timeline" label="Timeline" required="false" tooltip="Date property to search by. The default value is createdAt."></parameter>
+                <parameter id="Direction" label="Direction" required="false" tooltip="Result Set sorting direction. The default value is descending."></parameter>
+                <parameter id="Start Date/Time" label="Start Date/Time" required="false" tooltip="Start date/time of the timeline. This value should be used to both refine and limit the search results. Format should be yyyy-MM-dd'T'HH:mm:ss'Z'"></parameter>
+                <parameter id="End Date/Time" label="End Date/Time" required="false" tooltip="End date/time of the timeline. This value should be used to both refine and limit the search results. Formatshould be yyyy-MM-dd'T'HH:mm:ss'Z'"></parameter>
+                <parameter id="Next Page Token" label="Next Page Token" required="false" tooltip="The value to use as the offset for the page of submissions to return. The submission that matches this value will not be included in the results."></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Submissions List JSON" tooltip="JSON representation of the list of Submissions found"></result>
+                <result name="Next Page Token" tooltip="The value to use as the offset for the next page of submissions to return"></result>
+                <result name="Count" tooltip="Number of submissions Found"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_core_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_core_api_v1" id="kinetic_core_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /kapps/:kappSlug/forms/:formSlug">/kapps/&lt;%=@inputs['Kapp Slug']%&gt;&lt;%=@inputs['Form Slug'].to_s.empty? ? '' : "/forms/#{@inputs['Form Slug']}"%&gt;/submissions?include=details,origin,parent,values,children,form,form.kapp&lt;%=@inputs['Core State'].to_s.empty? ? '' : "&amp;coreState=#{ERB::Util.url_encode(@inputs['Core State'])}"%&gt;&lt;%=@inputs['Limit'].to_s.empty? ? '' : "&amp;limit=#{ERB::Util.url_encode(@inputs['Limit'])}"%&gt;&lt;%=@inputs['Form Type'].to_s.empty? ? '' : "&amp;type=#{ERB::Util.url_encode(@inputs['Form Type'])}"%&gt;&lt;%=@inputs['Timeline'].to_s.empty? ? '' : "&amp;timeline=#{ERB::Util.url_encode(@inputs['Timeline'])}"%&gt;&lt;%=@inputs['Direction'].to_s.empty? ? '' : "&amp;direction=#{ERB::Util.url_encode(@inputs['Direction'])}"%&gt;&lt;%=@inputs['Start Date/Time'].to_s.empty? ? '' : "&amp;start=#{ERB::Util.url_encode(@inputs['Start Date/Time'])}"%&gt;&lt;%=@inputs['End Date/Time'].to_s.empty? ? '' : "&amp;end=#{ERB::Util.url_encode(@inputs['End Date/Time'])}"%&gt;&lt;%=@inputs['Next Page Token'].to_s.empty? ? '' : "&amp;pageToken=#{ERB::Util.url_encode(@inputs['Next Page Token'])}"%&gt;&lt;%=@inputs['Query'].to_s.empty? ? '' : "&amp;q=#{ERB::Util.url_encode(@inputs['Query'])}"%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty?">routine_handler_failure_error_process_v1_3</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Submissions List JSON" label="Submissions List JSON" required="false" tooltip="JSON representation of the list of Submissions found">&lt;%=JSON.parse(@results['API']['Response Body'])['submissions'].to_json%&gt;</parameter>
+                    <parameter id="Next Page Token" label="Next Page Token" required="false" tooltip="The value to use as the offset for the next page of submissions to return">&lt;%=JSON.parse(@results['API']['Response Body'])['nextPageToken']%&gt;</parameter>
+                    <parameter id="Count" label="Count" required="false" tooltip="Number of submissions Found">&lt;%=JSON.parse(@results['API']['Response Body'])['submissions'].size%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">CORE API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_submissions_retrieve_list_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_submissions_retrieve_list_v1" id="routine_kinetic_submissions_retrieve_list_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Kapp Slug" label="Kapp Slug" menu="" required="true" tooltip="The slug of the Kapp to find submissions in.">&lt;%=@results['Error Process']['Kapp Slug']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Form Slug" label="Form Slug" menu="" required="false" tooltip="The slug of the Form to find submissions in. If none provided, can only use Kapp Fields in search query">&lt;%=@results['Error Process']['Form Slug']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Form Type" label="Form Type" menu="" required="false" tooltip="The Type of Form to find submissions in.">&lt;%=@results['Error Process']['Form Type']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Core State" label="Core State" menu="" required="false" tooltip="Searches for submissions that have a core state that matches this parameter. If no value is provided, the results will contain submissions in all core states.">&lt;%=@results['Error Process']['Core State']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Limit" label="Limit" menu="" required="false" tooltip="Limit the number of results returned. If not provided, the server will limit the results to 25 submissions. Maximum limit 1000">&lt;%=@results['Error Process']['Limit']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Query" label="Query" menu="" required="false" tooltip="Query to use to fetch submissions. (i.e values[First Name]=&quot;Fred&quot;)">&lt;%=@results['Error Process']['Query']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Timeline" label="Timeline" menu="" required="false" tooltip="Date property to search by. The default value is createdAt.">&lt;%=@results['Error Process']['Timeline']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Direction" label="Direction" menu="" required="false" tooltip="Result Set sorting direction. The default value is descending.">&lt;%=@results['Error Process']['Direction']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Start Date/Time" label="Start Date/Time" menu="" required="false" tooltip="Start date/time of the timeline. This value should be used to both refine and limit the search results. Format should be yyyy-MM-dd'T'HH:mm:ss'Z'">&lt;%=@results['Error Process']['Start Date/Time']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="End Date/Time" label="End Date/Time" menu="" required="false" tooltip="End date/time of the timeline. This value should be used to both refine and limit the search results. Formatshould be yyyy-MM-dd'T'HH:mm:ss'Z'">&lt;%=@results['Error Process']['End Date/Time']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Next Page Token" label="Next Page Token" menu="" required="false" tooltip="The value to use as the offset for the page of submissions to return. The submission that matches this value will not be included in the results.">&lt;%=@results['Error Process']['Next Page Token']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Submissions List JSON" label="Submissions List JSON" required="false" tooltip="JSON representation of the list of Submissions found">&lt;%=@results['Retry']['Submissions List JSON']%&gt;</parameter>
+                    <parameter id="Next Page Token" label="Next Page Token" required="false" tooltip="The value to use as the offset for the next page of submissions to return">&lt;%=@results['Retry']['Next Page Token']%&gt;</parameter>
+                    <parameter id="Count" label="Count" required="false" tooltip="Number of submissions Found">&lt;%=@results['Retry']['Count']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

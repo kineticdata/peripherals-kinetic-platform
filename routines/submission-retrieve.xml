@@ -1,0 +1,228 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_submission_retrieve_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Submission Retrieve</name>
+        <author></author>
+        <notes></notes>
+        <lastID>6</lastID>
+        <taskDefinition id="routine_kinetic_submission_retrieve_v1" name="Submission Retrieve" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Id" label="Id" required="true" tooltip="The Id of the submission to retrieve"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Id" tooltip="The submissions id"></result>
+                <result name="Children JSON" tooltip="The submissions children"></result>
+                <result name="Closed At" tooltip="Date/Time the submision was closed"></result>
+                <result name="Closed By" tooltip="The username of the user who closed the submission"></result>
+                <result name="Core State" tooltip="The submissions core state"></result>
+                <result name="Created At" tooltip="Date/Time the submision was created"></result>
+                <result name="Created By" tooltip="The username of the user who created the submission"></result>
+                <result name="Current Page" tooltip="The submissions current page"></result>
+                <result name="Form Slug" tooltip="The slug of the submissions form"></result>
+                <result name="Handle" tooltip="The submissions handle"></result>
+                <result name="Kapp Slug" tooltip="The slug of the submissions kapp"></result>
+                <result name="Label" tooltip="The submissions label"></result>
+                <result name="Origin Id" tooltip="The Id of the submissions origin"></result>
+                <result name="Parent Id" tooltip="The Id of the submissions parent"></result>
+                <result name="Submitted At" tooltip="Date/Time the submision was submitted"></result>
+                <result name="Submitted By" tooltip="The username of the user who submitted the submission"></result>
+                <result name="Updated At" tooltip="Date/Time the submision was updated"></result>
+                <result name="Updated By" tooltip="The username of the user who updated the submission"></result>
+                <result name="Values JSON" tooltip="A JSON representation of the submissions values"></result>
+                <result name="Exists" tooltip="If the submission exists or not"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_core_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_core_api_v1" id="kinetic_core_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /kapps/:kappSlug/forms/:formSlug">/submissions/&lt;%=@inputs['Id']%&gt;?include=details,origin,parent,values,children,form,form.kapp</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i != 404">routine_handler_failure_error_process_v1_3</task>
+                    <task label="Has 404 Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i == 404">system_tree_return_v1_6</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The submissions id">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['id']%&gt;</parameter>
+                    <parameter id="Children JSON" label="Children JSON" required="false" tooltip="The submissions children">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['children'].to_json%&gt;</parameter>
+                    <parameter id="Closed At" label="Closed At" required="false" tooltip="Date/Time the submision was closed">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['closedAt']%&gt;</parameter>
+                    <parameter id="Closed By" label="Closed By" required="false" tooltip="The username of the user who closed the submission">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['closedBy']%&gt;</parameter>
+                    <parameter id="Core State" label="Core State" required="false" tooltip="The submissions core state">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['coreState']%&gt;</parameter>
+                    <parameter id="Created At" label="Created At" required="false" tooltip="Date/Time the submision was created">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['createdAt']%&gt;</parameter>
+                    <parameter id="Created By" label="Created By" required="false" tooltip="The username of the user who created the submission">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['createdBy']%&gt;</parameter>
+                    <parameter id="Current Page" label="Current Page" required="false" tooltip="The submissions current page">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['currentPage']%&gt;</parameter>
+                    <parameter id="Form Slug" label="Form Slug" required="false" tooltip="The slug of the submissions form">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['form']['slug']%&gt;</parameter>
+                    <parameter id="Handle" label="Handle" required="false" tooltip="The submissions handle">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['handle']%&gt;</parameter>
+                    <parameter id="Kapp Slug" label="Kapp Slug" required="false" tooltip="The slug of the submissions kapp">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['form']['kapp']['slug']%&gt;</parameter>
+                    <parameter id="Label" label="Label" required="false" tooltip="The submissions label">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['label']%&gt;</parameter>
+                    <parameter id="Origin Id" label="Origin Id" required="false" tooltip="The Id of the submissions origin">&lt;%=origin = JSON.parse(@results['API']['Response Body'])['submission']['origin']; origin.nil? ? '' : origin['id']%&gt;</parameter>
+                    <parameter id="Parent Id" label="Parent Id" required="false" tooltip="The Id of the submissions parent">&lt;%=parent = JSON.parse(@results['API']['Response Body'])['submission']['parent']; parent.nil? ? '' : parent['id']%&gt;</parameter>
+                    <parameter id="Submitted At" label="Submitted At" required="false" tooltip="Date/Time the submision was submitted">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['submittedAt']%&gt;</parameter>
+                    <parameter id="Submitted By" label="Submitted By" required="false" tooltip="The username of the user who submitted the submission">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['submittedBy']%&gt;</parameter>
+                    <parameter id="Updated At" label="Updated At" required="false" tooltip="Date/Time the submision was updated">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['updatedAt']%&gt;</parameter>
+                    <parameter id="Updated By" label="Updated By" required="false" tooltip="The username of the user who updated the submission">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['updatedBy']%&gt;</parameter>
+                    <parameter id="Values JSON" label="Values JSON" required="false" tooltip="A JSON representation of the submissions values">&lt;%=JSON.parse(@results['API']['Response Body'])['submission']['values'].to_json%&gt;</parameter>
+                    <parameter id="Exists" label="Exists" required="false" tooltip="If the submission exists or not">true</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_6" name="Return - Does Not Exist" x="402" y="187">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The submissions id"></parameter>
+                    <parameter id="Children JSON" label="Children JSON" required="false" tooltip="The submissions children"></parameter>
+                    <parameter id="Closed At" label="Closed At" required="false" tooltip="Date/Time the submision was closed"></parameter>
+                    <parameter id="Closed By" label="Closed By" required="false" tooltip="The username of the user who closed the submission"></parameter>
+                    <parameter id="Core State" label="Core State" required="false" tooltip="The submissions core state"></parameter>
+                    <parameter id="Created At" label="Created At" required="false" tooltip="Date/Time the submision was created"></parameter>
+                    <parameter id="Created By" label="Created By" required="false" tooltip="The username of the user who created the submission"></parameter>
+                    <parameter id="Current Page" label="Current Page" required="false" tooltip="The submissions current page"></parameter>
+                    <parameter id="Form Slug" label="Form Slug" required="false" tooltip="The slug of the submissions form"></parameter>
+                    <parameter id="Handle" label="Handle" required="false" tooltip="The submissions handle"></parameter>
+                    <parameter id="Kapp Slug" label="Kapp Slug" required="false" tooltip="The slug of the submissions kapp"></parameter>
+                    <parameter id="Label" label="Label" required="false" tooltip="The submissions label"></parameter>
+                    <parameter id="Origin Id" label="Origin Id" required="false" tooltip="The Id of the submissions origin"></parameter>
+                    <parameter id="Parent Id" label="Parent Id" required="false" tooltip="The Id of the submissions parent"></parameter>
+                    <parameter id="Submitted At" label="Submitted At" required="false" tooltip="Date/Time the submision was submitted"></parameter>
+                    <parameter id="Submitted By" label="Submitted By" required="false" tooltip="The username of the user who submitted the submission"></parameter>
+                    <parameter id="Updated At" label="Updated At" required="false" tooltip="Date/Time the submision was updated"></parameter>
+                    <parameter id="Updated By" label="Updated By" required="false" tooltip="The username of the user who updated the submission"></parameter>
+                    <parameter id="Values JSON" label="Values JSON" required="false" tooltip="A JSON representation of the submissions values"></parameter>
+                    <parameter id="Exists" label="Exists" required="false" tooltip="If the submission exists or not">false</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">CORE API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_submission_retrieve_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_submission_retrieve_v1" id="routine_kinetic_submission_retrieve_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Id" label="Id" menu="" required="true" tooltip="The Id of the submission to retrieve">&lt;%=@results['Error Process']['Id']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The submissions id">&lt;%=@results['Retry']['Id']%&gt;</parameter>
+                    <parameter id="Children JSON" label="Children JSON" required="false" tooltip="The submissions children">&lt;%=@results['Retry']['Children JSON']%&gt;</parameter>
+                    <parameter id="Closed At" label="Closed At" required="false" tooltip="Date/Time the submision was closed">&lt;%=@results['Retry']['Closed At']%&gt;</parameter>
+                    <parameter id="Closed By" label="Closed By" required="false" tooltip="The username of the user who closed the submission">&lt;%=@results['Retry']['Closed By']%&gt;</parameter>
+                    <parameter id="Core State" label="Core State" required="false" tooltip="The submissions core state">&lt;%=@results['Retry']['Core State']%&gt;</parameter>
+                    <parameter id="Created At" label="Created At" required="false" tooltip="Date/Time the submision was created">&lt;%=@results['Retry']['Created At']%&gt;</parameter>
+                    <parameter id="Created By" label="Created By" required="false" tooltip="The username of the user who created the submission">&lt;%=@results['Retry']['Created By']%&gt;</parameter>
+                    <parameter id="Current Page" label="Current Page" required="false" tooltip="The submissions current page">&lt;%=@results['Retry']['Current Page']%&gt;</parameter>
+                    <parameter id="Form Slug" label="Form Slug" required="false" tooltip="The slug of the submissions form">&lt;%=@results['Retry']['Form Slug']%&gt;</parameter>
+                    <parameter id="Handle" label="Handle" required="false" tooltip="The submissions handle">&lt;%=@results['Retry']['Handle']%&gt;</parameter>
+                    <parameter id="Kapp Slug" label="Kapp Slug" required="false" tooltip="The slug of the submissions kapp">&lt;%=@results['Retry']['Kapp Slug']%&gt;</parameter>
+                    <parameter id="Label" label="Label" required="false" tooltip="The submissions label">&lt;%=@results['Retry']['Label']%&gt;</parameter>
+                    <parameter id="Origin Id" label="Origin Id" required="false" tooltip="The Id of the submissions origin">&lt;%=@results['Retry']['Origin Id']%&gt;</parameter>
+                    <parameter id="Parent Id" label="Parent Id" required="false" tooltip="The Id of the submissions parent">&lt;%=@results['Retry']['Values JSON']%&gt;</parameter>
+                    <parameter id="Submitted At" label="Submitted At" required="false" tooltip="Date/Time the submision was submitted">&lt;%=@results['Retry']['Submitted At']%&gt;</parameter>
+                    <parameter id="Submitted By" label="Submitted By" required="false" tooltip="The username of the user who submitted the submission">&lt;%=@results['Retry']['Submitted By']%&gt;</parameter>
+                    <parameter id="Updated At" label="Updated At" required="false" tooltip="Date/Time the submision was updated">&lt;%=@results['Retry']['Updated At']%&gt;</parameter>
+                    <parameter id="Updated By" label="Updated By" required="false" tooltip="The username of the user who updated the submission">&lt;%=@results['Retry']['Updated By']%&gt;</parameter>
+                    <parameter id="Values JSON" label="Values JSON" required="false" tooltip="A JSON representation of the submissions values">&lt;%=@results['Retry']['Values JSON']%&gt;</parameter>
+                    <parameter id="Exists" label="Exists" required="false" tooltip="If the submission exists or not">&lt;%=@results['Retry']['Exists']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

@@ -1,0 +1,161 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_workflow_update_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Workflow Update</name>
+        <author></author>
+        <notes></notes>
+        <lastID>5</lastID>
+        <taskDefinition id="routine_kinetic_workflow_update_v1" name="Workflow Update" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters>
+                <parameter id="Current Title" label="Current Title" required="true" tooltip="The title of the workflow process (Source Name :: Source Group :: Name)"></parameter>
+                <parameter id="Updated - Source" label="Updated - Source" required="false" tooltip="The new source name"></parameter>
+                <parameter id="Updated - Group" label="Updated - Group" required="false" tooltip="The new source group name"></parameter>
+                <parameter id="Updated - Name" label="Updated - Name" required="false" tooltip="The new workflow name"></parameter>
+                <parameter id="Updated - Definition Id" label="Updated - Definition Id" required="false" tooltip="The new definition id"></parameter>
+                <parameter id="Updated - Notes" label="Updated - Notes" required="false" tooltip="The new workflow process notes"></parameter>
+                <parameter id="Updated - Owner Email" label="Updated - Owner Email" required="false" tooltip="The new owner email"></parameter>
+                <parameter id="Updated - Status" label="Updated - Status" required="false" tooltip="The new workflow process status"></parameter>
+                <parameter id="Updated - Type" label="Updated - Type" required="false" tooltip="The new workflow type"></parameter>
+                <parameter id="Updated - Inputs JSON" label="Updated - Inputs JSON" required="false" tooltip="The new inputs (Routines only) - JSON list of input objects"></parameter>
+                <parameter id="Updated - Outputs JSON" label="Updated - Outputs JSON" required="false" tooltip="The new outputs (Routines only) - JSON list of output objects"></parameter>
+                <parameter id="Updated - Categories JSON" label="Updated - Categories JSON" required="false" tooltip="The new categories - JSON list of category names"></parameter>
+                <parameter id="Updated - Tree Xml" label="Updated - Tree Xml" required="false" tooltip="The new tree definition, represented in XML form"></parameter>
+                <parameter id="Updated - Tree Json" label="Updated - Tree Json" required="false" tooltip="The new tree definition, represented in JSON form"></parameter>
+            </parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Id" tooltip="The tree id"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_task_api_v2_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_task_api_v2" id="kinetic_task_api_v2_1" name="API" x="269" y="77">
+                <version>2</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /trees/:title"></parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty?">routine_handler_failure_error_process_v1_3</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The tree id">&lt;%=JSON.parse(@results['API']['Response Body'])['tree']['id']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">Task API v2</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_workflow_update_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_workflow_update_v1" id="routine_kinetic_workflow_update_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Current Title" label="Current Title" menu="" required="true" tooltip="The title of the workflow process (Source Name :: Source Group :: Name)">&lt;%=@results['Error Process']['Current Title']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Source" label="Updated - Source" menu="" required="false" tooltip="The new source name">&lt;%=@results['Error Process']['Updated - Source']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Group" label="Updated - Group" menu="" required="false" tooltip="The new source group name">&lt;%=@results['Error Process']['Updated - Group']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Name" label="Updated - Name" menu="" required="false" tooltip="The new workflow name">&lt;%=@results['Error Process']['Updated - Name']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Definition Id" label="Updated - Definition Id" menu="" required="false" tooltip="The new definition id">&lt;%=@results['Error Process']['Updated - Definition Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Notes" label="Updated - Notes" menu="" required="false" tooltip="The new workflow process notes">&lt;%=@results['Error Process']['Updated - Notes']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Owner Email" label="Updated - Owner Email" menu="" required="false" tooltip="The new owner email">&lt;%=@results['Error Process']['Updated - Owner Email']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Status" label="Updated - Status" menu="" required="false" tooltip="The new workflow process status">&lt;%=@results['Error Process']['Updated - Status']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Type" label="Updated - Type" menu="" required="false" tooltip="The new workflow type">&lt;%=@results['Error Process']['Updated - Type']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Inputs JSON" label="Updated - Inputs JSON" menu="" required="false" tooltip="The new inputs (Routines only) - JSON list of input objects">&lt;%=@results['Error Process']['Updated - Inputs JSON']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Outputs JSON" label="Updated - Outputs JSON" menu="" required="false" tooltip="The new outputs (Routines only) - JSON list of output objects">&lt;%=@results['Error Process']['Updated - Outputs JSON']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Categories JSON" label="Updated - Categories JSON" menu="" required="false" tooltip="The new categories - JSON list of category names">&lt;%=@results['Error Process']['Updated - Categories JSON']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Tree Xml" label="Updated - Tree Xml" menu="" required="false" tooltip="The new tree definition, represented in XML form">&lt;%=@results['Error Process']['Updated - Tree Xml']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Updated - Tree Json" label="Updated - Tree Json" menu="" required="false" tooltip="The new tree definition, represented in JSON form">&lt;%=@results['Error Process']['Updated - Tree Json']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Id" label="Id" required="false" tooltip="The tree id">&lt;%=@results['Retry']['Id']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>

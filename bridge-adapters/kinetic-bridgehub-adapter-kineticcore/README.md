@@ -1,5 +1,7 @@
 # Kinetic Core Bridgehub Adapter
-A Kinetic Bridgehub adapter for the Kinetic Request: Core Edition platform
+This bridge adapter is built to work with Kinetic Request Core Edition (CE). 
+
+> ** This adapter has been depricated in favor of the Kinetic Platform Adapter for Kinetic Platform v5+ customers. 
 
 * [Kinetic Core Bridgehub Adapter Information](#kinetic-core-bridgehub-adapter-information)
   * [Configuration Values](#configuration-values)

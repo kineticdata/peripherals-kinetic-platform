@@ -1,0 +1,188 @@
+<tree schema_version="1.0">
+    <sourceName>-</sourceName>
+    <sourceGroup>-</sourceGroup>
+    <definitionId>routine_kinetic_space_retrieve_v1</definitionId>
+    <type>Global Routine</type>
+    <status>Active</status>
+    <taskTree builder_version="" schema_version="1.0" version="1">
+        <name>Space Retrieve</name>
+        <author></author>
+        <notes></notes>
+        <lastID>6</lastID>
+        <taskDefinition id="routine_kinetic_space_retrieve_v1" name="Space Retrieve" schema_version="1.0" version="1">
+            <visible>false</visible>
+            <deferrable>true</deferrable>
+            <parameters></parameters>
+            <handler name="system_tree_call" version="1"></handler>
+            <results format="xml">
+                <result name="Name" tooltip="The name of the space"></result>
+                <result name="Slug" tooltip="The slug of the space"></result>
+                <result name="After Logout Path" tooltip="The path in which users will be routed upon logout"></result>
+                <result name="Attributes Map JSON" tooltip="A JSON representation of the spaces attributes"></result>
+                <result name="Bundle Path" tooltip="The bundle path configured for the space"></result>
+                <result name="Default Locale" tooltip="The Default Locale of the space"></result>
+                <result name="Default Timezone" tooltip="The Default Timezone of the space"></result>
+                <result name="Display Type" tooltip="The Display Type of the space"></result>
+                <result name="Display Value" tooltip="The Display Value of the space"></result>
+                <result name="Enabled Locales JSON" tooltip="A JSON representation of the spaces enabled locales"></result>
+                <result name="Security Policies JSON" tooltip="A JSON representation of the spaces security policies"></result>
+            </results>
+        </taskDefinition>
+        <request>
+            <task definition_id="system_start_v1" id="start" name="Start" x="41" y="71">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">kinetic_core_api_v1_1</task>
+                </dependents>
+            </task>
+            <task definition_id="kinetic_core_api_v1" id="kinetic_core_api_v1_1" name="API" x="269" y="77">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="error_handling" label="Error Handling" menu="Error Message,Raise Error" required="true" tooltip="Determine what to return if an error is encountered.">Error Message</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="method" label="Method" menu="GET,POST,PUT,PATCH,DELETE" required="true" tooltip="GET,POST,PUT,PATCH,DELETE (Defaults to GET)">GET</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="path" label="Path" menu="" required="true" tooltip="Example: /kapps/:kappSlug/forms/:formSlug">/space?include=details,attributesMap,securityPolicies</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="body" label="Body" menu="" required="false" tooltip="JSON body if applicable (POST,PUT,PATCH)"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="No Error" type="Complete" value="@results['API']['Handler Error Message'].to_s.empty?">system_tree_return_v1_2</task>
+                    <task label="Has Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i != 404">routine_handler_failure_error_process_v1_3</task>
+                    <task label="Has 404 Error" type="Complete" value="!@results['API']['Handler Error Message'].to_s.empty? &amp;&amp; @results['API']['Response Code'].to_i == 404">system_tree_return_v1_6</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_2" name="Return Results" x="264" y="198">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Name" label="Name" required="false" tooltip="The name of the space">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['name']%&gt;</parameter>
+                    <parameter id="Slug" label="Slug" required="false" tooltip="The slug of the space">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['slug']%&gt;</parameter>
+                    <parameter id="After Logout Path" label="After Logout Path" required="false" tooltip="The path in which users will be routed upon logout">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['afterLogoutPath']%&gt;</parameter>
+                    <parameter id="Attributes Map JSON" label="Attributes Map JSON" required="false" tooltip="A JSON representation of the spaces attributes">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['attributesMap'].to_json%&gt;</parameter>
+                    <parameter id="Bundle Path" label="Bundle Path" required="false" tooltip="The bundle path configured for the space">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['bundlePath']%&gt;</parameter>
+                    <parameter id="Default Locale" label="Default Locale" required="false" tooltip="The Default Locale of the space">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['defaultLocale']%&gt;</parameter>
+                    <parameter id="Default Timezone" label="Default Timezone" required="false" tooltip="The Default Timezone of the space">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['defaultTimezone']%&gt;</parameter>
+                    <parameter id="Display Type" label="Display Type" required="false" tooltip="The Display Type of the space">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['displayType']%&gt;</parameter>
+                    <parameter id="Display Value" label="Display Value" required="false" tooltip="The Display Value of the space">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['displayValue']%&gt;</parameter>
+                    <parameter id="Enabled Locales JSON" label="Enabled Locales JSON" required="false" tooltip="A JSON representation of the spaces enabled locales">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['enabledLocales'].to_json%&gt;</parameter>
+                    <parameter id="Security Policies JSON" label="Security Policies JSON" required="false" tooltip="A JSON representation of the spaces security policies">&lt;%=JSON.parse(@results['API']['Response Body'])['space']['securityPolicies'].to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_6" name="Return - Does Not Exist" x="402" y="187">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Name" label="Name" required="false" tooltip="The name of the space"></parameter>
+                    <parameter id="Slug" label="Slug" required="false" tooltip="The slug of the space"></parameter>
+                    <parameter id="After Logout Path" label="After Logout Path" required="false" tooltip="The path in which users will be routed upon logout"></parameter>
+                    <parameter id="Attributes Map JSON" label="Attributes Map JSON" required="false" tooltip="A JSON representation of the spaces attributes"></parameter>
+                    <parameter id="Bundle Path" label="Bundle Path" required="false" tooltip="The bundle path configured for the space"></parameter>
+                    <parameter id="Default Locale" label="Default Locale" required="false" tooltip="The Default Locale of the space"></parameter>
+                    <parameter id="Default Timezone" label="Default Timezone" required="false" tooltip="The Default Timezone of the space"></parameter>
+                    <parameter id="Display Type" label="Display Type" required="false" tooltip="The Display Type of the space"></parameter>
+                    <parameter id="Display Value" label="Display Value" required="false" tooltip="The Display Value of the space"></parameter>
+                    <parameter id="Enabled Locales JSON" label="Enabled Locales JSON" required="false" tooltip="A JSON representation of the spaces enabled locales"></parameter>
+                    <parameter id="Security Policies JSON" label="Security Policies JSON" required="false" tooltip="A JSON representation of the spaces security policies"></parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+            <task definition_id="routine_handler_failure_error_process_v1" id="routine_handler_failure_error_process_v1_3" name="Error Process" x="517" y="66">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter dependsOnId="" dependsOnValue="" id="Error Message" label="Error Message" menu="" required="false" tooltip="Error Message">&lt;%=@results['API']['Handler Error Message']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Handler Name" label="Handler Name" menu="" required="false" tooltip="">CORE API</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Run Id" label="Run Id" menu="" required="false" tooltip="">&lt;%=@run['Id']%&gt;</parameter>
+                    <parameter dependsOnId="" dependsOnValue="" id="Inputs JSON" label="Inputs JSON" menu="" required="false" tooltip="">&lt;%=@inputs.to_json%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">routine_kinetic_space_retrieve_v1_4</task>
+                </dependents>
+            </task>
+            <task definition_id="routine_kinetic_space_retrieve_v1" id="routine_kinetic_space_retrieve_v1_4" name="Retry" x="696" y="76">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>true</defers>
+                <deferrable>true</deferrable>
+                <visible>false</visible>
+                <parameters></parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents>
+                    <task label="" type="Complete" value="">system_tree_return_v1_5</task>
+                </dependents>
+            </task>
+            <task definition_id="system_tree_return_v1" id="system_tree_return_v1_5" name="Return From Error" x="836" y="65">
+                <version>1</version>
+                <configured>true</configured>
+                <defers>false</defers>
+                <deferrable>false</deferrable>
+                <visible>false</visible>
+                <parameters>
+                    <parameter id="Name" label="Name" required="false" tooltip="The name of the space">&lt;%=@results['Retry']['Name']%&gt;</parameter>
+                    <parameter id="Slug" label="Slug" required="false" tooltip="The slug of the space">&lt;%=@results['Retry']['Slug']%&gt;</parameter>
+                    <parameter id="After Logout Path" label="After Logout Path" required="false" tooltip="The path in which users will be routed upon logout">&lt;%=@results['Retry']['After Logout Path']%&gt;</parameter>
+                    <parameter id="Attributes Map JSON" label="Attributes Map JSON" required="false" tooltip="A JSON representation of the spaces attributes">&lt;%=@results['Retry']['Attributes Map JSON']%&gt;</parameter>
+                    <parameter id="Bundle Path" label="Bundle Path" required="false" tooltip="The bundle path configured for the space">&lt;%=@results['Retry']['After Logout Path']%&gt;</parameter>
+                    <parameter id="Default Locale" label="Default Locale" required="false" tooltip="The Default Locale of the space">&lt;%=@results['Retry']['Default Locale']%&gt;</parameter>
+                    <parameter id="Default Timezone" label="Default Timezone" required="false" tooltip="The Default Timezone of the space">&lt;%=@results['Retry']['Default Timezone']%&gt;</parameter>
+                    <parameter id="Display Type" label="Display Type" required="false" tooltip="The Display Type of the space">&lt;%=@results['Retry']['Display Type']%&gt;</parameter>
+                    <parameter id="Display Value" label="Display Value" required="false" tooltip="The Display Value of the space">&lt;%=@results['Retry']['Display Value']%&gt;</parameter>
+                    <parameter id="Enabled Locales JSON" label="Enabled Locales JSON" required="false" tooltip="A JSON representation of the spaces enabled locales">&lt;%=@results['Retry']['Enabled Locales JSON']%&gt;</parameter>
+                    <parameter id="Security Policies JSON" label="Security Policies JSON" required="false" tooltip="A JSON representation of the spaces security policies">&lt;%=@results['Retry']['Security Policies JSON']%&gt;</parameter>
+                </parameters>
+                <messages>
+                    <message type="Create"></message>
+                    <message type="Update"></message>
+                    <message type="Complete"></message>
+                </messages>
+                <dependents></dependents>
+            </task>
+        </request>
+    </taskTree>
+</tree>
