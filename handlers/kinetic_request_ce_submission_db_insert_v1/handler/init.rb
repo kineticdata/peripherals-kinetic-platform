@@ -453,7 +453,7 @@ class KineticRequestCeSubmissionDbInsertV1
         end
 
         #Kapp general submission DB transaction.
-        @db.transaction(:retry_on => [Sequel::SerializationFailure]) do
+        @db.transaction(:retry_on => [Sequel::SerializationFailure, Sequel::UniqueConstraintViolation]) do
 
           ce_submission = {
             "c_id" => submission['id'],
@@ -519,7 +519,7 @@ class KineticRequestCeSubmissionDbInsertV1
         puts "Submission values: (#{submission_values.inspect})" if @enable_debug_logging
 
         #Form submission DB transaction.
-        @db.transaction(:retry_on => [Sequel::SerializationFailure]) do
+        @db.transaction(:retry_on => [Sequel::SerializationFailure, Sequel::UniqueConstraintViolation]) do
 
           # Once the table has been created/modified/verified, insert the submission into the table
           form_db_submission = {
