@@ -11,3 +11,6 @@ Kinetic Request CE Submission DB Insert V1.2 (2020-10-29)
 
 Kinetic Request CE Submission DB Insert V1.3 (2021-03-10)
 * Fixed bug submissions not getting updated in the database.
+
+Kinetic Request CE Submission DB Insert V1.4 (2022-04-01)
+* PER-268 fixed unique key constraint bug.
