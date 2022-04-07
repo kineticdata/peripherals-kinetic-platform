@@ -64,3 +64,6 @@ how the submission will be formatted in the table.
 (x) - Deleting a submission field value pushes null to the database for that field (for instances where a value is deleted)  
 (x) - Guaranteed upsert order (e.g. UPDATE form SET x = 'y' WHERE "c_updatedAt" < ?) ? = submission updatedAt  
 (x) - SQL Injection tested
+
+## Important Notes
+An **Overwrite** of the kinetic_request_ce_submission_db_insert_v1 handler requires a restart of the Tomcat server hosting the Task web application.
