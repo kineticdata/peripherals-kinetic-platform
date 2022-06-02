@@ -45,6 +45,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     "details",
     "form",
     "form.details",
+    "form.versionId",
     "form.fields.details",
     "type",
     "form.kapp",
@@ -100,7 +101,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 
     @enable_debug_logging = ["yes", "true"].include?(@info_values['enable_debug_logging'].to_s.strip.downcase)
     @enable_trace_logging = ["yes", "true"].include?(@info_values['enable_trace_logging'].to_s.strip.downcase)
-    
+
     puts "Parameters: #{@parameters.inspect}" if @enable_debug_logging
 
     host            = @info_values["host"]
@@ -135,7 +136,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     if @info_values['pool_timeout'].to_s =~ /\A[1-9]\d*\z/ then
       pool_timeout = @info_values["pool_timeout"].to_i
     end
-    
+
     @using_oracle = false
     Sequel.default_timezone = :utc
 
@@ -160,7 +161,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
       @max_db_identifier_size = 64 if @info_values["jdbc_database_id"].downcase == "postgresql"
       @db = Sequel.connect("jdbc:#{@info_values["jdbc_database_id"]}://#{host}:#{port}/#{database_name}?#{jdbc_url_opts}user=#{user}&password=#{password}", :max_connections => max_connections, :pool_timeout => pool_timeout)
     end
-    
+
     # Output SQL statements if the 'trace' level info parameter is set to true.
     @db.sql_log_level = :debug if @enable_trace_logging
     @db.logger = Logger.new($stdout) if @enable_trace_logging
@@ -198,15 +199,15 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
           submission_upsert_start = Time.now
           count = stream_form_submissions()
           submission_upsert_end = Time.now
-          puts "Successfully processed \"#{count}\" submissions between: #{@parameters['updated_startdate']} and #{@parameters['updated_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms"
-          complete_deferral("Success", "Successfully processed \"#{count}\" submissions between: #{@parameters['updated_startdate']} and #{@parameters['updated_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms");
+          puts "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms"
+          complete_deferral("Success", "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms");
         else
           puts "Starting kapp submission streaming" if @enable_debug_logging
           submission_upsert_start = Time.now
           count = stream_kapp_submissions()
           submission_upsert_end = Time.now
-          puts "Successfully processed \"#{count}\" submissions between: #{@parameters['updated_startdate']} and #{@parameters['updated_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms"
-          complete_deferral("Success", "Successfully processed \"#{count}\" submissions between: #{@parameters['updated_startdate']} and #{@parameters['updated_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms");
+          puts "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms"
+          complete_deferral("Success", "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms");
         end
       rescue Exception => e
         puts "ERROR: #{e.inspect}\n\t#{e.backtrace.join("\n\t")}"
@@ -243,7 +244,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     joinedThread.join()
     puts ("Joined!");
   end
-  
+
   def stream_form_submissions
 
     limit_count = @parameters['page_size'].to_s.match(/\d+/).nil? ? @parameters['page_size'].to_i : @@DEFAULT_SUBMISSION_QUERY_PAGE_SIZE
@@ -253,8 +254,8 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     query_string += "&direction=ASC"
     query_string += "&start=#{URI.encode(@parameters['updatedat_startdate'])}"
     query_string += "&end=#{URI.encode(@parameters['updatedat_enddate'])}"
-    
-    
+
+
 
     retrieved_submission_count = 0
     @parameters['specific_form_slugs'].split(",").each do |form_slug|
@@ -265,11 +266,11 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 
         # API route to get submissions in a kapp
         api_route = "#{@api_server}/app/api/v1/kapps/#{@parameters['specific_kapp_slug']}/forms/#{form_slug}/submissions?#{query_string}"
-        
+
         if next_page_token.nil? == false then
           api_route += "&pageToken=#{next_page_token}"
         end
-        
+
         puts "Kinetic Core Submission API URL: #{api_route}" if @enable_debug_logging
         puts "Retrieving #{@parameters['specific_kapp_slug']}/#{form_slug} form submissions with page token: #{next_page_token}" if @enable_debug_logging
 
@@ -278,7 +279,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         # Force UTF-8 encoding for windows. Assuming 8 bit signed (c*)
         response = resource.get.bytes.pack("c*").force_encoding("UTF-8")
         read_end_time = Time.now
-        
+
         current_page_token = next_page_token
         json_response = JSON.parse(response)
         next_page_token = json_response['nextPageToken']
@@ -292,11 +293,11 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
             :submissions  => json_response['submissions']
           })
         end
-        
+
         if next_page_token.nil? then
           more_submissions = false
         end
-        
+
       end
     end
 
@@ -337,11 +338,11 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 
         # API route to get submissions in a kapp
         api_route = "#{@api_server}/app/api/v1/kapps/#{kapp['slug']}/submissions?#{query_string}"
-        
+
         if next_page_token.nil? == false then
           api_route += "&pageToken=#{next_page_token}"
         end
-        
+
         puts "Kinetic Core Submission API URL: #{api_route}" if @enable_debug_logging
         puts "Retrieving #{kapp['slug']} kapp submissions with page token: #{next_page_token}" if @enable_debug_logging
 
@@ -350,7 +351,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         # Force UTF-8 encoding for windows. Assuming 8 bit signed (c*)
         response = resource.get.bytes.pack("c*").force_encoding("UTF-8")
         read_end_time = Time.now
-        
+
         current_page_token = next_page_token
         json_response = JSON.parse(response)
         next_page_token = json_response['nextPageToken']
@@ -364,11 +365,11 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
             :submissions  => json_response['submissions']
           })
         end
-        
+
         if next_page_token.nil? then
           more_submissions = false
         end
-        
+
       end
     end
 
@@ -467,12 +468,12 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 
         # {"c_id" => value, "c_formSlug" => value} -> {"c_id" => :$c_id, "c_formSlug" => :$c_formSlug}
         submission_values_columns_map = ce_submission
-          .map {|k,v| 
+          .map {|k,v|
             {k => "$#{k}".to_sym}
           }.reduce Hash.new, :merge
         # {"c_id" => value, "c_formSlug" => value} -> {:c_id => value, :c_formSlug => value}
         db_submission_values = ce_submission
-          .map {|k,v| 
+          .map {|k,v|
             {k.to_sym => v}
           }.reduce Hash.new, :merge
 
@@ -489,7 +490,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
           @db[kapp_table_name.to_sym].where(
             Sequel.lit('"c_id" = ? and "c_updatedAt" < ?', submission['id'], db_submission_values[:c_updatedAt]
           )).call(
-            :update, 
+            :update,
             db_submission_values,
             submission_values_columns_map
           )
@@ -530,12 +531,12 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 
         # {"c_id" => value, "c_formSlug" => value} -> {"c_id" => :$c_id, "c_formSlug" => :$c_formSlug}
         submission_values_columns_map = form_db_submission
-          .map {|k,v| 
+          .map {|k,v|
             {k => "$#{k}".to_sym}
           }.reduce Hash.new, :merge
         # {"c_id" => value, "c_formSlug" => value} -> {:c_id => value, :c_formSlug => value}
         db_submission_values = form_db_submission
-          .map {|k,v| 
+          .map {|k,v|
             {k.to_sym => v}
           }.reduce Hash.new, :merge
 
@@ -1104,7 +1105,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 ##########################################################################################################
 
   def generate_submissions_schemas(submissions)
-    
+
     submissions.each do |submission|
 
       kapp_slug = submission['form']['kapp']['slug']
@@ -1118,7 +1119,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         generate_kapp_table(kapp_slug)
         @@kapp_table_cache.push(canonical_kapp)
       end
-      
+
       create_or_update_form_table({
         :is_temporary => false,
         :kapp_slug  => kapp_slug,
