@@ -61,9 +61,13 @@ Kinetic Platform [handlers] (2021-10-30)
   * [kinetic_request_ce_attachment_copy_remote_server_v1]
     * initial commit.
 
-Kinetic Platform [handlers (2022-04-01)
+Kinetic Platform [handlers] (2022-04-01)
   * [kinetic_request_ce_submission_db_insert_v1]
     * PER-268 fixed unique key constraint bug.
+
+Kinetic Platform [handlers] (2022-07-13)
+  * [kinetic_request_ce_submission_db_insert_v1]
+    * KP-5616 fixed issues with limit field creation.
 
 Kinetic Platform [handlers (2022-08-15)
   * [kinetic_request_ce_submission_db_insert_v1]
@@ -72,3 +76,4 @@ Kinetic Platform [handlers (2022-08-15)
 Kinetic Platform [bridge-adapter] (2022-12-23)
   * [kinetic-bridgehub-adapter-kinetic-platform]
    * KP-5895 added webApi search/retrieve functionality (space and kapp)
+

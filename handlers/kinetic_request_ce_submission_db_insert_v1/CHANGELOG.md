@@ -15,5 +15,8 @@ Kinetic Request CE Submission DB Insert V1.3 (2021-03-10)
 Kinetic Request CE Submission DB Insert V1.4 (2022-04-01)
 * PER-268 fixed unique key constraint bug.
 
+Kinetic Request CE Submission DB Insert V1.4 (2022-07-03)
+* KP-5616 fixed issues with limit field creation.  Limited fields were being created on the kapp > form table but the fields were normal text not limited varchar 4000 fields.
+
 Kinetic Request CE Submission DB Insert V1.5 (2022-08-15)
 * KD8W-104 added enable debug logging info value. Updated the SQL logger to log to engine logs. Removed submission value logging.
