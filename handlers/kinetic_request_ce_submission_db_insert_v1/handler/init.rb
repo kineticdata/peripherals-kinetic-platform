@@ -160,7 +160,7 @@ class KineticRequestCeSubmissionDbInsertV1
     
     # Output SQL statements if the 'trace' level info parameter is set to true.
     @db.sql_log_level = :debug if @enable_trace_logging
-    @db.logger = Logger.new($stdout) if @enable_debug_logging
+    @db.logger = Logger.new($stdout) if @enable_trace_logging
 
     #Set max db identifier if info value is set to a valid positive integer.
     @max_db_identifier_size = @info_values["database_identifier_size"].strip.to_i if @info_values["database_identifier_size"].to_s.strip =~ /\A[1-9]\d*\z/
