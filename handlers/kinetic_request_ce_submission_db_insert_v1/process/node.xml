@@ -1,57 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <taskDefinition id="kinetic_request_ce_submission_db_insert" name="Kinetic Request CE Submission Database Insert" schema_version="1.0" version="1">
-    <author>support@kineticdata.com</author>
-    <description>Using the input of submission data this handler creates a record of that submission in an external database.</description>
-    <helpurl></helpurl>
-    <visible>true</visible>
-    <deferrable>false</deferrable>
-    <parameters>
-        <!-- The Error Handling parameter allows the user to choose is execution of the
+  <author>support@kineticdata.com</author>
+  <description>Using the input of submission data this handler creates a record of that submission in an external database.</description>
+  <helpurl></helpurl>
+  <visible>true</visible>
+  <deferrable>false</deferrable>
+  <parameters>
+    <!-- The Error Handling parameter allows the user to choose is execution of the
         handler should be stopped or not when an error occurs -->
-        <parameter id="error_handling" label="Error Handling" required="true"
-            tooltip="Determine what to return if an error is encountered." 
-            menu="Error Message,Raise Error">Error Message</parameter>
-        <parameter id="space_slug" label="Space Slug" required="false"
-          tooltip="Space slug of the submission."/>
-        <parameter id="kapp_slug" label="Kapp Slug" required="false"
-          tooltip="Kapp slug of the submission. Needed for delete updates"/>
-        <parameter id="form_slug" label="Form Slug" required="false"
-          tooltip="Form slug of the submission. Needed for delete updates"/>
-        <parameter id="datastore" label="Datastore Submission?" required="true"
-          tooltip="Is this a datastore submission?">no</parameter>
-        <parameter id="submission_id" label="Submission ID" required="true"
-          tooltip="The submission id to store in the relational database."></parameter>
-        <parameter id="submission_deletion_timestamp" label="Submission deletion timestamp." required="false"
-          tooltip="If set to a timestamp, the c_deletedAt database column will be set."></parameter>
+    <parameter id="error_handling" label="Error Handling" required="true" tooltip="Determine what to return if an error is encountered." menu="Error Message,Raise Error">Error Message</parameter>
+    <parameter id="space_slug" label="Space Slug" required="false" tooltip="Space slug of the submission." />
+    <parameter id="kapp_slug" label="Kapp Slug" required="false" tooltip="Kapp slug of the submission. Needed for delete updates" />
+    <parameter id="form_slug" label="Form Slug" required="false" tooltip="Form slug of the submission. Needed for delete updates" />
+    <parameter id="datastore" label="Datastore Submission?" required="true" tooltip="Is this a datastore submission?">no</parameter>
+    <parameter id="submission_id" label="Submission ID" required="true" tooltip="The submission id to store in the relational database."></parameter>
+    <parameter id="submission_deletion_timestamp" label="Submission deletion timestamp." required="false" tooltip="If set to a timestamp, the c_deletedAt database column will be set."></parameter>
+  </parameters>
+  <handler name="kinetic_request_ce_submission_db_insert" version="1">
+    <infos>
+      <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+      <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+      <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+      <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+      <info name="jdbc_database_id">&lt;%= @info["jdbc_database_id"] %&gt;</info>
+      <info name="jdbc_url_opts">&lt;%= @info["jdbc_url_opts"] %&gt;</info>
+      <info name="host">&lt;%= @info["host"] %&gt;</info>
+      <info name="port">&lt;%= @info["port"] %&gt;</info>
+      <info name="database_name">&lt;%= @info["database_name"] %&gt;</info>
+      <info name="database_identifier_size">&lt;%= @info["database_identifier_size"] %&gt;</info>
+      <info name="user">&lt;%= @info["user"] %&gt;</info>
+      <info name="password">&lt;%= @info["password"] %&gt;</info>
+      <info name="enable_debug_logging">&lt;%= @info["enable_debug_logging"] %&gt;</info>
+      <info name="enable_trace_logging">&lt;%= @info["enable_trace_logging"] %&gt;</info>
+    </infos>
+    <parameters>
+      <parameter name="error_handling">&lt;%= @parameters["error_handling"] %&gt;</parameter>
+      <parameter name="space_slug">&lt;%= @parameters["space_slug"] %&gt;</parameter>
+      <parameter name="kapp_slug">&lt;%= @parameters["kapp_slug"] %&gt;</parameter>
+      <parameter name="form_slug">&lt;%= @parameters["form_slug"] %&gt;</parameter>
+      <parameter name="datastore">&lt;%= @parameters["datastore"] %&gt;</parameter>
+      <parameter name="submission_id">&lt;%= @parameters["submission_id"] %&gt;</parameter>
+      <parameter name="submission_deletion_timestamp">&lt;%= @parameters["submission_deletion_timestamp"] %&gt;</parameter>
     </parameters>
-    <handler name="kinetic_request_ce_submission_db_insert" version="1">
-        <infos>
-            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
-            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
-            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
-            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
-            <info name="jdbc_database_id">&lt;%= @info["jdbc_database_id"] %&gt;</info>
-            <info name="jdbc_url_opts">&lt;%= @info["jdbc_url_opts"] %&gt;</info>
-            <info name="host">&lt;%= @info["host"] %&gt;</info>
-            <info name="port">&lt;%= @info["port"] %&gt;</info>
-            <info name="database_name">&lt;%= @info["database_name"] %&gt;</info>
-            <info name="database_identifier_size">&lt;%= @info["database_identifier_size"] %&gt;</info>
-            <info name="user">&lt;%= @info["user"] %&gt;</info>
-            <info name="password">&lt;%= @info["password"] %&gt;</info>
-            <info name="enable_debug_logging">&lt;%= @info["enable_debug_logging"] %&gt;</info>
-        </infos>
-        <parameters>
-            <parameter name="error_handling">&lt;%= @parameters["error_handling"] %&gt;</parameter>
-            <parameter name="space_slug">&lt;%= @parameters["space_slug"] %&gt;</parameter>
-            <parameter name="kapp_slug">&lt;%= @parameters["kapp_slug"] %&gt;</parameter>
-            <parameter name="form_slug">&lt;%= @parameters["form_slug"] %&gt;</parameter>
-            <parameter name="datastore">&lt;%= @parameters["datastore"] %&gt;</parameter>
-            <parameter name="submission_id">&lt;%= @parameters["submission_id"] %&gt;</parameter>
-            <parameter name="submission_deletion_timestamp">&lt;%= @parameters["submission_deletion_timestamp"] %&gt;</parameter>
-        </parameters>
-    </handler>
-    <results>
-        <result name="Submission Database Id"/>
-        <result name="Handler Error Message"/>
-    </results>
+  </handler>
+  <results>
+    <result name="Submission Database Id" />
+    <result name="Handler Error Message" />
+  </results>
 </taskDefinition>

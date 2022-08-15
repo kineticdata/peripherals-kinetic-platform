@@ -8,12 +8,12 @@
     'database_identifier_size' => '',
     'user' => '',
     'password' => '',
-    'enable_debug_logging' => 'true',
     'api_server' => '',
     'api_username' => '',
     'api_password' => '',
     'space_slug' => '',
-    'enable_debug_logging'=>'yes'
+    'enable_debug_logging'=>'yes',
+    'enable_trace_logging'=>'yes'
   },
   'parameters' => {
     'error_handling' => 'Error Message',
