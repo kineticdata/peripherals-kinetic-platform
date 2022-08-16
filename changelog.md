@@ -64,3 +64,7 @@ Kinetic Platform [handlers] (2021-10-30)
 Kinetic Platform [handlers (2022-04-01)
   * [kinetic_request_ce_submission_db_insert_v1]
     * PER-268 fixed unique key constraint bug.
+
+Kinetic Platform [handlers (2022-08-15)
+  * [kinetic_request_ce_submission_db_insert_v1]
+    * PER-268 added info value to db insert handler.

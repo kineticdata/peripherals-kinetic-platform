@@ -1,6 +1,5 @@
 # Require the dependencies file to load the vendor libraries
 require File.expand_path(File.join(File.dirname(__FILE__), "dependencies"))
-require 'logger'
 
 class KineticRequestCeSubmissionDbInsertV1
 
@@ -160,7 +159,7 @@ class KineticRequestCeSubmissionDbInsertV1
     
     # Output SQL statements if the 'trace' level info parameter is set to true.
     @db.sql_log_level = :debug if @enable_trace_logging
-    @db.logger = Logger.new($stdout) if @enable_trace_logging
+    @db.logger = org.apache.log4j.LogManager.getLogger("com.kineticdata") if @enable_trace_logging
 
     #Set max db identifier if info value is set to a valid positive integer.
     @max_db_identifier_size = @info_values["database_identifier_size"].strip.to_i if @info_values["database_identifier_size"].to_s.strip =~ /\A[1-9]\d*\z/
@@ -399,7 +398,6 @@ class KineticRequestCeSubmissionDbInsertV1
           puts "API ROUTE: #{api_route}" if @enable_debug_logging
           resource = RestClient::Resource.new(api_route, { :user => api_username, :password => api_password })
           response = resource.get
-          puts "Retrieved CE Submission: #{response}" if @enable_debug_logging
           submission = JSON.parse(response)['submission']
           submission_values = submission['values']
           form_definition = submission['form']
@@ -516,8 +514,6 @@ class KineticRequestCeSubmissionDbInsertV1
         #end general kapp submission database transaction
         end
 
-        puts "Submission values: (#{submission_values.inspect})" if @enable_debug_logging
-
         #Form submission DB transaction.
         @db.transaction(:retry_on => [Sequel::SerializationFailure, Sequel::UniqueConstraintViolation]) do
 
@@ -559,7 +555,7 @@ class KineticRequestCeSubmissionDbInsertV1
             }.reduce Hash.new, :merge
 
           puts "Upserting the submission #{submission["id"]}" if @enable_debug_logging
-          puts "#{submission["id"]} DB values: #{form_db_submission.inspect}" if @enable_debug_logging
+
           db_submissions = @db[form_table_name.to_sym]
           if @info_values['first_bulk_load'] || db_submissions.select(:c_id).where(:c_id => submission["id"]).count == 0 then
             submission_database_id = db_submissions.call(
