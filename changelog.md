@@ -67,4 +67,4 @@ Kinetic Platform [handlers (2022-04-01)
 
 Kinetic Platform [handlers (2022-08-15)
   * [kinetic_request_ce_submission_db_insert_v1]
-    * PER-268 added info value to db insert handler.
+    * KD8W-104 added info value to db insert handler.
