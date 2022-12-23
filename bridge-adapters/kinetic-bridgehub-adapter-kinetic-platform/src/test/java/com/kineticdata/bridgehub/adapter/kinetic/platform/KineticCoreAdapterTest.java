@@ -843,4 +843,61 @@ public class KineticCoreAdapterTest extends BridgeAdapterTestBase {
         
         RecordList records = getAdapter().search(request);
     }
+
+    @Test
+    public void test_get_webapi_search() throws Exception {
+        BridgeRequest request = new BridgeRequest();
+        request.setStructure("WebApi");
+        request.setQuery("");
+
+        List<String> fields = Arrays.asList("method", "slug");
+        request.setFields(fields);
+
+        RecordList records = getAdapter().search(request);
+        Assert.assertTrue(records.getRecords().size() > 0);
+    }
+
+    @Test
+    public void test_get_webapi_retrieve() throws Exception {
+        BridgeRequest request = new BridgeRequest();
+        request.setStructure("WebApi");
+        request.setQuery("webApiSlug = asdf");
+
+        List<String> fields = Arrays.asList("method", "slug");
+        request.setFields(fields);
+
+        Record records = getAdapter().retrieve(request);
+        Assert.assertTrue(records.getRecord().size() > 0);
+    }
+
+    @Test
+    public void test_get_webapi_kapp_search() throws Exception {
+        BridgeRequest request = new BridgeRequest();
+        request.setStructure("WebApi > services");
+        request.setQuery("");
+
+        List<String> fields = Arrays.asList("method", "slug");
+        request.setFields(fields);
+
+        RecordList records = getAdapter().search(request);
+        Assert.assertTrue(records.getRecords().size() > 0);
+    }
+
+    @Test
+    public void test_get_webapi_kapp_retrieve() throws Exception {
+        BridgeRequest request = new BridgeRequest();
+        request.setStructure("WebApi > services");
+        request.setQuery("webApiSlug = <%=parameter[\"WebApi Slug\"]%>");
+
+        Map parameters = new HashMap();
+        parameters.put("WebApi Slug", "asdf");
+        request.setParameters(parameters);
+
+        List<String> fields = Arrays.asList("method", "slug");
+        request.setFields(fields);
+
+        Record records = getAdapter().retrieve(request);
+        Assert.assertTrue(records.getRecord().size() > 0);
+    }
+
 }

@@ -68,3 +68,7 @@ Kinetic Platform [handlers (2022-04-01)
 Kinetic Platform [handlers (2022-08-15)
   * [kinetic_request_ce_submission_db_insert_v1]
     * KD8W-104 added info value to db insert handler.
+
+Kinetic Platform [bridge-adapter] (2022-12-23)
+  * [kinetic-bridgehub-adapter-kinetic-platform]
+   * KP-5895 added webApi search/retrieve functionality (space and kapp)
