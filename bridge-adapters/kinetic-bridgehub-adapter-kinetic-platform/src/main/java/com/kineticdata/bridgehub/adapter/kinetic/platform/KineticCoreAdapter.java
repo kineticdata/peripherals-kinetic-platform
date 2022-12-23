@@ -90,6 +90,10 @@ public class KineticCoreAdapter implements BridgeAdapter {
             Arrays.asList("createdAt", "name", "slug", "updateAt", "attributes\\[.+\\]"),
             KineticCoreAdapter::paginationSupportedForUnrestrictedModel,
             KineticCoreAdapter::pathSpace));
+        put("WebApi", new KineticCoreMapping("WebApi", "webApis", "webApi",
+                Arrays.asList("details", "securityPolicies"),
+                KineticCoreAdapter::paginationSupportedForUnrestrictedModel,
+                KineticCoreAdapter::pathWebApi));
     }};
     
     /*----------------------------------------------------------------------------------------------
@@ -859,6 +863,25 @@ public class KineticCoreAdapter implements BridgeAdapter {
             throw new BridgeError("The Forms structure must have > :Kapp_Slug"
                     + " in the qualification mapping");
         }
+    }
+
+    protected static String pathWebApi(String [] structureArray,
+                                      Map<String, String> parameters) throws BridgeError {
+
+        String path = null;
+
+        if (structureArray.length > 1) {
+            // This will be the case where we are looking for a kapp
+            path = String.format("/kapps/%s/webApis", structureArray[1]);
+        } else {
+            path = "/webApis";
+        }
+
+        // Append the webApi slug to the path if it's provided
+        path = parameters.containsKey("webApiSlug")
+                ? path + "/" + parameters.get("webApiSlug") : path;
+
+        return path;
     }
     
     private String substituteQueryParameters(BridgeRequest request) throws BridgeError {

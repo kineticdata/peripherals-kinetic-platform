@@ -12,20 +12,23 @@ Configuration Values provide connection information that configures where and ho
 | Password                | The password that is associated with the username | secret-password |
 | Kinetic Core Space Url  | The url of the Kinetic Core instance up to and including the space that up want to be retrieving the data from | https://localhost:8080/kinetic/space-slug |
 
-## Supported Structures=
-| Name | Description |
-| :---------------------- | :------------------------- |
-| Space | Get space |
-| Datastore Forms | Get datastore forms |
-| Datastore Submissions | Get a datastore submission.  id=submission_slug required in qualification mapping |
-| Datastroe Submissions > FORM_SLUG | Get datastore submissions for a form |
-| Kapps | Get kapps |
-| Forms > KAPP_SLUG | Get forms for a kapp |
-| Submissions | Get a submission. id=submission_slug required in qualification mapping |
-| Submissions > KAPP_SLUG | Get submissions for a kapp |
-| Submissions > KAPP_SLUG > FORM_SLUG | Get submissions for a kapp and form |
-| Teams | Get teams |
-| Users | Get Users |
+## Supported Structures
+| Name                                | Description                                                                      |
+|:------------------------------------|:---------------------------------------------------------------------------------|
+| Space                               | Get space                                                                        |
+| Datastore Forms                     | Get datastore forms                                                              |
+| Datastore Submissions               | Get a datastore submission.  id=submission_slug required in qualification mapping |
+| Datastroe Submissions > FORM_SLUG   | Get datastore submissions for a form                                             |
+| Kapps                               | Get kapps                                                                        |
+| Forms > KAPP_SLUG                   | Get forms for a kapp                                                             |
+| Submissions                         | Get a submission. id=submission_slug required in qualification mapping           |
+| Submissions > KAPP_SLUG             | Get submissions for a kapp                                                       |
+| Submissions > KAPP_SLUG > FORM_SLUG | Get submissions for a kapp and form                                              |
+| Teams                               | Get teams                                                                        |
+| Users                               | Get Users                                                                        |
+| WebApi                              | Get a list of webapis for a space                                                | 
+| Webapi > KAPP_SLUG                  | Get a list of webapis for a kapp|
+
 
 ## Attributes and Fields
 Attributes are a mapping between a _Name_ that can be referenced in the Platform and _Fields_.  Fields are accessors to values in the source system that will be returned with the record.  Attributes are set inside the Kinetic Platform admin console under Space > Models > _Specific Model_ > Attributes.
