@@ -190,6 +190,17 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 #
 #######################################################################################################
   def execute
+    # Get kapp fields and add them to the kapp_fields list
+    @@KAPP_FIELDS = get_kapp_fields({
+      :api_server => @api_server, 
+      :kapp_slug => @parameters['specific_kapp_slug'], 
+      :api_username => @api_username, 
+      :api_password => @api_password
+    })
+    # Update the kapp table with new kapp feilds
+    update_kapp_table_columns({
+      :kapp_slug => @parameters['specific_kapp_slug']
+    })
 
     # Initialize a thread to do the work
     thread = java.lang.Thread.new do
@@ -200,18 +211,18 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
           count = stream_form_submissions()
           submission_upsert_end = Time.now
           puts "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms"
-          complete_deferral("Success", "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms");
+          complete_deferral("Success", "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms") unless @parameters['deferral_token'].empty?;
         else
           puts "Starting kapp submission streaming" if @enable_debug_logging
           submission_upsert_start = Time.now
           count = stream_kapp_submissions()
           submission_upsert_end = Time.now
           puts "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms"
-          complete_deferral("Success", "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms");
+          complete_deferral("Success", "Successfully processed \"#{count}\" submissions between: #{@parameters['updatedat_startdate']} and #{@parameters['updatedat_enddate']} within #{(submission_upsert_end - submission_upsert_start) * 1000} ms") unless @parameters['deferral_token'].empty?;
         end
       rescue Exception => e
         puts "ERROR: #{e.inspect}\n\t#{e.backtrace.join("\n\t")}"
-        complete_deferral("Failure", build_error_message(e))
+        complete_deferral("Failure", build_error_message(e)) unless @parameters['deferral_token'].empty?
       # Remove self from active thread reference
       ensure
         # Disconnect DB at the end
@@ -222,9 +233,15 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     end
 
     if @@activeThread.compareAndSet(nil, thread) then
-      puts "Starting thread."
-      thread.start()
-      result = {"Started" => "true", "Error Message" => ""}
+      begin
+        puts "Starting thread."
+        thread.start()
+        # Join threads for running the handler using the test harness
+        thread_join() if ENV['TEST_HANDLER']
+        result = {"Started" => "true", "Error Message" => ""}
+      rescue Exception => e
+        puts "Thread ERROR: #{e.inspect}\n\t#{e.backtrace.join("\n\t")}"
+      end
     else
       result = {"Started" => "false", "Error Message" => "There is already an instance of this process running."}
     end
@@ -465,6 +482,16 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         ["closedAt", "createdAt", "submittedAt", "updatedAt"].each do |actionTimestamp|
           ce_submission["c_#{actionTimestamp}"] = DateTime.parse(submission[actionTimestamp]) if submission[actionTimestamp].nil? == false
         end
+
+        # value.to_s is necessary for attachment and multi-value answers which are not stored as JSON strings
+        submission_values.each { |field,value|
+          if kapp_fields.include? field
+            #ternary: if value is nil, use nil - else use the value converted to a string.
+            ce_submission[unlimited_column_names_by_field[field]] = value.nil? ? nil : value.to_s
+            truncated_value = value.to_s[0,db_column_size_limits[:formField] - 1]
+            ce_submission[limited_column_names_by_field[field]] = value.nil? ? nil : truncated_value
+          end
+        }
 
         # {"c_id" => value, "c_formSlug" => value} -> {"c_id" => :$c_id, "c_formSlug" => :$c_formSlug}
         submission_values_columns_map = ce_submission
@@ -854,6 +881,71 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     @@kapp_form_table_cache[canonical_form] = submission['form']['versionId']
     puts "update_form_table_columns :: @@kapp_form_table_cache => #{@@kapp_form_table_cache.inspect}"
 
+  end
+
+##########################################################################################################
+#
+# update_kapp_table_columns
+#
+# Updates the kapp table with new columns, based on the kapp list and if they do not already exist on the table.
+#
+##########################################################################################################
+
+  def update_kapp_table_columns(args)
+    # Get list of columns for the kapp table
+    table_columns = get_table_column_names(args[:kapp_slug].to_sym)
+
+    # Get a list of unique kapp columns (table has a mix of metadata and kapp field columns)
+    reduced_columns = table_columns.reduce([]) do |acc, column| 
+      column[0,2] == "l_" ? acc << column[2..-1] : acc
+    end
+
+    # Get a list of kapp fields that are not columns on the kapp table
+    missing_columns = @@KAPP_FIELDS - reduced_columns
+
+    # Get a list of limited and unlimited column names
+    unlimited_column_names_by_field, limited_column_names_by_field = get_column_names(missing_columns)
+
+    # Get a list of columns to add to the kapp table
+    columns_to_add = unlimited_column_names_by_field.values.concat(limited_column_names_by_field.values)
+    
+    # Get the kapp table name
+    kapp_table_name = get_kapp_table_name(args[:kapp_slug], {:is_temporary => args[:is_temporary]})
+
+    # Add new columns to the kapp table
+    if columns_to_add.empty? == false
+      @db.transaction(:retry_on => [Sequel::SerializationFailure]) do
+        puts "Adding the new columns '#{columns_to_add.join(",")}' to #{kapp_table_name}" if @enable_debug_logging
+        @db.alter_table(kapp_table_name.to_sym) do
+          columns_to_add.each { |sql_column| add_column(sql_column.to_sym, String, :text => true) }
+        end
+      end
+    end
+  end
+
+##########################################################################################################
+#
+# get_kapp_fields
+#
+# Get a list of kapp fields from Core
+#
+##########################################################################################################
+
+  def get_kapp_fields(args)
+    # Get kapp fields
+    api_route = "#{args[:api_server]}/app/api/v1/kapps/#{args[:kapp_slug]}?include=fields"
+    puts "API ROUTE: #{api_route}" if @enable_debug_logging
+    resource = RestClient::Resource.new(api_route, { :user => args[:api_username], :password => args[:api_password] })
+    response = resource.get
+
+    response_json = JSON.parse(response)
+
+    # Reduce the response data to a list of kapp field names
+    kapp_fields = response_json["kapp"]["fields"].map{ |field| 
+      field["name"]
+    }
+
+    return kapp_fields 
   end
 
 ##########################################################################################################

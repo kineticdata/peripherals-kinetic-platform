@@ -235,6 +235,20 @@ class KineticRequestCeSubmissionDbInsertV1
       end
     end
 
+    if kapp_slug.nil? == false && submissions.nil? == false then
+      # Get kapp fields and add them to the kapp_fields list
+      @kapp_fields = get_kapp_fields({
+        :api_server => api_server, 
+        :kapp_slug => kapp_slug, 
+        :api_username => api_username, 
+        :api_password => api_password
+      })
+      # Update the kapp table with new kapp feilds
+      update_kapp_table_columns({
+        :kapp_slug => kapp_slug
+      })
+    end
+
     puts "Submissions drivers_parameters: #{submissions.inspect}" if @enable_debug_logging
 
     # If this is a bulk insert...
@@ -355,7 +369,6 @@ class KineticRequestCeSubmissionDbInsertV1
     else
 
       db_column_size_limits = @db_column_size_limits
-      kapp_fields = @kapp_fields
       submission_id = submission["id"] if submission.nil? == false
 
       # If this is a deleted submission...
@@ -394,7 +407,7 @@ class KineticRequestCeSubmissionDbInsertV1
 
         #If passed in a submission id by the task engine, retrieve the submission information.
         if submission_id.nil? == false then
-          api_route = "#{api_server}/app/api/v1/#{datastore == "yes" ? "datastore/" : ""}submissions/#{submission_id}/?include=details,descendents,form,form.details,form.fields.details,type,form.kapp,values"
+          api_route = "#{api_server}/app/api/v1/#{datastore == "yes" ? "datastore/" : ""}submissions/#{submission_id}/?include=details,descendents,form,form.details,form.fields.details,type,form.kapp,values,form.kapp.fields"
           puts "API ROUTE: #{api_route}" if @enable_debug_logging
           resource = RestClient::Resource.new(api_route, { :user => api_username, :password => api_password })
           response = resource.get
@@ -403,12 +416,29 @@ class KineticRequestCeSubmissionDbInsertV1
           form_definition = submission['form']
           form_slug = submission['form']['slug']
           kapp_slug = submission['form'].has_key?('kapp') ? submission['form']['kapp']['slug'] : nil
+
+          @kapp_fields = submission['form']['kapp']['fields'].map() do |field| 
+            field["name"]
+          end
         else
           submission_values = submission['values']
           form_definition = submission['form']
           form_slug = submission['form']['slug']
           kapp_slug = submission['form'].has_key?('kapp') ? submission['form']['kapp']['slug'] : nil
+
+          # Reset Kapp fields
+          @kapp_fields = get_kapp_fields({
+            :api_server => api_server, 
+            :kapp_slug => kapp_slug, 
+            :api_username => api_username, 
+            :api_password => api_password
+          })
         end
+
+        # Add columns if the kapp table does not have all kapp fields defined
+        update_kapp_table_columns({
+          :kapp_slug => kapp_slug
+        })
 
         # Get table names
         form_table_name     = get_form_table_name(kapp_slug, form_slug)
@@ -450,6 +480,9 @@ class KineticRequestCeSubmissionDbInsertV1
           parentId = submission['parent']['id']
         end
 
+        # !IMPORTANT Maybe delete this
+        kapp_fields = @kapp_fields
+
         #Kapp general submission DB transaction.
         @db.transaction(:retry_on => [Sequel::SerializationFailure, Sequel::UniqueConstraintViolation]) do
 
@@ -478,6 +511,16 @@ class KineticRequestCeSubmissionDbInsertV1
           ["closedAt", "createdAt", "submittedAt", "updatedAt"].each do |actionTimestamp|
             ce_submission["c_#{actionTimestamp}"] = DateTime.parse(submission[actionTimestamp]) if submission[actionTimestamp].nil? == false
           end
+
+          # value.to_s is necessary for attachment and multi-value answers which are not stored as JSON strings
+          submission_values.each { |field,value|
+            if @kapp_fields.include? field
+              #ternary: if value is nil, use nil - else use the value converted to a string.
+              ce_submission[unlimited_column_names_by_field[field]] = value.nil? ? nil : value.to_s
+              truncated_value = value.to_s[0,db_column_size_limits[:formField] - 1]
+              ce_submission[limited_column_names_by_field[field]] = value.nil? ? nil : truncated_value
+            end
+          }
 
           # {"c_id" => value, "c_formSlug" => value} -> {"c_id" => :$c_id, "c_formSlug" => :$c_formSlug}
           submission_values_columns_map = ce_submission
@@ -914,6 +957,71 @@ class KineticRequestCeSubmissionDbInsertV1
       end
     end
 
+  end
+
+##########################################################################################################
+#
+# update_kapp_table_columns
+#
+# Updates the kapp table with new columns, based on the kapp list and if they do not already exist on the table.
+#
+##########################################################################################################
+
+  def update_kapp_table_columns(args)
+    # Get list of columns for the kapp table
+    table_columns = get_table_column_names(args[:kapp_slug].to_sym)
+
+    # Get a list of unique kapp columns (table has a mix of metadata and kapp field columns)
+    reduced_columns = table_columns.reduce([]) do |acc, column| 
+      column[0,2] == "l_" ? acc << column[2..-1] : acc
+    end
+
+    # Get a list of kapp fields that are not columns on the kapp table
+    missing_columns = @kapp_fields - reduced_columns
+
+    # Get a list of limited and unlimited column names
+    unlimited_column_names_by_field, limited_column_names_by_field = get_column_names(missing_columns)
+
+    # Get a list of columns to add to the kapp table
+    columns_to_add = unlimited_column_names_by_field.values.concat(limited_column_names_by_field.values)
+    
+    # Get the kapp table name
+    kapp_table_name = get_kapp_table_name(args[:kapp_slug], {:is_temporary => args[:is_temporary]})
+
+    # Add new columns to the kapp table
+    if columns_to_add.empty? == false
+      @db.transaction(:retry_on => [Sequel::SerializationFailure]) do
+        puts "Adding the new columns '#{columns_to_add.join(",")}' to #{kapp_table_name}" if @enable_debug_logging
+        @db.alter_table(kapp_table_name.to_sym) do
+          columns_to_add.each { |sql_column| add_column(sql_column.to_sym, String, :text => true) }
+        end
+      end
+    end
+  end
+
+##########################################################################################################
+#
+# get_kapp_fields
+#
+# Get a list of kapp fields from Core
+#
+##########################################################################################################
+
+  def get_kapp_fields(args)
+    # Get kapp fields
+    api_route = "#{args[:api_server]}/app/api/v1/kapps/#{args[:kapp_slug]}?include=fields"
+    puts "API ROUTE: #{api_route}" if @enable_debug_logging
+    resource = RestClient::Resource.new(api_route, { :user => args[:api_username], :password => args[:api_password] })
+    response = resource.get
+
+    response_json = JSON.parse(response)
+
+    # Reduce the response data to a list of kapp field names
+    kapp_fields = response_json["kapp"]["fields"].map{ |field| 
+      field["name"]
+    }
+
+    return kapp_fields 
   end
 
 ##########################################################################################################
