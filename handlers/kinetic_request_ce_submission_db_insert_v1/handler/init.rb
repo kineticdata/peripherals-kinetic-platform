@@ -883,7 +883,7 @@ class KineticRequestCeSubmissionDbInsertV1
       if columns_to_add.empty? == false
         puts "Adding the new columns '#{columns_to_add.join(",")}' to #{form_table_name}" if @enable_debug_logging
 
-        # assign variables to be local (there was an issue using class variables inside the .each)
+        # Assigning outside of the alter_table block because code inside the block is referring to a different instance and not have access to this variable.
         using_oracle = @using_oracle
         db_column_size_limits = @db_column_size_limits
         
