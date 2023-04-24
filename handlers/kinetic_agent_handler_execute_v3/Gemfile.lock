@@ -1,0 +1,33 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    bouncy-castle-java (1.5.0147)
+    domain_name (0.5.20190701)
+      unf (>= 0.0.5, < 1.0.0)
+    http-cookie (1.0.5)
+      domain_name (~> 0.5)
+    jruby-openssl (0.9.4)
+      bouncy-castle-java (>= 1.5.0147)
+    json (1.8.6)
+    mime-types (1.25.1)
+    netrc (0.11.0)
+    rest-client (1.8.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.8.2)
+
+PLATFORMS
+  arm64-darwin-22
+
+DEPENDENCIES
+  bouncy-castle-java (~> 1.5)
+  jruby-openssl (~> 0.8)
+  json (~> 1.8)
+  mime-types (~> 1.19)
+  rest-client (~> 1.6)
+
+BUNDLED WITH
+   2.4.10

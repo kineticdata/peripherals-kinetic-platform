@@ -1,0 +1,23 @@
+require 'bundler'
+gem 'rubyzip'
+require 'zip'
+task :package do
+  Bundler.with_unbundled_env do
+    handler = ENV['handler']
+    raise "set handler= env variable" if handler.nil? or handler.empty?
+
+    if File.directory?(handler)
+      system "cd #{handler} && BUNDLE_PATH=./vendor bundle install --quiet"
+      Zip.continue_on_exists_proc = true
+      Zip::File.open("#{handler}.zip", create: true) do |zipfile|
+        Dir["#{handler}/**/**"].each do |f|
+          zipfile.add(f, f) unless File.directory?(f)
+        end
+      end
+      puts "created #{handler}.zip"
+    else
+      puts "could not find handler #{args[:handler_name]}"
+    end
+  end
+
+end
