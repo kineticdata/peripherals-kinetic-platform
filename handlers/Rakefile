@@ -5,6 +5,7 @@ task :package do
   Bundler.with_unbundled_env do
     handler = ENV['handler']
     raise "set handler= env variable" if handler.nil? or handler.empty?
+    short_hash = `git rev-parse --short HEAD`
 
     if File.directory?(handler)
       system "cd #{handler} && BUNDLE_PATH=./vendor bundle install --quiet"
@@ -13,6 +14,8 @@ task :package do
         Dir["#{handler}/**/**"].each do |f|
           zipfile.add(f, f) unless File.directory?(f)
         end
+        File.open('.version', 'w'){|f| f.puts short_hash}
+        zipfile.add('.version', '.version')
       end
       puts "created #{handler}.zip"
     else
