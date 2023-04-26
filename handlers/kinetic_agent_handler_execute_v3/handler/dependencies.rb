@@ -1,3 +1,4 @@
+require 'bundler/setup'
 # If the Kinetic Task version is under 4, load the openssl and json libraries
 # because they are not included in the ruby version
 if KineticTask::VERSION.split(".").first.to_i < 4
@@ -9,8 +10,6 @@ if KineticTask::VERSION.split(".").first.to_i < 4
     # Calculate the location of this file
     handler_path = File.expand_path(File.dirname(__FILE__))
     # Calculate the location of our library and add it to the Ruby load path
-    library_path = File.join(handler_path, "vendor/bouncy-castle-java-1.5.0147/lib")
-    $:.unshift library_path
     # Require the library
     require "bouncy-castle-java"
     
@@ -18,8 +17,6 @@ if KineticTask::VERSION.split(".").first.to_i < 4
     # Calculate the location of this file
     handler_path = File.expand_path(File.dirname(__FILE__))
     # Calculate the location of our library and add it to the Ruby load path
-    library_path = File.join(handler_path, "vendor/jruby-openssl-0.8.8/lib/shared")
-    $:.unshift library_path
     # Require the library
     require "openssl"
     # Require the version constant
@@ -41,9 +38,6 @@ if KineticTask::VERSION.split(".").first.to_i < 4
     # Calculate the location of this file
     handler_path = File.expand_path(File.dirname(__FILE__))
     # Calculate the location of our library and add it to the Ruby load path
-    library_path = File.join(handler_path, "vendor/json-1.8.0/lib")
-    $:.unshift library_path
-    # Require the library
     require "json"
   end
 
@@ -63,8 +57,6 @@ if not defined?(MIME)
   # Calculate the location of this file
   handler_path = File.expand_path(File.dirname(__FILE__))
   # Calculate the location of our library and add it to the Ruby load path
-  library_path = File.join(handler_path, "vendor/mime-types-1.19/lib/")
-  $:.unshift library_path
   # Require the library
   require "mime/types"
 end
@@ -85,8 +77,6 @@ if not defined?(RestClient)
   # Calculate the location of this file
   handler_path = File.expand_path(File.dirname(__FILE__))
   # Calculate the location of our library and add it to the Ruby load path
-  library_path = File.join(handler_path, "vendor/rest-client-1.6.7/lib")
-  $:.unshift library_path
   # Require the library
   require "rest-client"
 end
