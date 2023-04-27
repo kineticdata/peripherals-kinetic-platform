@@ -1,4 +1,13 @@
-require 'bundler/setup'
+require 'bundler/inline'
+if not File.directory? ENV['GEM_HOME']
+  gemfile do
+    source 'https://rubygems.org'
+    gem "bouncy-castle-java", "~>1.5"
+    gem "jruby-openssl", "0.10.4"
+    gem "mime-types", "1.19"
+    gem "rest-client", "1.6.7"
+  end
+end
 # If the Kinetic Task version is under 4, load the openssl and json libraries
 # because they are not included in the ruby version
 if KineticTask::VERSION.split(".").first.to_i < 4
@@ -12,8 +21,8 @@ if KineticTask::VERSION.split(".").first.to_i < 4
     # Calculate the location of our library and add it to the Ruby load path
     # Require the library
     require "bouncy-castle-java"
-    
-    
+
+
     # Calculate the location of this file
     handler_path = File.expand_path(File.dirname(__FILE__))
     # Calculate the location of our library and add it to the Ruby load path
