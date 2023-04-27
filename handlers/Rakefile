@@ -8,7 +8,7 @@ task :package do
     short_hash = `git rev-parse --short HEAD`
 
     if File.directory?(handler)
-      system "cd #{handler} && BUNDLE_PATH=./vendor bundle install --quiet"
+      system "cd #{handler} && BUNDLE_PATH=./vendor/bundle bundle install --quiet"
       Zip.continue_on_exists_proc = true
       Zip::File.open("#{handler}.zip", create: true) do |zipfile|
         Dir["#{handler}/**/**"].each do |f|
