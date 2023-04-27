@@ -94,6 +94,6 @@ end
 # this handler to execute properly.
 if not defined?(RestClient.version)
   raise "The RestClient class does not define the expected VERSION constant."
-elsif RestClient.version.to_s != "1.6.7"
-  raise "Incompatible library version #{RestClient.version} for rest-client.  Expecting version 1.6.7."
+elsif RestClient.version.to_s != "1.6.6"
+  raise "Incompatible library version #{RestClient.version} for rest-client.  Expecting version 1.6.6."
 end
