@@ -545,7 +545,7 @@ class KineticRequestCeSubmissionDbInsertV1
             # else, update it.
             else
               @db[kapp_table_name.to_sym].where(
-                Sequel.lit('"c_id" = ? and "c_updatedAt" < ?', submission['id'], ce_submission[:c_updatedAt]
+                Sequel.lit('"c_id" = ? and "c_updatedAt" < ?', submission['id'], db_submission_values[:c_updatedAt]
               )).call(
                 :update, 
                 db_submission_values,
