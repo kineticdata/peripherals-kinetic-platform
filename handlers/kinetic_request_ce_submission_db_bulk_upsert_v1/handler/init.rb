@@ -916,8 +916,23 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     if columns_to_add.empty? == false
       @db.transaction(:retry_on => [Sequel::SerializationFailure]) do
         puts "Adding the new columns '#{columns_to_add.join(",")}' to #{kapp_table_name}" if @enable_debug_logging
+        # Assigning outside of the alter_table block because code inside the block is referring to a different instance and not have access to this variable.
+        using_oracle = @using_oracle
+        db_column_size_limits = @db_column_size_limits
+
         @db.alter_table(kapp_table_name.to_sym) do
-          columns_to_add.each { |sql_column| add_column(sql_column.to_sym, String, :text => true) }
+          columns_to_add.each { |sql_column| 
+            if sql_column.start_with?("u_")
+              if using_oracle then 
+                # TODO: test against oracle system
+                add_column(sql_column.to_sym, String, :text => true, :unicode => true)
+              else
+                add_column(sql_column.to_sym, String, :text => true, :unicode => true) 
+              end
+            else
+              add_column(sql_column.to_sym, String, :unicode => true, :size => db_column_size_limits[:formField])
+            end
+          }
         end
       end
     end
