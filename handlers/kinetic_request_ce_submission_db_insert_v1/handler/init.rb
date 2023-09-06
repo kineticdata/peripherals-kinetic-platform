@@ -968,6 +968,12 @@ class KineticRequestCeSubmissionDbInsertV1
 ##########################################################################################################
 
   def update_kapp_table_columns(args)
+    # Create Kapp Table if it doesn't exist        
+    if @db.table_exists?(args[:kapp_slug].to_sym) == false
+      puts "Kapp #{args[:kapp_slug]} not found " if @enable_debug_logging
+      generate_kapp_table(args[:kapp_slug])
+    end
+
     # Get list of columns for the kapp table
     table_columns = get_table_column_names(args[:kapp_slug].to_sym)
 

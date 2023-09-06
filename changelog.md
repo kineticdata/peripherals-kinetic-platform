@@ -77,3 +77,6 @@ Kinetic Platform [bridge-adapter] (2022-12-23)
   * [kinetic-bridgehub-adapter-kinetic-platform]
    * KP-5895 added webApi search/retrieve functionality (space and kapp)
 
+Kinetic Platform [handlers] (2023-09-06)
+  * [kinetic_request_ce_submission_db_insert_v1]
+   * bug fixes to create kapp table if it doesn't exist

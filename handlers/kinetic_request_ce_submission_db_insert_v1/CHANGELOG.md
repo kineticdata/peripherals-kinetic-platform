@@ -20,3 +20,6 @@ Kinetic Request CE Submission DB Insert V1.4 (2022-07-03)
 
 Kinetic Request CE Submission DB Insert V1.5 (2022-08-15)
 * KD8W-104 added enable debug logging info value. Updated the SQL logger to log to engine logs. Removed submission value logging.
+
+Kinetic Request CE Submission DB Insert (2023-09-06)
+* bug fixes to create kapp table if it doesn't exist
