@@ -80,3 +80,7 @@ Kinetic Platform [bridge-adapter] (2022-12-23)
 Kinetic Platform [handlers] (2023-09-06)
   * [kinetic_request_ce_submission_db_insert_v1]
    * bug fixes to create kapp table if it doesn't exist
+
+Kinetic Platform [handlers] (2023-09-11)
+  * [kinetic_request_ce_submission_db_insert_v1]
+   * bug fixes to prevent kapp table creation when datastore

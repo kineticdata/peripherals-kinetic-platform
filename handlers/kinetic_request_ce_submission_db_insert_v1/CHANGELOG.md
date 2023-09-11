@@ -23,3 +23,6 @@ Kinetic Request CE Submission DB Insert V1.5 (2022-08-15)
 
 Kinetic Request CE Submission DB Insert (2023-09-06)
 * bug fixes to create kapp table if it doesn't exist
+
+Kinetic Request CE Submission DB Insert (2023-09-11)
+* bug fixes to prevent kapp table creation when datastore

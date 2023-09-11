@@ -436,9 +436,11 @@ class KineticRequestCeSubmissionDbInsertV1
         end
 
         # Add columns if the kapp table does not have all kapp fields defined
-        update_kapp_table_columns({
-          :kapp_slug => kapp_slug
-        })
+        if datastore != "yes" then
+          update_kapp_table_columns({
+            :kapp_slug => kapp_slug
+          })
+        end
 
         # Get table names
         form_table_name     = get_form_table_name(kapp_slug, form_slug)
