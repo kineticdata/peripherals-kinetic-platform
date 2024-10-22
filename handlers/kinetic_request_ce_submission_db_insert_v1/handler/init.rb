@@ -39,7 +39,7 @@ class KineticRequestCeSubmissionDbInsertV1
       :columnName   => 128,
       :coreState    => 10,
       :createdBy    => 255,
-      :fieldKey     => 8,
+      :fieldKey     => 36,
       :formField    => 4000,
       :formName     => 255,
       :formSlug     => 255,
