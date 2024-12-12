@@ -1317,7 +1317,7 @@ def check_field_size(tableName, fieldName)
       return size
     end
   }
-  return nil
+  return size
 end
 
 ##########################################################################################################
