@@ -229,8 +229,6 @@ class KineticRequestCeSubmissionDbInsertV1
     rescue
 
     end
-   
-
     #If Oracle - Above may work, untested
 
 
