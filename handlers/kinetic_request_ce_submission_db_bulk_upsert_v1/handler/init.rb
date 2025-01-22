@@ -196,7 +196,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     begin
       fieldKeySize = check_field_size('column_definitions', 'fieldKey')
       if fieldKeySize.to_i == 8
-        alter_column_type_size('column_definitions', 'fieldKey', 'varchar', @db_column_size_limits[:fieldKey])
+        alter_column_type_size('column_definitions', 'fieldKey', 'varchar', @@DB_COLUMN_SIZE_LIMITS[:fieldKey])
       end
     rescue
     end
@@ -244,6 +244,8 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         @@activeThread.set(nil);
       end
     end
+
+
 
     if @@activeThread.compareAndSet(nil, thread) then
       begin
