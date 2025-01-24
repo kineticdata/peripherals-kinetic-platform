@@ -39,7 +39,7 @@ class KineticRequestCeSubmissionDbInsertV1
       :columnName   => 128,
       :coreState    => 10,
       :createdBy    => 255,
-      :fieldKey     => 8,
+      :fieldKey     => 255,
       :formField    => 4000,
       :formName     => 255,
       :formSlug     => 255,
@@ -139,7 +139,7 @@ class KineticRequestCeSubmissionDbInsertV1
       @table_temp_prefix.prepend("#")
       #@db.transaction_isolation_level = :serializable
       #@db.transaction_isolation_level = :repeatable
-      #@db.transaction_isolation_level = :committed
+      #@db.transaction_isolation_level = :committed      
     elsif @info_values["jdbc_database_id"].downcase == "oracle"
       Sequel.database_timezone = :utc
       #Sequel.application_timezone = :utc
@@ -150,7 +150,7 @@ class KineticRequestCeSubmissionDbInsertV1
       @db.identifier_output_method = nil
       @max_db_identifier_size = 30
       @using_oracle = true
-    else
+    else #postgresql
       jdbc_url_opts.concat("&") if jdbc_url_opts.empty? == false && jdbc_url_opts[-1] != "&"
       @max_db_identifier_size = 64 if @info_values["jdbc_database_id"].downcase == "postgresql"
       # TODO: Fix JDBC URL connection string to not take unsanitized user info values and separate username/password from connection string.
@@ -217,6 +217,21 @@ class KineticRequestCeSubmissionDbInsertV1
     kapp_table_name = nil
     form_table_name = nil
 
+
+    #HOTFIX - Check/update column_definitions if previous value (8) for fieldKey 
+
+    #If SQLServer or postgresql
+    begin
+      fieldKeySize = check_field_size('column_definitions', 'fieldKey')
+      if fieldKeySize.to_i == 8
+        alter_column_type_size('column_definitions', 'fieldKey', 'varchar', @db_column_size_limits[:fieldKey])
+      end
+    rescue
+
+    end
+    #If Oracle - Above may work, untested
+
+
     # Get kapp & form slug / datastore info.
     if submission.nil? == false then
       puts "Submission driver_parameters: #{submission.inspect}" if @enable_debug_logging
@@ -243,7 +258,7 @@ class KineticRequestCeSubmissionDbInsertV1
         :api_username => api_username, 
         :api_password => api_password
       })
-      # Update the kapp table with new kapp feilds
+      # Update the kapp table with new kapp fields
       update_kapp_table_columns({
         :kapp_slug => kapp_slug
       })
@@ -354,6 +369,7 @@ class KineticRequestCeSubmissionDbInsertV1
               {k.to_sym => v}
             }.reduce Hash.new, :merge
 
+
           @db[form_table_name.to_sym].call(
             :insert,
             #{"c_id" => value, "c_formSlug" => value} -> {:c_id => value, :c_formSlug => value}
@@ -434,7 +450,7 @@ class KineticRequestCeSubmissionDbInsertV1
             :api_password => api_password
           })
         end
-
+        
         # Add columns if the kapp table does not have all kapp fields defined
         update_kapp_table_columns({
           :kapp_slug => kapp_slug
@@ -532,7 +548,7 @@ class KineticRequestCeSubmissionDbInsertV1
             .map {|k,v| 
               {k.to_sym => v}
             }.reduce Hash.new, :merge
-
+          
           # if the record does not exist in the database, insert it.
           if datastore != "yes" then
             if @info_values['first_bulk_load'] || @db[kapp_table_name.to_sym].select(:c_id).where(:c_id => submission["id"]).count == 0 then
@@ -1292,4 +1308,71 @@ class KineticRequestCeSubmissionDbInsertV1
   end
   # This is a ruby constant that is used by the escape method
   ESCAPE_CHARACTERS = {'&'=>'&amp;', '>'=>'&gt;', '<'=>'&lt;', '"' => '&quot;'}
+end
+
+##########################################################################################################
+#
+# check_field_size
+#
+# Returns size of field, created to resolve fieldKey size change in v6 upgrade
+#
+##########################################################################################################
+
+#Need to account for db_type
+def check_field_size(tableName, fieldName)
+  size = nil
+  @db.schema(tableName.to_sym).each {|label,columnDetails| 
+    if label.to_s == fieldName
+      #Return size
+      if @info_values["jdbc_database_id"].downcase == "postgresql"
+        puts "Found Postgres" if @enable_debug_logging
+        if columnDetails[:db_type].match?( /\(\d+\)/)
+          size = columnDetails[:db_type][/\(.*?\)/].delete('()')
+        else
+          puts "Non-numeric: #{columnDetails[:db_type]}" if @enable_debug_logging
+          #How to handle non-numerical fields
+        end
+        
+      elsif @info_values["jdbc_database_id"].downcase == 'sqlserver'
+        puts "Found sqlserver" if @enable_debug_logging
+        size = columnDetails[:max_chars]
+      elsif @info_values["jdbc_database_id"].downcase == 'oracle'
+        #TODO
+      else
+        puts "Else catch" if @enable_debug_logging
+        #TODO - catch case
+      end
+      puts "Size found: #{size}" if @enable_debug_logging
+      return size
+    end
+  }
+  puts "No size found: #{size}" if @enable_debug_logging
+  return size
+end
+
+##########################################################################################################
+#
+# alter_column_type_size
+#
+# Alters column type and or size
+#
+##########################################################################################################
+
+def alter_column_type_size(tableName, fieldName, dataType, fieldSize)
+  case (@info_values["jdbc_database_id"])
+  when 'postgresql'
+    puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
+    @db.alter_table(tableName.to_sym) do
+      set_column_type(:fieldKey, "#{dataType}(#{fieldSize})")
+    end
+  when 'sqlserver'
+    puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
+    @db.alter_table(tableName.to_sym) do
+      set_column_type(fieldName.to_sym, dataType.to_sym, size: fieldSize)
+    end
+  when 'oracle'
+
+  else
+  
+  end
 end
