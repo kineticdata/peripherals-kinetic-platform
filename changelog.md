@@ -1,3 +1,8 @@
+Kinetic Platform [handlers] (2025-02-06)
+  * [kinetic_request_ce_submission_db_bulk_upsert_v1]
+    * Added hotfix code to change fieldKey to 256 if length is 8
+  * [kinetic_request_ce_submission_db_insert_v1]
+    * Added hotfix code to change fieldKey to 256 if length is 8
 Kinetic Platform [handlers] (2021-12-16)
   * [kinetic_request_ce_attachment_create_v2]
     * Initial Version of v2
