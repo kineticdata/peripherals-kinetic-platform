@@ -1,4 +1,4 @@
-# Require the dependencies file to load the vendor libraries
+# Require the dependencies file to load the vendor libraries 
 require File.expand_path(File.join(File.dirname(__FILE__), "dependencies"))
 require 'logger'
 
