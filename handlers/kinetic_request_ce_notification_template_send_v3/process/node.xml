@@ -10,6 +10,7 @@
     <parameters>
         <parameter id="error_handling" label="Error Handling" required="true"
           tooltip="Determine what to return if an error is encountered." menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="from" label="From (Email Address)" required="true" tooltip="The email address of the simulated sender."/>
         <parameter id="space_slug" label="Space Slug" required="false"
           tooltip="The id of the space from which the submission is being retrieved."/>
         <parameter id="recipient_json" label="Recipient Json Object" required="true"
@@ -39,6 +40,7 @@
         <parameters>
             <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ? @parameters["error_handling"] : "Raise" %&gt;</parameter>
             <parameter name="recipient_json">&lt;%= @parameters['recipient_json'] %&gt;</parameter>
+            <parameter name="from">&lt;%= @parameters['from'] %&gt;</parameter>
             <parameter name="notification_template_name">&lt;%= @parameters['notification_template_name'] %&gt;</parameter>
             <parameter name="space_slug">&lt;%= @parameters['space_slug'] %&gt;</parameter>
             <parameter name="replacement_values">&lt;%= @parameters['replacement_values'] %&gt;</parameter>
