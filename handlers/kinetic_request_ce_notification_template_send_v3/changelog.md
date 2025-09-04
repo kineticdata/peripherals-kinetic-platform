@@ -1,5 +1,6 @@
 ## Kinetic Request CE Notification Template Send V3 (2017-02-10)
-
+2025-09-04
+ - Added from_address parameter to modify who notification is from. If parameter is blank then default in configuration is used.
 2018-05-09
  - Updated handler to retrieve data from CE Datastore. ** This handler is now
  only compatible with CE version 2.1 or later. **
