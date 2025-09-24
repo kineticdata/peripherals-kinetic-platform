@@ -1111,8 +1111,9 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
       }
     end
 
-    @@kapp_form_table_cache[canonical_form] = submission['form']['versionId']
-    puts "update_form_table_columns :: @@kapp_form_table_cache => #{@@kapp_form_table_cache.inspect}"
+    # Cache is now managed by create_or_update_form_table method
+    # @@kapp_form_table_cache[canonical_form] = submission['form']['versionId']
+    puts "update_form_table_columns :: Columns updated for #{canonical_form}" if @enable_debug_logging
 
   end
 
@@ -1341,8 +1342,9 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
       })
     end
 
-    @@kapp_form_table_cache[canonical_form] = submission['form']['versionId']
-    puts "generate_form_table :: @@kapp_form_table_cache => #{@@kapp_form_table_cache.inspect}"
+    # Cache is now managed by create_or_update_form_table method
+    # @@kapp_form_table_cache[canonical_form] = submission['form']['versionId']
+    puts "generate_form_table :: Form table created for #{canonical_form}" if @enable_debug_logging
 
   end
 
@@ -1362,6 +1364,9 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
       :form_slug => args[:form_slug]
     })
     puts "Canonical form name: #{canonical_form}" if @enable_debug_logging
+
+    current_fields = args[:submission]['values'].keys.sort
+    puts "Current submission fields: #{current_fields.inspect}" if @enable_debug_logging
 
     if (@@kapp_form_table_cache.has_key?(canonical_form) == false)
       form_table_name = get_form_table_name(
@@ -1391,15 +1396,34 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
           :is_temporary => args[:is_temporary]
         })
       end
-      @@kapp_form_table_cache[canonical_form] = args[:submission]['form']['versionId']
-    # If the submission has field values not in the cache, update the table columns
-    elsif @@kapp_form_table_cache[canonical_form] != args[:submission]['form']['versionId']
-      update_form_table_columns({
-        :submission => args[:submission],
-        :kapp_slug => args[:kapp_slug],
-        :form_slug => args[:form_slug],
-        :is_temporary => args[:is_temporary]
-      })
+      # Initialize cache with both version and fields
+      @@kapp_form_table_cache[canonical_form] = {
+        :version_id => args[:submission]['form']['versionId'],
+        :fields => current_fields
+      }
+      puts "Initialized cache for #{canonical_form} with fields: #{current_fields.inspect}" if @enable_debug_logging
+    else
+      # Compare actual fields instead of versionId
+      cached_fields = @@kapp_form_table_cache[canonical_form][:fields] || []
+      new_fields = current_fields - cached_fields
+
+      puts "Cached fields: #{cached_fields.inspect}, New fields: #{new_fields.inspect}" if @enable_debug_logging
+
+      if new_fields.any?
+        puts "Found new fields #{new_fields.inspect}, updating table columns" if @enable_debug_logging
+        update_form_table_columns({
+          :submission => args[:submission],
+          :kapp_slug => args[:kapp_slug],
+          :form_slug => args[:form_slug],
+          :is_temporary => args[:is_temporary]
+        })
+        # Update cache with expanded field set
+        @@kapp_form_table_cache[canonical_form][:fields] = (cached_fields + new_fields).sort.uniq
+        @@kapp_form_table_cache[canonical_form][:version_id] = args[:submission]['form']['versionId']
+        puts "Updated cache for #{canonical_form} with fields: #{@@kapp_form_table_cache[canonical_form][:fields].inspect}" if @enable_debug_logging
+      else
+        puts "No new fields found, skipping table update" if @enable_debug_logging
+      end
     end
 
   end

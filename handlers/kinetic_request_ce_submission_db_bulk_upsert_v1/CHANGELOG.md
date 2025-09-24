@@ -11,3 +11,4 @@ Kinetic Reporting DB Upsert V1.1 (2025-07-24)
     - Added a new run-time input to support NOT writing submissions to a common kapp-table for a kapp-slug named 'datastore'
 * Added support for kapp-defined fields for each kapp
 * Corrected the page_size logic to properly use page-size inputs from the run-time hander parameters
+* Updated processing to handle situations where new fields have been added to a form; previously this required restarting the Task / Agent server where this handler was running
