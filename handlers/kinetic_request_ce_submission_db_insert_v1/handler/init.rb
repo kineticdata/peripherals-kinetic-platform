@@ -82,7 +82,7 @@ class KineticRequestCeSubmissionDbInsertV1
 
       @enable_debug_logging = ["yes", "true"].include?(@info_values['enable_debug_logging'].to_s.strip.downcase)
       @enable_trace_logging = ["yes", "true"].include?(@info_values['enable_trace_logging'].to_s.strip.downcase)
-      
+
       puts "Parameters: #{@parameters.inspect}" if @enable_debug_logging
 
     elsif input.instance_of?(Hash) then
@@ -124,7 +124,7 @@ class KineticRequestCeSubmissionDbInsertV1
     if @info_values['pool_timeout'].to_s =~ /\A[1-9]\d*\z/ then
       pool_timeout = @info_values["pool_timeout"].to_i
     end
-    
+
     @using_oracle = false
 
     # Attempt to connect to the database
@@ -139,7 +139,7 @@ class KineticRequestCeSubmissionDbInsertV1
       @table_temp_prefix.prepend("#")
       #@db.transaction_isolation_level = :serializable
       #@db.transaction_isolation_level = :repeatable
-      #@db.transaction_isolation_level = :committed      
+      #@db.transaction_isolation_level = :committed
     elsif @info_values["jdbc_database_id"].downcase == "oracle"
       Sequel.database_timezone = :utc
       #Sequel.application_timezone = :utc
@@ -156,7 +156,7 @@ class KineticRequestCeSubmissionDbInsertV1
       # TODO: Fix JDBC URL connection string to not take unsanitized user info values and separate username/password from connection string.
       @db = Sequel.connect("jdbc:#{@info_values["jdbc_database_id"]}://#{host}:#{port}/#{database_name}?#{jdbc_url_opts}user=#{user}&password=#{password}", :max_connections => max_connections, :pool_timeout => pool_timeout)
     end
-    
+
     # Output SQL statements if the 'trace' level info parameter is set to true.
     @db.sql_log_level = :debug if @enable_trace_logging
     @db.logger = org.apache.log4j.LogManager.getLogger("com.kineticdata") if @enable_trace_logging
@@ -204,21 +204,21 @@ class KineticRequestCeSubmissionDbInsertV1
     submission        = get_param(@parameters, driver_parameters)["submission_json"]
     submissions       = get_param(@parameters, driver_parameters)["submissions"]
     skip_table_create = get_param(@parameters, driver_parameters)["skip_table_create"].to_s.strip.downcase
-    
+
     datastore = datastore.to_s.strip.downcase
 
     error_message = nil
     error_backtrace = nil
     submission_database_id = nil
     submission_update_count = nil
-    
+
     kapp_slug = nil
     form_slug = nil
     kapp_table_name = nil
     form_table_name = nil
 
 
-    #HOTFIX - Check/update column_definitions if previous value (8) for fieldKey 
+    #HOTFIX - Check/update column_definitions if previous value (8) for fieldKey
 
     #If SQLServer or postgresql
     begin
@@ -253,9 +253,9 @@ class KineticRequestCeSubmissionDbInsertV1
     if kapp_slug.nil? == false && submissions.nil? == false then
       # Get kapp fields and add them to the kapp_fields list
       @kapp_fields = get_kapp_fields({
-        :api_server => api_server, 
-        :kapp_slug => kapp_slug, 
-        :api_username => api_username, 
+        :api_server => api_server,
+        :kapp_slug => kapp_slug,
+        :api_username => api_username,
         :api_password => api_password
       })
       # Update the kapp table with new kapp fields
@@ -310,7 +310,7 @@ class KineticRequestCeSubmissionDbInsertV1
             ["closedAt", "createdAt", "submittedAt", "updatedAt"].each do |actionTimestamp|
               kapp_submission["c_#{actionTimestamp}"] = DateTime.parse(submission[actionTimestamp]) if submission[actionTimestamp].nil? == false
             end
-            
+
             # {"c_id" => value, "c_formSlug" => value} -> {"c_id" => :$c_id, "c_formSlug" => :$c_formSlug}
             kapp_values_columns_map = kapp_submission
               .map {|k,v|
@@ -341,7 +341,7 @@ class KineticRequestCeSubmissionDbInsertV1
             "c_updatedBy" => submission['updatedBy'],
             "c_type" => submission['type'],
           }
-          
+
           #only set the datetime values if they're not null, and set them as a proper datetime object.
           ["closedAt", "createdAt", "submittedAt", "updatedAt"].each do |actionTimestamp|
             form_submission["c_#{actionTimestamp}"] = DateTime.parse(submission[actionTimestamp]) if submission[actionTimestamp].nil? == false
@@ -360,12 +360,12 @@ class KineticRequestCeSubmissionDbInsertV1
 
           # {"c_id" => value} -> {"c_id" => :$c_id, "c_kappSlug" => :$c_kappSlug}
           form_values_columns_map = form_submission
-            .map {|k,v| 
+            .map {|k,v|
               {k => "$#{k}".to_sym}
             }.reduce Hash.new, :merge
 
           form_values = form_submission
-            .map {|k,v| 
+            .map {|k,v|
               {k.to_sym => v}
             }.reduce Hash.new, :merge
 
@@ -433,7 +433,7 @@ class KineticRequestCeSubmissionDbInsertV1
           form_slug = submission['form']['slug']
           kapp_slug = submission['form'].has_key?('kapp') ? submission['form']['kapp']['slug'] : nil
 
-          @kapp_fields = submission['form']['kapp']['fields'].map() do |field| 
+          @kapp_fields = submission['form']['kapp']['fields'].map() do |field|
             field["name"]
           end
         else
@@ -444,13 +444,13 @@ class KineticRequestCeSubmissionDbInsertV1
 
           # Reset Kapp fields
           @kapp_fields = get_kapp_fields({
-            :api_server => api_server, 
-            :kapp_slug => kapp_slug, 
-            :api_username => api_username, 
+            :api_server => api_server,
+            :kapp_slug => kapp_slug,
+            :api_username => api_username,
             :api_password => api_password
           })
         end
-        
+
         # Add columns if the kapp table does not have all kapp fields defined
         update_kapp_table_columns({
           :kapp_slug => kapp_slug
@@ -540,15 +540,15 @@ class KineticRequestCeSubmissionDbInsertV1
 
           # {"c_id" => value, "c_formSlug" => value} -> {"c_id" => :$c_id, "c_formSlug" => :$c_formSlug}
           submission_values_columns_map = ce_submission
-            .map {|k,v| 
+            .map {|k,v|
               {k => "$#{k}".to_sym}
             }.reduce Hash.new, :merge
           # {"c_id" => value, "c_formSlug" => value} -> {:c_id => value, :c_formSlug => value}
           db_submission_values = ce_submission
-            .map {|k,v| 
+            .map {|k,v|
               {k.to_sym => v}
             }.reduce Hash.new, :merge
-          
+
           # if the record does not exist in the database, insert it.
           if datastore != "yes" then
             if @info_values['first_bulk_load'] || @db[kapp_table_name.to_sym].select(:c_id).where(:c_id => submission["id"]).count == 0 then
@@ -563,7 +563,7 @@ class KineticRequestCeSubmissionDbInsertV1
               @db[kapp_table_name.to_sym].where(
                 Sequel.lit('"c_id" = ? and "c_updatedAt" < ?', submission['id'], db_submission_values[:c_updatedAt]
               )).call(
-                :update, 
+                :update,
                 db_submission_values,
                 submission_values_columns_map
               ) unless @info_values['ignore_updates']
@@ -604,12 +604,12 @@ class KineticRequestCeSubmissionDbInsertV1
 
           # {"c_id" => value, "c_formSlug" => value} -> {"c_id" => :$c_id, "c_formSlug" => :$c_formSlug}
           submission_values_columns_map = form_db_submission
-            .map {|k,v| 
+            .map {|k,v|
               {k => "$#{k}".to_sym}
             }.reduce Hash.new, :merge
           # {"c_id" => value, "c_formSlug" => value} -> {:c_id => value, :c_formSlug => value}
           db_submission_values = form_db_submission
-            .map {|k,v| 
+            .map {|k,v|
               {k.to_sym => v}
             }.reduce Hash.new, :merge
 
@@ -640,7 +640,7 @@ class KineticRequestCeSubmissionDbInsertV1
       end
     #end statement for else statement for if this is a bulk submission insert.
     end
-    
+
     return get_handler_xml_results({
           "Submission Database Id" => "",
           "Updated Submission Count" => submission_update_count.to_s,
@@ -945,15 +945,15 @@ class KineticRequestCeSubmissionDbInsertV1
         # Assigning outside of the alter_table block because code inside the block is referring to a different instance and not have access to this variable.
         using_oracle = @using_oracle
         db_column_size_limits = @db_column_size_limits
-        
+
         @db.alter_table(form_table_name.to_sym) do
-          columns_to_add.each do |sql_column| 
+          columns_to_add.each do |sql_column|
             if sql_column.start_with?("u_")
               if using_oracle then
                 # TODO: test against oracle system
                 add_column(sql_column.to_sym, String, :text => true, :unicode => true)
               else
-                add_column(sql_column.to_sym, String, :text => true, :unicode => true) 
+                add_column(sql_column.to_sym, String, :text => true, :unicode => true)
               end
             else
               add_column(sql_column.to_sym, String, :unicode => true, :size => db_column_size_limits[:formField])
@@ -984,7 +984,7 @@ class KineticRequestCeSubmissionDbInsertV1
 ##########################################################################################################
 
   def update_kapp_table_columns(args)
-    # Create Kapp Table if it doesn't exist        
+    # Create Kapp Table if it doesn't exist
     if @db.table_exists?(args[:kapp_slug].to_sym) == false
       puts "Kapp #{args[:kapp_slug]} not found " if @enable_debug_logging
       generate_kapp_table(args[:kapp_slug])
@@ -994,7 +994,7 @@ class KineticRequestCeSubmissionDbInsertV1
     table_columns = get_table_column_names(args[:kapp_slug].to_sym)
 
     # Get a list of unique kapp columns (table has a mix of metadata and kapp field columns)
-    reduced_columns = table_columns.reduce([]) do |acc, column| 
+    reduced_columns = table_columns.reduce([]) do |acc, column|
       column[0,2] == "l_" ? acc << column[2..-1] : acc
     end
 
@@ -1006,7 +1006,7 @@ class KineticRequestCeSubmissionDbInsertV1
 
     # Get a list of columns to add to the kapp table
     columns_to_add = unlimited_column_names_by_field.values.concat(limited_column_names_by_field.values)
-    
+
     # Get the kapp table name
     kapp_table_name = get_kapp_table_name(args[:kapp_slug], {:is_temporary => args[:is_temporary]})
 
@@ -1019,13 +1019,13 @@ class KineticRequestCeSubmissionDbInsertV1
         db_column_size_limits = @db_column_size_limits
 
         @db.alter_table(kapp_table_name.to_sym) do
-          columns_to_add.each { |sql_column| 
+          columns_to_add.each { |sql_column|
             if sql_column.start_with?("u_")
-              if using_oracle then 
+              if using_oracle then
                 # TODO: test against oracle system
                 add_column(sql_column.to_sym, String, :text => true, :unicode => true)
               else
-                add_column(sql_column.to_sym, String, :text => true, :unicode => true) 
+                add_column(sql_column.to_sym, String, :text => true, :unicode => true)
               end
             else
               add_column(sql_column.to_sym, String, :unicode => true, :size => db_column_size_limits[:formField])
@@ -1054,11 +1054,11 @@ class KineticRequestCeSubmissionDbInsertV1
     response_json = JSON.parse(response)
 
     # Reduce the response data to a list of kapp field names
-    kapp_fields = response_json["kapp"]["fields"].map{ |field| 
+    kapp_fields = response_json["kapp"]["fields"].map{ |field|
       field["name"]
     }
 
-    return kapp_fields 
+    return kapp_fields
   end
 
 ##########################################################################################################
@@ -1308,7 +1308,6 @@ class KineticRequestCeSubmissionDbInsertV1
   end
   # This is a ruby constant that is used by the escape method
   ESCAPE_CHARACTERS = {'&'=>'&amp;', '>'=>'&gt;', '<'=>'&lt;', '"' => '&quot;'}
-end
 
 ##########################################################################################################
 #
@@ -1318,37 +1317,37 @@ end
 #
 ##########################################################################################################
 
-#Need to account for db_type
-def check_field_size(tableName, fieldName)
-  size = nil
-  @db.schema(tableName.to_sym).each {|label,columnDetails| 
-    if label.to_s == fieldName
-      #Return size
-      if @info_values["jdbc_database_id"].downcase == "postgresql"
-        puts "Found Postgres" if @enable_debug_logging
-        if columnDetails[:db_type].match?( /\(\d+\)/)
-          size = columnDetails[:db_type][/\(.*?\)/].delete('()')
+  #Need to account for db_type
+  def check_field_size(tableName, fieldName)
+    size = nil
+    @db.schema(tableName.to_sym).each {|label,columnDetails|
+      if label.to_s == fieldName
+        #Return size
+        if @info_values["jdbc_database_id"].downcase == "postgresql"
+          puts "Found Postgres" if @enable_debug_logging
+          if columnDetails[:db_type].match?( /\(\d+\)/)
+            size = columnDetails[:db_type][/\(.*?\)/].delete('()')
+          else
+            puts "Non-numeric: #{columnDetails[:db_type]}" if @enable_debug_logging
+            #How to handle non-numerical fields
+          end
+
+        elsif @info_values["jdbc_database_id"].downcase == 'sqlserver'
+          puts "Found sqlserver" if @enable_debug_logging
+          size = columnDetails[:max_chars]
+        elsif @info_values["jdbc_database_id"].downcase == 'oracle'
+          #TODO
         else
-          puts "Non-numeric: #{columnDetails[:db_type]}" if @enable_debug_logging
-          #How to handle non-numerical fields
+          puts "Else catch" if @enable_debug_logging
+          #TODO - catch case
         end
-        
-      elsif @info_values["jdbc_database_id"].downcase == 'sqlserver'
-        puts "Found sqlserver" if @enable_debug_logging
-        size = columnDetails[:max_chars]
-      elsif @info_values["jdbc_database_id"].downcase == 'oracle'
-        #TODO
-      else
-        puts "Else catch" if @enable_debug_logging
-        #TODO - catch case
+        puts "Size found: #{size}" if @enable_debug_logging
+        return size
       end
-      puts "Size found: #{size}" if @enable_debug_logging
-      return size
-    end
-  }
-  puts "No size found: #{size}" if @enable_debug_logging
-  return size
-end
+    }
+    puts "No size found: #{size}" if @enable_debug_logging
+    return size
+  end
 
 ##########################################################################################################
 #
@@ -1358,21 +1357,23 @@ end
 #
 ##########################################################################################################
 
-def alter_column_type_size(tableName, fieldName, dataType, fieldSize)
-  case (@info_values["jdbc_database_id"])
-  when 'postgresql'
-    puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
-    @db.alter_table(tableName.to_sym) do
-      set_column_type(:fieldKey, "#{dataType}(#{fieldSize})")
-    end
-  when 'sqlserver'
-    puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
-    @db.alter_table(tableName.to_sym) do
-      set_column_type(fieldName.to_sym, dataType.to_sym, size: fieldSize)
-    end
-  when 'oracle'
+  def alter_column_type_size(tableName, fieldName, dataType, fieldSize)
+    case (@info_values["jdbc_database_id"])
+    when 'postgresql'
+      puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
+      @db.alter_table(tableName.to_sym) do
+        set_column_type(:fieldKey, "#{dataType}(#{fieldSize})")
+      end
+    when 'sqlserver'
+      puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
+      @db.alter_table(tableName.to_sym) do
+        set_column_type(fieldName.to_sym, dataType.to_sym, size: fieldSize)
+      end
+    when 'oracle'
 
-  else
-  
+    else
+
+    end
   end
+
 end
