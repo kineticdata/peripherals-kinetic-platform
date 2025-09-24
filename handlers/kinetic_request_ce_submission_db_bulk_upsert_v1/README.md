@@ -35,7 +35,7 @@ how the submission will be formatted in the table.
     Additionally there will be a column for each value on the form in the form of (u|l)\_field name, or (u|l)\_field name\_crc16(field name) if the field name is longer than the max supported column name length supported by the database.
 
     The u_ prefix stands for value unlimited and the l_ prefix stand for value limited. Both the unlimited length version of a value and a limited length, truncated at 4000 characters, is saved to the database.
-    This is done to allow report writers to decide which columns to use in a report. Using the l\_ columns will be allow for potential joining/aggrevating, but sometimes 4000 characters doesn't cut it in a report.
+    This is done to allow report writers to decide which columns to use in a report. Using the l\_ columns will be allow for potential joining/aggregating, but sometimes 4000 characters doesn't cut it in a report.
 
 
 **ORACLE COLUMN NAME EXAMPLES (30 character max limit):**
@@ -66,4 +66,4 @@ how the submission will be formatted in the table.
 (x) - SQL Injection tested
 
 ## Important Notes
-An **Overwrite** of the kinetic_request_ce_submission_db_insert_v1 handler requires a restart of the Tomcat server hosting the Task web application.
+An **Overwrite** of the kinetic_request_ce_submission_db_upsert_v1 handler requires a restart of the Tomcat server hosting the Task web application.
