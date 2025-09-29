@@ -15,7 +15,9 @@
         <parameter id="page_size" label="Submission page size" required="true" tooltip=""></parameter>
         <parameter id="deferral_token" label="Task deferral token" required="true" tooltip=""></parameter>
         <parameter id="specific_kapp_slug" label="Kapp slug (optional for narrow scope)" required="false" tooltip="Kapp slug. Required if specifying specific form slugs to retrieve submissions from."></parameter>
-        <parameter id="specific_form_slugs" label="Form slugs (optional CSV for narrow scopep)" required="false" tooltip="Form slugs (comma separated). Required if specifying specific form slugs to retrieve submissions from along with Kapp Slug parameter."></parameter>
+        <parameter id="specific_form_slugs" label="Form slugs (optional CSV for narrow scope)" required="false" tooltip="Form slugs (comma separated). Required if specifying specific form slugs to retrieve submissions from along with Kapp Slug parameter."></parameter>
+        <parameter id="skip_datastore_kapp_table" label="Skip writing Datastore submissions to kapp form" required="false" tooltip="Should writing datastore records to a common kapp form in the SQL database be ignored (submissons are still written to their own table)?" menu="True,False">True</parameter>
+
     </parameters>
     <handler name="kinetic_request_ce_submission_db_bulk_upsert" version="1">
         <infos>
@@ -42,6 +44,7 @@
             <parameter name="deferral_token">&lt;%= @parameters["deferral_token"] %&gt;</parameter>
             <parameter name="specific_kapp_slug">&lt;%= @parameters["specific_kapp_slug"] %&gt;</parameter>
             <parameter name="specific_form_slugs">&lt;%= @parameters["specific_form_slugs"] %&gt;</parameter>
+            <parameter name="skip_datastore_kapp_table">&lt;%= @parameters["skip_datastore_kapp_table"] %&gt;</parameter>
         </parameters>
     </handler>
     <results>
