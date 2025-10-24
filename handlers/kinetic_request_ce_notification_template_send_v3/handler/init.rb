@@ -75,6 +75,10 @@ class KineticRequestCeNotificationTemplateSendV3
       @api_server = @info_values['api_server']
     end
 
+
+    #Change address if FROM is passed through
+    @smtp_from = @parameters['from'] if (!@parameters['from'].nil? && !@parameters['from'].empty?)
+    
     # Build Recipient JSON Based on input value. If not JSON, assume it's an email address
     begin
       @recipient_json = JSON.parse(@parameters["recipient_json"])

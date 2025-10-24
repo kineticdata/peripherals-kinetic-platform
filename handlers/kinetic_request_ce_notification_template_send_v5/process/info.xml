@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This file contains a list of all configurable values used by the task node.
+
+The name of the parameter is defined by applying the 'name' attribute to the
+info tag.  For example, to define a parameter named 'username' add the
+following line:
+<info name="username" description="The username used to login"></info>
+
+Default values may be defined by placing the value of the parameter
+within the info tags.  For example, to define a parameter named 'username'
+with a default value of 'KD_WEBUSER' add the following line:
+<info name="username">KD_WEBUSER</info>
+-->
+<taskInfo version="1.0">
+  <info name="smtp_server" required="true" description="Email server name or IP address.">smtp.yourcompany.com</info>
+  <info name="smtp_port" required="true" description="TCP port the email server is listening on.">25</info>
+  <info name="smtp_tls" required="true" description="A string, either 'true' or 'false' that defines whether the email server requires encryption.">false</info>
+  <info name="smtp_tls_method" required="true" description="STARTTLS or TLS">STARTTLS</info>
+  <info name="smtp_username" required="false" description="Authentication string of a user allowed to send emails through the email server."></info>
+  <info name="smtp_password" required="false" type="encrypted" description="Password associated with the specified user."></info>
+  <info name="smtp_from_address" required="true" description="From (email address)"></info>
+  <info name="smtp_auth_type" required="true" description="SMTP Authentication type (ex. plain /login)">plain</info>
+  <info name="smtp_open_timeout" required="true" description="Timeout (in seconds) to open a connection to the server.  Default is 5">5</info>
+  <info name="api_server" required="true" description="Kinetic Request CE API Web Application">http://server:port/kinetic</info>
+  <info name="api_username" required="true" description="Name of user account that has permission to use the API"></info>
+  <info name="api_password" required="true" description="Password for the API user" type="encrypted"></info>
+  <info name="kapp_slug" required="true" description="Kapp slug where the notification data form is located" type="">datastore</info>
+  <info name="form_slug_data" required="true" description="Form slug of the notification template data form" type="">notification-data</info>
+  <info name="form_slug_dates" required="true" description="Form slug of the notification template date formats form" type="">notification-template-dates</info>
+  <info name="space_slug" required="false" description="Slug of the Space where the User will be created."></info>
+  <info name="enable_debug_logging" description="Enables debug logging if the value is set to 'Yes'.">No</info>
+</taskInfo>
