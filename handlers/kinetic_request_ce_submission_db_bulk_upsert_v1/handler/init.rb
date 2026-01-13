@@ -31,16 +31,8 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     :updatedBy    => 255
   }
   @@DEFAULT_SUBMISSION_QUERY_PAGE_SIZE = 100
-  # List of kapp fields that are applicable across all forms.
-  @@KAPP_FIELDS = [
-    "Assigned Individual",
-    "Assigned Team",
-    "Deferral Token",
-    "Due Date",
-    "Requested By",
-    "Requested For",
-    "Status"
-  ]
+  # Hash of kapp fields organized by kapp slug
+  @@KAPP_FIELDS = {}
   @@SUBMISSION_INCLUDES = [
     "details",
     "form",
@@ -101,6 +93,9 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 
     @enable_debug_logging = ["yes", "true"].include?(@info_values['enable_debug_logging'].to_s.strip.downcase)
     @enable_trace_logging = ["yes", "true"].include?(@info_values['enable_trace_logging'].to_s.strip.downcase)
+
+    # Configuration for datastore kapp table handling (default: skip datastore kapp tables)
+    @skip_datastore_kapp_table = @parameters['skip_datastore_kapp_table'].to_s.strip.downcase != "false"
 
     puts "Parameters: #{@parameters.inspect}" if @enable_debug_logging
 
@@ -191,7 +186,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 #######################################################################################################
   def execute
 
-    #HOTFIX - Check/update column_definitions if previous value (8) for fieldKey 
+    #HOTFIX - Check/update column_definitions if previous value (8) for fieldKey
     #If SQLServer or postgresql
     begin
       fieldKeySize = check_field_size('column_definitions', 'fieldKey')
@@ -203,17 +198,29 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     #If Oracle - Above may work, untested
 
 
-    # Get kapp fields and add them to the kapp_fields list
-    @@KAPP_FIELDS = get_kapp_fields({
-      :api_server => @api_server, 
-      :kapp_slug => @parameters['specific_kapp_slug'], 
-      :api_username => @api_username, 
+    # Get kapp fields and add them to the kapp_fields hash
+    kapp_fields_result = get_kapp_fields({
+      :api_server => @api_server,
+      :kapp_slug => @parameters['specific_kapp_slug'],
+      :api_username => @api_username,
       :api_password => @api_password
     })
-    # Update the kapp table with new kapp feilds
-    update_kapp_table_columns({
-      :kapp_slug => @parameters['specific_kapp_slug']
-    })
+    @@KAPP_FIELDS.merge!(kapp_fields_result)
+    # Update the kapp table with new kapp fields
+    # NOTE: Commenting out premature kapp table updates - these happen later in generate_submissions_schemas
+    # if @parameters['specific_kapp_slug'].to_s.strip.empty?
+    #   # Update tables for all kapps in @@KAPP_FIELDS
+    #   @@KAPP_FIELDS.keys.each do |kapp_slug|
+    #     update_kapp_table_columns({
+    #       :kapp_slug => kapp_slug
+    #     })
+    #   end
+    # else
+    #   # Update table for specific kapp
+    #   update_kapp_table_columns({
+    #     :kapp_slug => @parameters['specific_kapp_slug']
+    #   })
+    # end
 
     # Initialize a thread to do the work
     thread = java.lang.Thread.new do
@@ -279,29 +286,35 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 
   def stream_form_submissions
 
-    limit_count = @parameters['page_size'].to_s.match(/\d+/).nil? ? @parameters['page_size'].to_i : @@DEFAULT_SUBMISSION_QUERY_PAGE_SIZE
-    query_string = "limit=#{limit_count}"
-    query_string += "&include=#{@@SUBMISSION_INCLUDES}"
-    query_string += "&timeline=updatedAt"
-    query_string += "&direction=ASC"
-    query_string += "&start=#{URI.encode(@parameters['updatedat_startdate'])}"
-    query_string += "&end=#{URI.encode(@parameters['updatedat_enddate'])}"
-
-
+    #limit_count  = @parameters['page_size'].to_s.match(/\d+/).nil? ? @parameters['page_size'].to_i : @@DEFAULT_SUBMISSION_QUERY_PAGE_SIZE
+    page_size = @parameters['page_size'].to_i
+    limit_count = (page_size > 0 && page_size <= 1000) ? page_size : @@DEFAULT_SUBMISSION_QUERY_PAGE_SIZE
+    start_string = URI.encode(@parameters['updatedat_startdate'])
+    end_string   = URI.encode(@parameters['updatedat_enddate'])
+    query_string_parts = [
+      "limit=#{limit_count}",
+      "include=#{@@SUBMISSION_INCLUDES}",
+      "direction=ASC",
+      "orderBy=updatedAt"
+    ]
 
     retrieved_submission_count = 0
     @parameters['specific_form_slugs'].split(",").each do |form_slug|
 
       more_submissions = true
       next_page_token = nil
+      last_submission_id = nil
       while (more_submissions)
+        q_string     = "updatedAt >= \"#{start_string}\" AND updatedAt < \"#{end_string}\""
+        query_string = query_string_parts.join("&")
+        query_string += "&q=#{q_string}"
 
         # API route to get submissions in a kapp
         api_route = "#{@api_server}/app/api/v1/kapps/#{@parameters['specific_kapp_slug']}/forms/#{form_slug}/submissions?#{query_string}"
 
-        if next_page_token.nil? == false then
-          api_route += "&pageToken=#{next_page_token}"
-        end
+        #if next_page_token.nil? == false then
+        #  api_route += "&pageToken=#{next_page_token}"
+        #end
 
         puts "Kinetic Core Submission API URL: #{api_route}" if @enable_debug_logging
         puts "Retrieving #{@parameters['specific_kapp_slug']}/#{form_slug} form submissions with page token: #{next_page_token}" if @enable_debug_logging
@@ -312,24 +325,46 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         response = resource.get.bytes.pack("c*").force_encoding("UTF-8")
         read_end_time = Time.now
 
-        current_page_token = next_page_token
+        #current_page_token = next_page_token
+        current_start_string = start_string
         json_response = JSON.parse(response)
-        next_page_token = json_response['nextPageToken']
+        #next_page_token = json_response['nextPageToken']
+        #start_string = json_response['submissions'].last['updatedAt']
         total_submissions = json_response['submissions'].size
-        puts "Retrieved #{total_submissions} #{@parameters['specific_kapp_slug']}/#{form_slug} form submissions in #{(read_end_time - read_start_time) * 1000} ms" if @enable_debug_logging
+        puts "Retrieved #{total_submissions} #{@parameters['specific_kapp_slug']}/#{form_slug} form submissions in #{(read_end_time - read_start_time) * 1000} ms [possibly including one duplicate]" if @enable_debug_logging
 
-        retrieved_submission_count += total_submissions
+        #retrieved_submission_count += total_submissions
 
         if (json_response['submissions'].size > 0)
-          write_submissions_to_db({
-            :submissions  => json_response['submissions']
-          })
-        end
+          submissions_to_process = json_response['submissions']
 
-        if next_page_token.nil? then
+          # Remove the duplicate first record if it matches the last processed submission
+          if !last_submission_id.nil? && submissions_to_process.first['id'] == last_submission_id
+            submissions_to_process = submissions_to_process.drop(1)
+          end
+
+          # Only process if we have submissions after duplicate removal
+          if submissions_to_process.size > 0
+            write_submissions_to_db({
+              :submissions => submissions_to_process
+            })
+
+            retrieved_submission_count += submissions_to_process.size
+
+            # Update for next iteration
+            last_submission = submissions_to_process.last
+            start_string = last_submission['updatedAt']
+            last_submission_id = last_submission['id']
+          end
+
+          # Check if we got fewer records than requested (indicating we're done)
+          # Note: Use original size before duplicate removal for this check
+          if json_response['submissions'].size < limit_count
+            more_submissions = false
+          end
+        else
           more_submissions = false
         end
-
       end
     end
 
@@ -353,30 +388,39 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     total_kapps = all_kapps.has_key?('kapps') ? all_kapps['kapps'].size : 0
     puts "Retrieved #{total_kapps} kapps in #{(Time.now - get_kapp_start) * 1000} ms"
 
-    limit_count = @parameters['page_size'].to_s.match(/\d+/).nil? ? @parameters['page_size'].to_i : @@DEFAULT_SUBMISSION_QUERY_PAGE_SIZE
-    query_string = "limit=#{limit_count}"
-    query_string += "&include=#{@@SUBMISSION_INCLUDES}"
-    query_string += "&timeline=updatedAt"
-    query_string += "&direction=ASC"
-    query_string += "&start=#{URI.encode(@parameters['updatedat_startdate'])}"
-    query_string += "&end=#{URI.encode(@parameters['updatedat_enddate'])}"
+    #limit_count  = @parameters['page_size'].to_s.match(/\d+/).nil? ? @parameters['page_size'].to_i : @@DEFAULT_SUBMISSION_QUERY_PAGE_SIZE
+    page_size = @parameters['page_size'].to_i
+    limit_count = (page_size > 0 && page_size <= 1000) ? page_size : @@DEFAULT_SUBMISSION_QUERY_PAGE_SIZE
 
     retrieved_submission_count = 0
     all_kapps['kapps'].each do |kapp|
+      start_string = URI.encode(@parameters['updatedat_startdate'])
+      end_string   = URI.encode(@parameters['updatedat_enddate'])
+      query_string_parts = [
+        "limit=#{limit_count}",
+        "include=#{@@SUBMISSION_INCLUDES}",
+        "direction=ASC",
+        "orderBy=updatedAt"
+      ]
 
       more_submissions = true
       next_page_token = nil
+      last_submission_id = nil
       while (more_submissions)
+
+        q_string     = "updatedAt >= \"#{start_string}\" AND updatedAt < \"#{end_string}\""
+        query_string = query_string_parts.join("&")
+        query_string += "&q=#{q_string}"
 
         # API route to get submissions in a kapp
         api_route = "#{@api_server}/app/api/v1/kapps/#{kapp['slug']}/submissions?#{query_string}"
 
-        if next_page_token.nil? == false then
-          api_route += "&pageToken=#{next_page_token}"
-        end
+        #if next_page_token.nil? == false then
+        #  api_route += "&pageToken=#{next_page_token}"
+        #end
 
         puts "Kinetic Core Submission API URL: #{api_route}" if @enable_debug_logging
-        puts "Retrieving #{kapp['slug']} kapp submissions with page token: #{next_page_token}" if @enable_debug_logging
+        #puts "Retrieving #{kapp['slug']} kapp submissions with page token: #{next_page_token}" if @enable_debug_logging
 
         read_start_time = Time.now
         resource = RestClient::Resource.new(api_route, { :user => @api_username, :password => @api_password })
@@ -384,24 +428,50 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         response = resource.get.bytes.pack("c*").force_encoding("UTF-8")
         read_end_time = Time.now
 
-        current_page_token = next_page_token
+        #current_page_token = next_page_token
+        current_start_string = start_string
         json_response = JSON.parse(response)
-        next_page_token = json_response['nextPageToken']
+        #next_page_token = json_response['nextPageToken']
+        #start_string = json_response['submissions'].last['updatedAt']
         total_submissions = json_response['submissions'].size
-        puts "Retrieved #{total_submissions} #{kapp['slug']} kapp submissions in #{(read_end_time - read_start_time) * 1000} ms" if @enable_debug_logging
+        puts "Retrieved #{total_submissions} #{kapp['slug']} kapp submissions in #{(read_end_time - read_start_time) * 1000} ms [possibly including one duplicate]" if @enable_debug_logging
 
-        retrieved_submission_count += total_submissions
+        #retrieved_submission_count += total_submissions
+
+        #if next_page_token.nil? then
+        #  more_submissions = false
+        #end
 
         if (json_response['submissions'].size > 0)
-          write_submissions_to_db({
-            :submissions  => json_response['submissions']
-          })
-        end
+          submissions_to_process = json_response['submissions']
 
-        if next_page_token.nil? then
+          # Remove the duplicate first record if it matches the last processed submission
+          if !last_submission_id.nil? && submissions_to_process.first['id'] == last_submission_id
+            submissions_to_process = submissions_to_process.drop(1)
+          end
+
+          # Only process if we have submissions after duplicate removal
+          if submissions_to_process.size > 0
+            write_submissions_to_db({
+              :submissions => submissions_to_process
+            })
+
+            retrieved_submission_count += submissions_to_process.size
+
+            # Update for next iteration
+            last_submission = submissions_to_process.last
+            start_string = last_submission['updatedAt']
+            last_submission_id = last_submission['id']
+          end
+
+          # Check if we got fewer records than requested (indicating we're done)
+          # Note: Use original size before duplicate removal for this check
+          if json_response['submissions'].size < limit_count
+            more_submissions = false
+          end
+        else
           more_submissions = false
         end
-
       end
     end
 
@@ -422,9 +492,18 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     puts "Submissions drivers_parameters: #{submissions.inspect}" if @enable_debug_logging
 
     db_column_size_limits = @@DB_COLUMN_SIZE_LIMITS
-    kapp_fields = @@KAPP_FIELDS
     kapp_slug = submissions.first['form']['kapp']['slug']
+    kapp_fields = @@KAPP_FIELDS[kapp_slug] || []
     kapp_table_name = get_kapp_table_name(kapp_slug)
+
+    # Check if this is a datastore kapp and we should skip kapp table processing
+    is_datastore_skip = (kapp_slug == 'datastore' && @skip_datastore_kapp_table)
+
+    if is_datastore_skip
+      puts "Processing datastore submissions without kapp table (grouped by form)" if @enable_debug_logging
+      write_datastore_submissions_to_db(submissions)
+      return
+    end
 
     @db.transaction(:retry_on => [Sequel::SerializationFailure]) do
 
@@ -436,7 +515,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
       generate_submissions_schemas(submissions)
 
       # Phase three: Check existing submissions
-      existing_submisisons = @db[kapp_table_name.to_sym]
+      existing_submissions = @db[kapp_table_name.to_sym]
         .select(:c_id, :c_updatedAt)
         .where(:c_id => submission_ids)
         .all
@@ -444,7 +523,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
           [ record[:c_id], record[:c_updatedAt] ]
         }.to_h
 
-      puts "Existing submissions: #{existing_submisisons.inspect}" if @enable_debug_logging
+      puts "Existing submissions: #{existing_submissions.inspect}" if @enable_debug_logging
 
       # Phase four: bulk upsert submission changes
       submissions.each do | submission|
@@ -519,16 +598,22 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
             {k.to_sym => v}
           }.reduce Hash.new, :merge
 
+        ##puts "#{submission["id"]} DB values for Kapp record: #{ce_submission.inspect}" if @enable_debug_logging
+        ##db_submissions = @db[kapp_table_name.to_sym]
+
         # if the record does not exist in the database, insert it.
-        if existing_submisisons.has_key?(submission_id) == false then
+        if existing_submissions.has_key?(submission_id) == false then
+          puts "Inserting the submission #{submission["id"]} into the kapp table #{kapp_table_name}" if @enable_debug_logging
           @db[kapp_table_name.to_sym].call(
             :insert,
             # {"c_id" => value, "c_formSlug" => value} -> {:c_id => value, :c_formSlug => value}
             db_submission_values,
             submission_values_columns_map
           )
+          puts "Inserted the submission #{submission["id"]}" if @enable_debug_logging
         # else if the submission updatedAt timestamp is greater than the database updatedAt, update it
-        elsif (ce_submission["c_updatedAt"].to_time > existing_submisisons[submission_id])
+        elsif (ce_submission["c_updatedAt"].to_time > existing_submissions[submission_id])
+          puts "Updating the submission #{submission["id"]} into the kapp table #{kapp_table_name}" if @enable_debug_logging
           @db[kapp_table_name.to_sym].where(
             Sequel.lit('"c_id" = ? and "c_updatedAt" < ?', submission['id'], db_submission_values[:c_updatedAt]
           )).call(
@@ -536,6 +621,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
             db_submission_values,
             submission_values_columns_map
           )
+          puts "Updated the submission #{submission["id"]}." if @enable_debug_logging
         else
           puts "Ignoring submission #{submission['id']} for table #{kapp_table_name}. Submission updatedAt is not newer than existing DB record." if @enable_debug_logging
         end
@@ -586,7 +672,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         db_submissions = @db[form_table_name.to_sym]
 
         # if the record does not exist in the database, insert it.
-        if existing_submisisons.has_key?(submission_id) == false then
+        if existing_submissions.has_key?(submission_id) == false then
           puts "Inserting the submission #{submission["id"]} into the form table #{form_table_name}" if @enable_debug_logging
           submission_database_id = db_submissions.call(
             :insert,
@@ -596,7 +682,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
           puts "Inserted the submission #{submission["id"]}" if @enable_debug_logging
 
         # else if the submission updatedAt timestamp is greater than the database updatedAt, update it
-        elsif (form_db_submission["c_updatedAt"].to_time > existing_submisisons[submission_id])
+        elsif (form_db_submission["c_updatedAt"].to_time > existing_submissions[submission_id])
           puts "Updating the submission #{submission["id"]} into the form table #{form_table_name}" if @enable_debug_logging
           submission_update_count = db_submissions.where(
             Sequel.lit('"c_id" = ? and "c_updatedAt" < ?', submission['id'], db_submission_values[:c_updatedAt])
@@ -615,6 +701,138 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     #end database transaction
     end
   #end method
+  end
+
+##########################################################################################################
+#
+# write_datastore_submissions_to_db
+#
+# Process datastore submissions without kapp table, grouped by form for efficient querying
+#
+##########################################################################################################
+
+  def write_datastore_submissions_to_db(submissions)
+
+    # Group submissions by form_slug for sequential processing
+    submissions_by_form = submissions.group_by { |submission| submission['form']['slug'] }
+
+    puts "Processing #{submissions_by_form.keys.size} forms in datastore: #{submissions_by_form.keys.sort}" if @enable_debug_logging
+
+    # Process each form's submissions separately
+    submissions_by_form.keys.sort.each do |form_slug|
+      form_submissions = submissions_by_form[form_slug]
+      kapp_slug = form_submissions.first['form']['kapp']['slug'] # Should be 'datastore'
+
+      puts "Processing #{form_submissions.size} submissions for datastore form: #{form_slug}" if @enable_debug_logging
+
+      @db.transaction(:retry_on => [Sequel::SerializationFailure]) do
+
+        # Phase one: Schema generation for this form
+        generate_submissions_schemas(form_submissions)
+
+        # Phase two: Get existing submissions from FORM table (not kapp table)
+        form_table_name = get_form_table_name(kapp_slug, form_slug)
+        submission_ids = form_submissions.map {|submission| submission['id'] }
+
+        existing_submissions = @db[form_table_name.to_sym]
+          .select(:c_id, :c_updatedAt)
+          .where(:c_id => submission_ids)
+          .all
+          .map {|record|
+            [ record[:c_id], record[:c_updatedAt] ]
+          }.to_h
+
+        puts "Found #{existing_submissions.size} existing submissions in form table #{form_table_name}" if @enable_debug_logging
+
+        # Phase three: Process each submission (only form table, no kapp table)
+        form_submissions.each do |submission|
+          submission_id = submission["id"]
+          submission_values = submission['values']
+
+          # Get table names and column mappings
+          unlimited_column_names_by_field, limited_column_names_by_field = get_column_names(submission_values)
+
+          # Build form submission record
+          form_db_submission = build_submission_record(submission, unlimited_column_names_by_field, limited_column_names_by_field)
+
+          # Convert to database format
+          submission_values_columns_map = form_db_submission
+            .map {|k,v|
+              {k => "$#{k}".to_sym}
+            }.reduce Hash.new, :merge
+          db_submission_values = form_db_submission
+            .map {|k,v|
+              {k.to_sym => v}
+            }.reduce Hash.new, :merge
+
+          # Insert or update in form table only
+          if existing_submissions.has_key?(submission_id) == false then
+            puts "Inserting datastore submission #{submission_id} into form table #{form_table_name}" if @enable_debug_logging
+            @db[form_table_name.to_sym].call(
+              :insert,
+              db_submission_values,
+              submission_values_columns_map
+            )
+            puts "Inserted datastore submission #{submission_id}" if @enable_debug_logging
+          elsif (form_db_submission["c_updatedAt"].to_time > existing_submissions[submission_id])
+            puts "Updating datastore submission #{submission_id} in form table #{form_table_name}" if @enable_debug_logging
+            @db[form_table_name.to_sym].where(
+              Sequel.lit('"c_id" = ? and "c_updatedAt" < ?', submission['id'], db_submission_values[:c_updatedAt])
+            ).call(
+              :update,
+              db_submission_values,
+              submission_values_columns_map
+            ) unless @info_values['ignore_updates']
+            puts "Updated datastore submission #{submission_id}" if @enable_debug_logging
+          else
+            puts "Ignoring datastore submission #{submission_id}. Not newer than existing record." if @enable_debug_logging
+          end
+        end
+      end
+    end
+  end
+
+  # Helper method to build submission record (extracted from main method)
+  def build_submission_record(submission, unlimited_column_names_by_field, limited_column_names_by_field)
+    submission_values = submission['values']
+    form_definition = submission['form']
+
+    originId = nil
+    parentId = nil
+    if (submission['origin'].nil? == false && submission['origin'].has_key?('id')) then
+      originId = submission['origin']['id']
+    end
+    if (submission['parent'].nil? == false && submission['parent'].has_key?('id')) then
+      parentId = submission['parent']['id']
+    end
+
+    # Build the standard submission record
+    db_submission = {
+      "c_id" => submission["id"],
+      "c_originId" => originId,
+      "c_parentId" => parentId,
+      "c_anonymous" => submission['sessionToken'],
+      "c_closedBy" => submission["closedBy"],
+      "c_coreState" => submission["coreState"],
+      "c_createdBy" => submission["createdBy"],
+      "c_submittedBy" => submission["submittedBy"],
+      "c_updatedBy" => submission["updatedBy"]
+    }
+
+    #only set the datetime values if they're not null, and set them as a proper datetime object.
+    ["closedAt", "createdAt", "submittedAt", "updatedAt"].each do |actionTimestamp|
+      db_submission["c_#{actionTimestamp}"] = DateTime.parse(submission[actionTimestamp]) if submission[actionTimestamp].nil? == false
+    end
+
+    # Add form field values
+    submission_values.each { |field,value|
+      #ternary: if value is nil, use nil - else use the value converted to a string.
+      db_submission[unlimited_column_names_by_field[field]] = value.nil? ? nil : value.to_s
+      truncated_value = value.to_s[0,@@DB_COLUMN_SIZE_LIMITS[:formField] - 1]
+      db_submission[limited_column_names_by_field[field]] = value.nil? ? nil : truncated_value
+    }
+
+    return db_submission
   end
 
 ##########################################################################################################
@@ -893,8 +1111,9 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
       }
     end
 
-    @@kapp_form_table_cache[canonical_form] = submission['form']['versionId']
-    puts "update_form_table_columns :: @@kapp_form_table_cache => #{@@kapp_form_table_cache.inspect}"
+    # Cache is now managed by create_or_update_form_table method
+    # @@kapp_form_table_cache[canonical_form] = submission['form']['versionId']
+    puts "update_form_table_columns :: Columns updated for #{canonical_form}" if @enable_debug_logging
 
   end
 
@@ -911,19 +1130,19 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
     table_columns = get_table_column_names(args[:kapp_slug].to_sym)
 
     # Get a list of unique kapp columns (table has a mix of metadata and kapp field columns)
-    reduced_columns = table_columns.reduce([]) do |acc, column| 
+    reduced_columns = table_columns.reduce([]) do |acc, column|
       column[0,2] == "l_" ? acc << column[2..-1] : acc
     end
 
     # Get a list of kapp fields that are not columns on the kapp table
-    missing_columns = @@KAPP_FIELDS - reduced_columns
+    missing_columns = (@@KAPP_FIELDS[args[:kapp_slug]] || []) - reduced_columns
 
     # Get a list of limited and unlimited column names
     unlimited_column_names_by_field, limited_column_names_by_field = get_column_names(missing_columns)
 
     # Get a list of columns to add to the kapp table
     columns_to_add = unlimited_column_names_by_field.values.concat(limited_column_names_by_field.values)
-    
+
     # Get the kapp table name
     kapp_table_name = get_kapp_table_name(args[:kapp_slug], {:is_temporary => args[:is_temporary]})
 
@@ -933,16 +1152,16 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         puts "Adding the new columns '#{columns_to_add.join(",")}' to #{kapp_table_name}" if @enable_debug_logging
         # Assigning outside of the alter_table block because code inside the block is referring to a different instance and not have access to this variable.
         using_oracle = @using_oracle
-        db_column_size_limits = @db_column_size_limits
+        db_column_size_limits = @@DB_COLUMN_SIZE_LIMITS
 
         @db.alter_table(kapp_table_name.to_sym) do
-          columns_to_add.each { |sql_column| 
+          columns_to_add.each { |sql_column|
             if sql_column.start_with?("u_")
-              if using_oracle then 
+              if using_oracle then
                 # TODO: test against oracle system
                 add_column(sql_column.to_sym, String, :text => true, :unicode => true)
               else
-                add_column(sql_column.to_sym, String, :text => true, :unicode => true) 
+                add_column(sql_column.to_sym, String, :text => true, :unicode => true)
               end
             else
               add_column(sql_column.to_sym, String, :unicode => true, :size => db_column_size_limits[:formField])
@@ -962,20 +1181,35 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 ##########################################################################################################
 
   def get_kapp_fields(args)
-    # Get kapp fields
-    api_route = "#{args[:api_server]}/app/api/v1/kapps/#{args[:kapp_slug]}?include=fields"
-    puts "API ROUTE: #{api_route}" if @enable_debug_logging
-    resource = RestClient::Resource.new(api_route, { :user => args[:api_username], :password => args[:api_password] })
-    response = resource.get
+    if args[:kapp_slug].to_s.strip.empty?
+      # Get all kapps
+      api_route = "#{args[:api_server]}/app/api/v1/kapps?include=fields&limit=1000"
+      puts "API ROUTE: #{api_route}" if @enable_debug_logging
+      resource = RestClient::Resource.new(api_route, { :user => args[:api_username], :password => args[:api_password] })
+      response = resource.get
 
-    response_json = JSON.parse(response)
+      response_json = JSON.parse(response)
 
-    # Reduce the response data to a list of kapp field names
-    kapp_fields = response_json["kapp"]["fields"].map{ |field| 
-      field["name"]
-    }
+      # Return hash with all kapps
+      kapp_fields_by_slug = {}
+      response_json["kapps"].each do |kapp|
+        kapp_fields_by_slug[kapp["slug"]] = kapp["fields"].map { |field| field["name"] }
+      end
+      return kapp_fields_by_slug
+    else
+      # Get specific kapp
+      api_route = "#{args[:api_server]}/app/api/v1/kapps/#{args[:kapp_slug]}?include=fields&limit=1000"
+      puts "API ROUTE: #{api_route}" if @enable_debug_logging
+      resource = RestClient::Resource.new(api_route, { :user => args[:api_username], :password => args[:api_password] })
+      response = resource.get
 
-    return kapp_fields 
+      response_json = JSON.parse(response)
+
+      # Return hash with single kapp
+      kapp_slug = response_json["kapp"]["slug"]
+      kapp_fields = response_json["kapp"]["fields"].map { |field| field["name"] }
+      return { kapp_slug => kapp_fields }
+    end
   end
 
 ##########################################################################################################
@@ -995,7 +1229,7 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
 
     db_column_size_limits = @@DB_COLUMN_SIZE_LIMITS
     using_oracle = @using_oracle
-    kapp_fields = @@KAPP_FIELDS
+    kapp_fields = @@KAPP_FIELDS[kapp_slug] || []
     kapp_unlimited_column_name = {}
     kapp_limited_column_name = {}
     kapp_fields.each do |field|
@@ -1108,8 +1342,9 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
       })
     end
 
-    @@kapp_form_table_cache[canonical_form] = submission['form']['versionId']
-    puts "generate_form_table :: @@kapp_form_table_cache => #{@@kapp_form_table_cache.inspect}"
+    # Cache is now managed by create_or_update_form_table method
+    # @@kapp_form_table_cache[canonical_form] = submission['form']['versionId']
+    puts "generate_form_table :: Form table created for #{canonical_form}" if @enable_debug_logging
 
   end
 
@@ -1129,6 +1364,9 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
       :form_slug => args[:form_slug]
     })
     puts "Canonical form name: #{canonical_form}" if @enable_debug_logging
+
+    current_fields = args[:submission]['values'].keys.sort
+    puts "Current submission fields: #{current_fields.inspect}" if @enable_debug_logging
 
     if (@@kapp_form_table_cache.has_key?(canonical_form) == false)
       form_table_name = get_form_table_name(
@@ -1158,15 +1396,34 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
           :is_temporary => args[:is_temporary]
         })
       end
-      @@kapp_form_table_cache[canonical_form] = args[:submission]['form']['versionId']
-    # If the submission has field values not in the cache, update the table columns
-    elsif @@kapp_form_table_cache[canonical_form] != args[:submission]['form']['versionId']
-      update_form_table_columns({
-        :submission => args[:submission],
-        :kapp_slug => args[:kapp_slug],
-        :form_slug => args[:form_slug],
-        :is_temporary => args[:is_temporary]
-      })
+      # Initialize cache with both version and fields
+      @@kapp_form_table_cache[canonical_form] = {
+        :version_id => args[:submission]['form']['versionId'],
+        :fields => current_fields
+      }
+      puts "Initialized cache for #{canonical_form} with fields: #{current_fields.inspect}" if @enable_debug_logging
+    else
+      # Compare actual fields instead of versionId
+      cached_fields = @@kapp_form_table_cache[canonical_form][:fields] || []
+      new_fields = current_fields - cached_fields
+
+      puts "Cached fields: #{cached_fields.inspect}, New fields: #{new_fields.inspect}" if @enable_debug_logging
+
+      if new_fields.any?
+        puts "Found new fields #{new_fields.inspect}, updating table columns" if @enable_debug_logging
+        update_form_table_columns({
+          :submission => args[:submission],
+          :kapp_slug => args[:kapp_slug],
+          :form_slug => args[:form_slug],
+          :is_temporary => args[:is_temporary]
+        })
+        # Update cache with expanded field set
+        @@kapp_form_table_cache[canonical_form][:fields] = (cached_fields + new_fields).sort.uniq
+        @@kapp_form_table_cache[canonical_form][:version_id] = args[:submission]['form']['versionId']
+        puts "Updated cache for #{canonical_form} with fields: #{@@kapp_form_table_cache[canonical_form][:fields].inspect}" if @enable_debug_logging
+      else
+        puts "No new fields found, skipping table update" if @enable_debug_logging
+      end
     end
 
   end
@@ -1237,9 +1494,16 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
         :kapp_slug => kapp_slug
       })
 
-      if !@@kapp_table_cache.include?(canonical_kapp) then
+      # Skip kapp table creation for datastore if configured to do so
+      should_skip_kapp_table = (kapp_slug == 'datastore' && @skip_datastore_kapp_table)
+
+      if !@@kapp_table_cache.include?(canonical_kapp) && !should_skip_kapp_table then
         generate_kapp_table(kapp_slug)
         @@kapp_table_cache.push(canonical_kapp)
+      elsif should_skip_kapp_table
+        # Mark datastore as "processed" in cache to avoid repeated checks, even though no table was created
+        @@kapp_table_cache.push(canonical_kapp) unless @@kapp_table_cache.include?(canonical_kapp)
+        puts "Skipping kapp table creation for datastore kapp" if @enable_debug_logging
       end
 
       create_or_update_form_table({
@@ -1345,7 +1609,6 @@ class KineticRequestCeSubmissionDbBulkUpsertV1
   end
   # This is a ruby constant that is used by the escape method
   ESCAPE_CHARACTERS = {'&'=>'&amp;', '>'=>'&gt;', '<'=>'&lt;', '"' => '&quot;'}
-end
 
 ##########################################################################################################
 #
@@ -1355,37 +1618,37 @@ end
 #
 ##########################################################################################################
 
-#Need to account for db_type
-def check_field_size(tableName, fieldName)
-  size = nil
-  @db.schema(tableName.to_sym).each {|label,columnDetails| 
-    if label.to_s == fieldName
-      #Return size
-      if @info_values["jdbc_database_id"].downcase == "postgresql"
-        puts "Found Postgres" if @enable_debug_logging
-        if columnDetails[:db_type].match?( /\(\d+\)/)
-          size = columnDetails[:db_type][/\(.*?\)/].delete('()')
+  #Need to account for db_type
+  def check_field_size(tableName, fieldName)
+    size = nil
+    @db.schema(tableName.to_sym).each {|label,columnDetails|
+      if label.to_s == fieldName
+        #Return size
+        if @info_values["jdbc_database_id"].downcase == "postgresql"
+          puts "Found Postgres" if @enable_debug_logging
+          if columnDetails[:db_type].match?( /\(\d+\)/)
+            size = columnDetails[:db_type][/\(.*?\)/].delete('()')
+          else
+            puts "Non-numeric: #{columnDetails[:db_type]}" if @enable_debug_logging
+            #How to handle non-numerical fields
+          end
+
+        elsif @info_values["jdbc_database_id"].downcase == 'sqlserver'
+          puts "Found sqlserver" if @enable_debug_logging
+          size = columnDetails[:max_chars]
+        elsif @info_values["jdbc_database_id"].downcase == 'oracle'
+          #TODO
         else
-          puts "Non-numeric: #{columnDetails[:db_type]}" if @enable_debug_logging
-          #How to handle non-numerical fields
+          puts "Else catch" if @enable_debug_logging
+          #TODO - catch case
         end
-        
-      elsif @info_values["jdbc_database_id"].downcase == 'sqlserver'
-        puts "Found sqlserver" if @enable_debug_logging
-        size = columnDetails[:max_chars]
-      elsif @info_values["jdbc_database_id"].downcase == 'oracle'
-        #TODO
-      else
-        puts "Else catch" if @enable_debug_logging
-        #TODO - catch case
+        puts "Size found: #{size}" if @enable_debug_logging
+        return size
       end
-      puts "Size found: #{size}" if @enable_debug_logging
-      return size
-    end
-  }
-  puts "No size found: #{size}" if @enable_debug_logging
-  return size
-end
+    }
+    puts "No size found: #{size}" if @enable_debug_logging
+    return size
+  end
 
 ##########################################################################################################
 #
@@ -1395,21 +1658,24 @@ end
 #
 ##########################################################################################################
 
-def alter_column_type_size(tableName, fieldName, dataType, fieldSize)
-  case (@info_values["jdbc_database_id"])
-  when 'postgresql'
-    puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
-    @db.alter_table(tableName.to_sym) do
-      set_column_type(:fieldKey, "#{dataType}(#{fieldSize})")
-    end
-  when 'sqlserver'
-    puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
-    @db.alter_table(tableName.to_sym) do
-      set_column_type(fieldName.to_sym, dataType.to_sym, size: fieldSize)
-    end
-  when 'oracle'
+  def alter_column_type_size(tableName, fieldName, dataType, fieldSize)
+    case (@info_values["jdbc_database_id"])
+    when 'postgresql'
+      puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
+      @db.alter_table(tableName.to_sym) do
+        set_column_type(:fieldKey, "#{dataType}(#{fieldSize})")
+      end
+    when 'sqlserver'
+      puts "Altering #{fieldName} column in #{@info_values["jdbc_database_id"]} - new type/size #{dataType}-#{fieldSize}" if @enable_debug_logging
+      @db.alter_table(tableName.to_sym) do
+        set_column_type(fieldName.to_sym, dataType.to_sym, size: fieldSize)
+      end
+    when 'oracle'
 
-  else
-  
+    else
+
+    end
   end
-end
+
+
+end #End Class

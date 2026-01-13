@@ -23,6 +23,7 @@
     'page_size' => '2',
     'deferral_token' => '',
     'specific_kapp_slug' => 'services',
-    'specific_form_slugs' => 'general-hr-request'
+    'specific_form_slugs' => 'general-hr-request',
+    'skip_datastore_kapp_table' => 'True'
   }
 }
