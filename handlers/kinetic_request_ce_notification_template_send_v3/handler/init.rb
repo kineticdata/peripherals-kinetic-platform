@@ -115,7 +115,7 @@ class KineticRequestCeNotificationTemplateSendV3
         if(@smtp_auth_type == 'graph')
           auth = {
             :type           => 'graph',
-            :tenant_id      => @tenant_id.
+            :tenant_id      => @tenant_id,
             :client_id      => @smtp_username,
             :client_secret  => @smtp_password,
             :from           => @smtp_from
