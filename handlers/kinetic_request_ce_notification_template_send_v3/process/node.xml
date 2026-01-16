@@ -35,6 +35,7 @@
             <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
             <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
             <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+            <info name="tenant_id">&lt;%= @info['Tenant ID'] %&gt;</info>    
         </infos>
         <parameters>
             <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ? @parameters["error_handling"] : "Raise" %&gt;</parameter>

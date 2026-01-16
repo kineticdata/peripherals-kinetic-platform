@@ -18,6 +18,7 @@ with a default value of 'KD_WEBUSER' add the following line:
   <info name="smtp_tls" required="true" description="A string, either 'true' or 'false' that defines whether the email server requires encryption.">false</info>
   <info name="smtp_username" required="false" description="Authentication string of a user allowed to send emails through the email server."></info>
   <info name="smtp_password" required="false" type="encrypted" description="Password associated with the specified user."></info>
+  <info name="Tenant ID" required="false" description="Only required for Graph"></info>
   <info name="smtp_from_address" required="true" description="From (email address)"></info>
   <info name="smtp_auth_type" required="true" description="SMTP Authentication type (ex. plain /login)">plain</info>
   <info name="api_server" required="true" description="Kinetic Request CE API Web Application">http://server:port/kinetic</info>

@@ -41,6 +41,8 @@ class KineticRequestCeNotificationTemplateSendV3
     @smtp_auth_type   =   @info_values['smtp_auth_type']
     @api_username     =   URI.encode(@info_values['api_username'])
     @api_password     =   @info_values['api_password']
+    @tenant_id        =   @info_values['tenant_id']
+
 
     # Determine if debug logging is enabled
     @debug_logging_enabled = @info_values["enable_debug_logging"] == 'Yes'
@@ -59,6 +61,8 @@ class KineticRequestCeNotificationTemplateSendV3
     @error_message    = ''
     @template_name    = @parameters['notification_template_name']
     @submission_id    = @parameters['submission_id']
+    @smtp_auth_type   = @parameters['smtp_auth_type']
+
   end
 
   # The execute method gets called by the task engine when the handler's node is processed. It is
@@ -108,7 +112,19 @@ class KineticRequestCeNotificationTemplateSendV3
       # If the User has an email address and want to receive notifications
       email_results = {}
       if (!@recipient_json["smtpaddress"].to_s.empty? || !@recipient_json["smtpaddress_cc"].to_s.empty? || !@recipient_json["smtpaddress_bcc"].to_s.empty?) && @recipient_json["email notifications"].to_s.downcase != 'no'
-        email_results = sendEmailMessage(template_to_use)
+        if(@smtp_auth_type == 'graph')
+          auth = {
+            :type           => 'graph',
+            :tenant_id      => @tenant_id.
+            :client_id      => @smtp_username,
+            :client_secret  => @smtp_password,
+            :from           => @smtp_from
+          }
+          email_results = sendEmailMessage(template_to_use, auth)
+        else
+          email_results = sendEmailMessage(template_to_use)
+        end
+
       else
         @error_message = @error_message + "\nNo Email Address or CE User was provided"
       end
@@ -409,19 +425,51 @@ class KineticRequestCeNotificationTemplateSendV3
   ##########################################################################
   ####                  Send Email using Template                       ####
   ##########################################################################
-  def sendEmailMessage(template_to_use)
+  def sendEmailMessage(template_to_use, auth={})
     puts "Sending Email Message to User" if @debug_logging_enabled
     begin
+      #Prepare email data
+      email_data = {
+        :to           => @recipient_json["smtpaddress"]["to"]
+        :cc           => @recipient_json["smtpaddress"]["cc"]
+        :bcc          => @recipient_json["smtpaddress"]["bcc"]
+        :from         => @smtp_from
+        :display_name => @smtp_from
+        :subject      => template_to_use["Subject"]
+        :htmlbody     => template_to_use["HTML Content"]
+        :textbody     => template_to_use["Text Content"]
+      }
 
-      # Create SMTP Defaults hash
+
+
+      #authentication       => @smtp_auth_type,
+      if @smtp_auth_type == 'graph'
+        #Microsoft Graph Auth
+        
+        log( "Payload created", "debug")
+        MicrosoftGraphEmail(auth,payload)
+
+      else
+        #Basic/plain auth
+        
+
+
+      end
+
+
+      sendSMTPMessage(email_data)
+  end
+
+
+  def sendSMTPMessage(email_data)
+    # Unless there was not a user specified
+    # Create SMTP Defaults hash
       smtp_defaults = {
         :address              => @smtp_server,
         :port                 => @smtp_port,
         :authentication       => @smtp_auth_type,
         :enable_starttls_auto => @smtp_tls
       }
-
-      # Unless there was not a user specified
       unless @smtp_username.nil? || @smtp_username.empty?
         # Set the email authentication
         smtp_defaults[:user_name] = @smtp_username
@@ -432,35 +480,26 @@ class KineticRequestCeNotificationTemplateSendV3
         delivery_method :smtp, smtp_defaults
       end
 
-      # Send out Message VIA SMTP
-      to           = @recipient_json["smtpaddress"]["to"]
-      cc           = @recipient_json["smtpaddress"]["cc"]
-      bcc          = @recipient_json["smtpaddress"]["bcc"]
-      from         = @smtp_from
-      display_name = @smtp_from
-      subject      = template_to_use["Subject"]
-      htmlbody     = template_to_use["HTML Content"]
-      textbody     = template_to_use["Text Content"]
-
+      
       mail = Mail.new do
-        from          "#{display_name} <#{from}>"
-        to            "#{to}"
-        cc            "#{cc}"
-        bcc           "#{bcc}"
-        subject       "#{subject}"
+        from          "#{email_details[:display_name]} <#{email_details[:from]}>"
+        to            "#{email_details[:to]}"
+        cc            "#{email_details[:cc]}"
+        bcc           "#{email_details[:bcc]}"
+        subject       "#{email_details[:subject]}"
 
         text_part do
-          body "#{textbody}"
+          body "#{email_details[:textbody]}"
         end
       end
 
       # Embed linked images into the html body if present
-      unless htmlbody.nil? || htmlbody.empty?
+      unless email_details[:htmlbody].nil? || email_details[:htmlbody].empty?
         # Initialize a hash of image links to embeded values
         embedded_images = {}
 
         # Iterate over the body and embed necessary images
-        htmlbody.scan(/"cid:(.*?)"/) do |match|
+        email_details[:htmlbody].scan(/"cid:(.*?)"/) do |match|
           # The match variable is an array of Regex groups (specified with
           # parentheses); in this case the first match is the url
           url = match.first
@@ -473,12 +512,12 @@ class KineticRequestCeNotificationTemplateSendV3
 
         # Replace the image URLs with their embedded values
         embedded_images.each do |url, cid|
-          htmlbody.gsub!(url, cid)
+          email_details[:htmlbody].gsub!(url, cid)
         end
 
         mail.html_part do
           content_type "text/html; charset=UTF-8"
-          body "#{htmlbody}"
+          body "#{email_details[:htmlbody]}"
         end
       end
       
@@ -518,7 +557,6 @@ LOGGING
       end
     end
   end
-
   ##########################################################################
   ####                        Get DATE FORMATS                          ####
   ##########################################################################
@@ -579,4 +617,58 @@ LOGGING
 
     return mail.attachments[filename].cid
   end
+
+  #Microsoft Token renewal
+  def MSAccessToken(tenant_id, client_id, client_secret)
+      uri = URI("https://login.microsoftonline.com/#{tenant_id}/oauth2/v2.0/token")
+      log( "URI: #{uri}")
+      req = Net::HTTP::Post.new(uri)
+      req.set_form_data({
+        'client_id' => client_id,
+        'scope' => 'https://graph.microsoft.com/.default',
+        'client_secret' => client_secret,
+        'grant_type' => 'client_credentials'
+      })
+      log( "Requesting token from Azure")
+      log( "URI: #{uri.hostname} - port: #{uri.port}")
+      res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(req) }
+      if res.is_a?(Net::HTTPSuccess)
+        log( "Req successful - #{res}")
+      else
+        log( "Req failed - #{res}", "error")
+        raise "Failed to get token: #{res.body}"
+      end
+      log( "Returning token")
+
+      return JSON.parse(res.body)['access_token']
+  end
+
+  #Log helper
+  def log(message, log_level="info")
+    unless @logtier
+      @logtier = {"error" => 1, "debug" => 2, "info"=> 3}
+    end
+    
+    puts "#{Time.now.utc} [#{log_level.upcase}] #{message}" if @logtier[log_level] >= @logtier[@log_level]
+  end
+
+  def MicrosoftGraphEmail(auth,payload)
+    access_token = MSAccessToken(auth[:tenant_id], auth[:client_id], auth[:client_secret])
+    log("Acces token retrieved","debug")
+    sendURI = URI("https://graph.microsoft.com/v1.0/users/#{auth[:from]}/sendMail")
+    
+    req = Net::HTTP::Post.new(sendURI)
+    req['Authorization'] = "Bearer #{access_token}"
+    req['Content-Type'] = 'application/json'
+    req.body = JSON.generate(payload)
+    res = Net::HTTP.start(sendURI.hostname, sendURI.port, use_ssl: true) { |http| http.request(req) }
+    log( "POST request sent","debug")
+    if res.is_a?(Net::HTTPSuccess)
+      log( "Email sent successfully!","debug")
+    else
+      log( "Failed to send email: #{res.code} #{res.body}", "error")
+    end
+
+  end
+
 end
