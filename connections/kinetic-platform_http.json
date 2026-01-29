@@ -1,0 +1,2115 @@
+{
+  "connection": {
+    "id": "1415539c-bb98-48bb-ad33-11be25189ad0",
+    "name": "Kinetic Platform",
+    "type": "http",
+    "config": {
+      "auth": {
+        "password": null,
+        "authType": "basic",
+        "username": "brian.peterson@kineticdata.com"
+      },
+      "configType": "http",
+      "caCert": null,
+      "baseUrl": "https://momentum-dev.kinopsdev.io/app/api/v1",
+      "testPath": "/space"
+    },
+    "description": "",
+    "operations": [
+      {
+        "id": "2df289ae-9be4-456a-a47f-66771a4bace2",
+        "name": "Create Submission",
+        "config": {
+          "path": "/kapps/{{Kapp*}}/forms/{{Form*}}/submissions",
+          "params": {
+            "completed": "{{Completed [true/false]}}",
+            "staged": "{{Staged [true/false]}}"
+          },
+          "body": {
+            "raw": "{  \n  {{#Core State}}\n    \"coreState\": \"{{Core State}}\",\n  {{/Core State}}\n  {{#Current Page}}\n    \"currentPage\": {\n          \"name\": \"{{Current Page}}\"\n    },\n  {{/Current Page}}\n  \"label\": \"{{Label}}\",  \n  \"type\": \"{{Type}}\",  \n  {{#Values [Object]}}\n    \"values\": {{{Values [Object]}}},\n  {{/Values [Object]}}\n  {{#Origin}}\n    \"origin\": {\n        \"id\": \"{{Origin}}\"\n    },\n  {{/Origin}}\n  {{#Parent}}\n    \"parent\": {\n        \"id\": \"{{Parent}}\"\n    },\n  {{/Parent}}\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "POST",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Id": {
+            "value": "body.submission?.id"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-13T15:28:51.870462Z",
+        "lockVersion": 8,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T18:44:09.956568Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "7ad51a20-8bab-422b-a0f7-247e082dccd5",
+        "name": "Get Space",
+        "config": {
+          "path": "/space",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {},
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Attributes Map": {
+            "value": "body.space?.attributesMap"
+          },
+          "Bridge Models": {
+            "value": "body.space?.bridgeModels"
+          },
+          "Kapps": {
+            "value": "body.space?.kapps"
+          },
+          "Name": {
+            "value": "body.space?.name"
+          },
+          "Security Policies": {
+            "value": "body.space?.securityPolicies"
+          },
+          "Security Policy Definitions": {
+            "value": "body.space?.securityPolicyDefinitions"
+          },
+          "Slug": {
+            "value": "body.space?.slug"
+          },
+          "Space Attribute Definitions": {
+            "value": "body.space?.spaceAttributeDefinitions"
+          },
+          "User Attribute Definitions": {
+            "value": "body.space?.userAttributeDefinitions"
+          },
+          "User Profile Attribute Definitions": {
+            "value": "body.space?.userProfileAttributeDefinitions"
+          },
+          "Webhooks": {
+            "value": "body.space?.webhooks"
+          },
+          "_Count": {
+            "value": "body.space ? 1 : 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "!!body.space"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2024-11-06T14:28:44.564787Z",
+        "lockVersion": 12,
+        "documentationLink": "",
+        "updatedAt": "2026-01-23T22:27:31.775912Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "b5e75933-339d-4d6a-8c58-da509be53e1b",
+        "name": "Get Approval Values",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Decision": {
+            "value": "body.submission?.values?.['Decision']"
+          },
+          "Notes for Customer": {
+            "value": "body.submission?.values?.['Notes for Customer']"
+          },
+          "Reason": {
+            "value": "body.submission?.values?.['Reason']"
+          }
+        },
+        "insertedAt": "2024-11-13T20:28:46.616250Z",
+        "lockVersion": 7,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:22:59.578694Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "85be2cba-ee7e-4f36-8fd9-6c383ddb5b9a",
+        "name": "Get Task Values",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Notes": {
+            "value": "body.submission?.values?.['Notes']"
+          },
+          "Status": {
+            "value": "body.submission?.values?.['Status']"
+          }
+        },
+        "insertedAt": "2024-11-15T18:09:13.085638Z",
+        "lockVersion": 7,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:23:00.095133Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "5bb1c214-a071-4020-8e9c-5dbef659b883",
+        "name": "Delete Team",
+        "config": {
+          "path": "teams/{{Slug*}}",
+          "params": {},
+          "body": {
+            "raw": "",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "DELETE",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2025-12-10T21:04:40.871207Z",
+        "lockVersion": 8,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:23:03.594003Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "60e27cfb-e5e6-4c6e-b0cf-b89296d0137a",
+        "name": "Patch Submission",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}",
+          "params": {},
+          "body": {
+            "raw": "{  \n  {{#Core State}}\n    \"coreState\": \"{{Core State}}\",\n  {{/Core State}}\n  {{#Current Page}}\n    \"currentPage\": {\n          \"name\": \"{{Current Page}}\"\n    },\n  {{/Current Page}}\n  \"label\": \"{{Label}}\",  \n  \"type\": \"{{Type}}\",  \n  {{#Values [Object]}}\n    \"values\": {{{Values [Object]}}},\n  {{/Values [Object]}}\n  {{#Origin}}\n    \"origin\": {\n        \"id\": \"{{Origin}}\"\n    },\n  {{/Origin}}\n  {{#Parent}}\n    \"parent\": {\n        \"id\": \"{{Parent}}\"\n    },\n  {{/Parent}}\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "PATCH",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Id": {
+            "value": "body.submission?.id"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-13T15:31:15.744422Z",
+        "lockVersion": 8,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T18:42:04.389794Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "651666f6-a381-4230-b3c5-11457fd15a92",
+        "name": "Search Submissions By Form",
+        "config": {
+          "path": "/kapps/{{Kapp*}}/forms/{{Form*}}/submissions-search",
+          "params": {
+            "count": "{{Count [true/false]}}",
+            "direction": "{[Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}",
+            "q": "{{Query}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "POST",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Submissions": {
+            "children": {
+              "Activities": "current['activities']",
+              "Children": "current['children']",
+              "Closed At": "current['closedAt']",
+              "Closed By": "current['closedBy']",
+              "Core State": "current['coreState']",
+              "Created At": "current['createdAt']",
+              "Created By": "current['createdBy']",
+              "Current Page": "current['currentPage']",
+              "Descendants": "current['descendants']",
+              "Displayed Page": "current['displayedPage']",
+              "Form": "current['form']",
+              "Handle": "current['handle']",
+              "Id": "current['id']",
+              "Label": "current['label']",
+              "Origin": "current['origin']",
+              "Parent": "current['parent']",
+              "Submission Id": "current['id']",
+              "SubmittedAt": "current['submittedAt']",
+              "SubmittedBy": "current['submittedBy']",
+              "Type": "current['type']",
+              "UpdatedAt": "current['updatedAt']",
+              "UpdatedBy": "current['updatedBy']",
+              "Values": "current['values']"
+            },
+            "value": "body.submissions"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Count": {
+            "value": "body.submissions?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.submissions?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-09T20:20:02.655746Z",
+        "lockVersion": 12,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T19:15:19.165308Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "768c3f3a-96fa-4d9b-bd7c-8b51b0cb176f",
+        "name": "Find Submissions by Form and Core State",
+        "config": {
+          "path": "/kapps/{{Kapp*}}/forms/{{Form*}}/submissions",
+          "params": {
+            "count": "{{Count [true/false]}}",
+            "direction": "{[Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}",
+            "pageToken": "{{Page Token}}",
+            "q": "coreState = \"{{Core State*}}\""
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Submissions": {
+            "children": {
+              "Activities": "current['activities']",
+              "Children": "current['children']",
+              "Closed At": "current['closedAt']",
+              "Closed By": "current['closedBy']",
+              "Core State": "current['coreState']",
+              "Created At": "current['createdAt']",
+              "Created By": "current['createdBy']",
+              "Current Page": "current['currentPage']",
+              "Descendants": "current['descendants']",
+              "Displayed Page": "current['displayedPage']",
+              "Form": "current['form']",
+              "Handle": "current['handle']",
+              "Id": "current['id']",
+              "Label": "current['label']",
+              "Origin": "current['origin']",
+              "Parent": "current['parent']",
+              "Submission Id": "current['id']",
+              "SubmittedAt": "current['submittedAt']",
+              "SubmittedBy": "current['submittedBy']",
+              "Type": "current['type']",
+              "UpdatedAt": "current['updatedAt']",
+              "UpdatedBy": "current['updatedBy']",
+              "Values": "current['values']"
+            },
+            "value": "body.submissions"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Count": {
+            "value": "body.submissions?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.submissions?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-13T16:30:45.857903Z",
+        "lockVersion": 9,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:23:07.577297Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "dfcefc93-a29f-471e-a131-9a61189083e7",
+        "name": "Delete Submission",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}",
+          "params": {},
+          "body": {
+            "raw": "",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "DELETE",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-13T16:24:14.543512Z",
+        "lockVersion": 5,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:23:07.081282Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "92b6a327-5f5a-4377-80f7-b7223bd787ac",
+        "name": "Create Submission Activity",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}/activities",
+          "params": {},
+          "body": {
+            "raw": "{\n  \"description\": \"{{Description}}\",\n  \"data\": \"{{Data [Object]}}\",\n  \"label\": \"{{Label}}\",\n  \"type\": \"{{Type}}\"\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "POST",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Activity Id": {
+            "value": "body.activity?.id"
+          },
+          "Error": {
+            "value": "body.error"
+          },
+          "Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2024-11-01T15:28:30.160183Z",
+        "lockVersion": 15,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T19:29:12.422125Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "e8f73406-d95b-44f0-b3fd-2731e7ccebf3",
+        "name": "Retrieve User Password Reset Token",
+        "config": {
+          "path": "/users/{{User Name}}/passwordResetToken",
+          "params": {},
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {},
+          "configType": "http",
+          "method": "POST",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Token": {
+            "value": "body.token"
+          }
+        },
+        "insertedAt": "2025-01-07T20:06:15.332124Z",
+        "lockVersion": 7,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T15:12:35.960079Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "d1608a5e-33b1-4ac9-a8d7-53f7687be0ed",
+        "name": "Update User",
+        "config": {
+          "path": "/users/{{Username*}}",
+          "params": {},
+          "body": {
+            "raw": "{\n  \"email\":\"{{Email}}\",\n  \"displayName\":\"{{Display Name}}\",\n  {{#Is Space Admin [true/false]}}\n    \"spaceAdmin\":\n    {Is Space Admin [true/false]}},\n  {{/Is Space Admin [true/false]}}\n  {{#Enabled [true/false]}}\n    \"enabled\": {{Enabled [true/false]}},\n  {{/Enabled [true/false]}}\n  {{#Password}}\n    \"password\":\"{{Password}}\"\n  {{/Password}},\n  {{#User Attributes Map [Object]}}\n    \"attributesMap\":{{{User Attributes Map [Object]}}}\n  {{/User Attributes Map [Object]}},\n  {{#Profile Attributes Map [Object]}}\n    \"profileAttributesMap\":{{{Profile Attributes Map [Object]}}}\n  {{/Profile Attributes Map [Object]}},\n  {{#Memberships [Array of Objects]}}\n    \"memberships\":{{{Memberships [Array of Objects]}}}\n  {{/Memberships [Array of Objects]}}\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "PUT",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Status Code": {
+            "value": "statusCode"
+          },
+          "_Error": {
+            "value": "body.error"
+          }
+        },
+        "insertedAt": "2026-01-22T15:36:43.500845Z",
+        "lockVersion": 3,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T16:38:23.996131Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "f74a831b-2ad8-4427-b5a5-95be1750fca6",
+        "name": "Delete Submission Activity",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}/activities/{{Activity Id*}}",
+          "params": {},
+          "body": {
+            "raw": "",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "DELETE",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Error": {
+            "value": "body.error"
+          },
+          "Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-21T19:34:22.427699Z",
+        "lockVersion": 2,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T19:34:22.427699Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "10416683-4878-41c3-b825-d0e47eb1d9c5",
+        "name": "Update Team",
+        "config": {
+          "path": "teams/{{Slug*}}",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "raw": "{ \n  {{#Name}}\n    \"name\":\"{{Name}}\", \n  {{/Name}}\n  \"description\": \"{{Description}}\",\n  {{#Attributes Map [Object]}}\n    \"attributesMap\":{{{Attributes Map [Object]}}}\n  {{/Attributes Map [Object]}},\n  {{#Memberships [Array of Objects]}}\n    \"memberships\":{{{Memberships [Array of Objects]}}}\n  {{/Memberships [Array of Objects]}},\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "PUT",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Slug": {
+            "value": "body.team?.slug"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-21T21:00:55.747919Z",
+        "lockVersion": 3,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T21:41:05.371863Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "625584c3-32e0-415f-a181-4405057e5fca",
+        "name": "Search Users",
+        "config": {
+          "path": "/users",
+          "params": {
+            "direction": "{[Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderby": "{{orderBy}}",
+            "q": "{{Query}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {},
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Users": {
+            "children": {
+              "Allowed Ips": "current.allowedIps",
+              "Created At": "current.createdAt",
+              "Created By": "current.createdBy",
+              "Display Name": "current.displayName",
+              "Email": "current.email",
+              "Enabled": "current.enabled",
+              "Invited By": "current.invitedBy",
+              "Profile Attributes Map": "current.profileAttributesMap",
+              "Rreferred Locale": "current.preferredLocale",
+              "Space": "current.space",
+              "Space Admin": "current.spaceAdmin",
+              "Timezone": "current.timezone",
+              "Updated At": "current.updatedAt",
+              "Updated By": "current.updatedBy",
+              "User Attributes Map": "current.attributesMap",
+              "Username": "current.username"
+            },
+            "value": "body.users"
+          },
+          "_Count": {
+            "value": "body.users?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.users?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2024-12-03T22:44:07.779935Z",
+        "lockVersion": 16,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T16:30:05.279079Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "023fbddc-ec6e-49dd-9729-d1f64af70deb",
+        "name": "Update Submission Activity",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}/activities/{{Activity Id*}}",
+          "params": {},
+          "body": {
+            "raw": "{\n  \"description\": \"{{Description}}\",\n  \"data\": \"{{Data [Object]}}\",\n  \"label\": \"{{Label}}\",\n  \"type\": \"{{Type}}\"\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "PUT",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Error": {
+            "value": "body.error"
+          },
+          "Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2024-11-18T22:07:17.938587Z",
+        "lockVersion": 11,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T19:28:56.381343Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "107732ce-8679-4ec3-8d23-8e93556f2e2a",
+        "name": "List Submission Activity",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}/activities",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Submissions": {
+            "children": {
+              "Created At": "current.createdAt",
+              "Created By": "current.createdBy",
+              "Data": "current.data",
+              "Description": "current?.description",
+              "Id": "current.id",
+              "Label": "current.label",
+              "Type": "current.type",
+              "UpdatedAt": "current.updatedAt",
+              "UpdatedBy": "current.updatedBy"
+            },
+            "value": "body.activities"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Count": {
+            "value": "body.activities?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.activities?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-21T20:24:51.800554Z",
+        "lockVersion": 2,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T20:24:51.800554Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "e64b3eb9-91b0-422f-9e10-959afebb5ec7",
+        "name": "Retrieve Submission Activity",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}/activities/{{Activity Id*}}",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Created At": {
+            "value": "body.activity?.createdAt"
+          },
+          "Created By": {
+            "value": "body.activity?.createdBy"
+          },
+          "Data": {
+            "value": "body.activity?.data"
+          },
+          "Description": {
+            "value": "body.activity?.description"
+          },
+          "Id": {
+            "value": "body.activity?.id"
+          },
+          "Label": {
+            "value": "body.activity?.label"
+          },
+          "Type": {
+            "value": "body.activity?.type"
+          },
+          "UpdatedAt": {
+            "value": "body.activity?.updatedAt"
+          },
+          "UpdatedBy": {
+            "value": "body.activity?.updatedBy"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Count": {
+            "value": "body.activity ? 1 : 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "!!body.activity"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-21T20:37:46.754644Z",
+        "lockVersion": 3,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T20:44:28.968314Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "16f70295-86eb-4624-b2f8-7bc2fa62de96",
+        "name": "List Users",
+        "config": {
+          "path": "/users/",
+          "params": {
+            "direction": "{[Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}"
+          },
+          "body": {
+            "raw": "",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Users": {
+            "children": {
+              "Allowed Ips": "current.allowedIps",
+              "Created At": "current.createdAt",
+              "Created By": "current.createdBy",
+              "Display Name": "current.displayName",
+              "Email": "current.email",
+              "Enabled": "current.enabled",
+              "Invited By": "current.invitedBy",
+              "Profile Attributes Map": "current.profileAttributesMap",
+              "Rreferred Locale": "current.preferredLocale",
+              "Space": "current.space",
+              "Space Admin": "current.spaceAdmin",
+              "Timezone": "current.timezone",
+              "Updated At": "current.updatedAt",
+              "Updated By": "current.updatedBy",
+              "User Attributes Map": "current.attributesMap",
+              "Username": "current.username"
+            },
+            "value": "body.users"
+          },
+          "_Count": {
+            "value": "body.users?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.users?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-08T22:14:46.052344Z",
+        "lockVersion": 9,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T16:30:16.987673Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "771f279a-988d-4b91-9b8f-85861c5c13fe",
+        "name": "Retrieve User",
+        "config": {
+          "path": "/users/{{Username}}",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Allowed Ips": {
+            "value": "body.user?.allowedIps"
+          },
+          "Created At": {
+            "value": "body.user?.createdAt"
+          },
+          "Created By": {
+            "value": "body.user?.createdBy"
+          },
+          "Display Name": {
+            "value": "body.user?.displayName"
+          },
+          "Email": {
+            "value": "body.user?.email"
+          },
+          "Enabled": {
+            "value": "body.user?.enabled"
+          },
+          "Invited By": {
+            "value": "body.user?.invitedBy"
+          },
+          "Preferred Locale": {
+            "value": "body.user?.preferredLocale"
+          },
+          "Profile Attributes Map": {
+            "value": "body.user?.profileAttributesMap"
+          },
+          "Space": {
+            "value": "body.user?.space"
+          },
+          "Space Admin": {
+            "value": "body.user?.spaceAdmin"
+          },
+          "Timezone": {
+            "value": "body.user?.timezone"
+          },
+          "Updated At": {
+            "value": "body.user?.updatedAt"
+          },
+          "Updated By": {
+            "value": "body.user?.updatedBy"
+          },
+          "User Attributes Map": {
+            "value": "body.user?.attributesMap"
+          },
+          "Username": {
+            "value": "body.user?.username"
+          },
+          "_Count": {
+            "value": "body.user ? 1 : 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "!!body.user"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2024-10-31T19:01:48.032287Z",
+        "lockVersion": 20,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T16:30:29.136095Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "5ab031af-e91d-415f-b861-e9f4827c56e2",
+        "name": "Kitchen Sink Operation",
+        "config": {
+          "path": "{{example_endpoint}}",
+          "params": {
+            "url_parameter_1": "url_parameter_1_value",
+            "url_parameter_2": "url_parameter_2_value"
+          },
+          "body": {
+            "raw": "{\n  \"raw_json_key_1\": \"raw_json_value_1\",\n  \"raw_json_key_2\": \"raw_json_value_2\"\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "header_1": "header_1_value",
+            "header_2": "header_2_value"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Error": {
+            "value": "body.error"
+          },
+          "Response": {
+            "children": {
+              "Nested Key": "current['Desired Key']"
+            },
+            "value": "body['Desired Key']"
+          },
+          "Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2025-10-01T17:15:49.689022Z",
+        "lockVersion": 3,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:23:02.061258Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "e49e9505-84f4-4566-8108-82f400d4d66c",
+        "name": "Delete Kapp",
+        "config": {
+          "path": "/kapps/{{Kapp Slug*}}",
+          "params": {},
+          "body": {
+            "raw": "",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "DELETE",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-22T17:26:17.473560Z",
+        "lockVersion": 5,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T18:09:49.460018Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "289751e3-6ac1-4d34-b35c-a90d5734ad56",
+        "name": "List Kapps",
+        "config": {
+          "path": "/kapps",
+          "params": {
+            "direction": "{{Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Kapps": {
+            "children": {
+              "After Logout Path": "current.afterLogoutPath",
+              "Attributes Map": "current.attributesMap",
+              "Bundle Path": "current.bundlePath",
+              "Categories": "current.categories",
+              "Categorizations": "current.categorizations",
+              "Category Attribute Definitions": "current.categoryAttributeDefinitions",
+              "Created At": "current.createdAt",
+              "Created By": "current.createdBy",
+              "Default Form Confirmation Page": "current.defaultFormConfirmationPage",
+              "Default Form Display Page": "current.defaultFormDisplayPage",
+              "Default Submission Label Expression": "current.defaultSubmissionLabelExpression",
+              "Display Type": "current.displayType",
+              "Display Value": "current.displayValue",
+              "Fields": "current.fields",
+              "Form Attribute Definitions": "current.formAttributeDefinitions",
+              "Form Types": "current.formTypes",
+              "Forms": "current.forms",
+              "Index Definitions": "current.indexDefinitions",
+              "Kapp Attribute Definitions": "current.kappAttributeDefinitions",
+              "Login Page": "current.loginPage",
+              "Name": "current.name",
+              "Security Policies": "current.securityPolicies",
+              "Security Policy Attribute Definitions": "current.securityPolicyAttributeDefinitions",
+              "Slug": "current.slug",
+              "Updated At": "current.updatedAt",
+              "Updated By": "current.updatedBy",
+              "Webhooks": "current.webhooks"
+            },
+            "value": "body.kapps"
+          },
+          "Next Page Token": {
+            "value": "body.nextPageToken"
+          },
+          "_Count": {
+            "value": "body.kapps?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.kapps?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-22T17:26:17.474818Z",
+        "lockVersion": 5,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T18:09:49.461003Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "7750b186-952a-4b43-bb85-34913951e5fe",
+        "name": "Search Teams",
+        "config": {
+          "path": "/teams",
+          "params": {
+            "direction": "{[Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}",
+            "q": "{{Query}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {},
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Teams": {
+            "children": {
+              "Attributes": "current.attributes",
+              "Created At": "current.createdAt",
+              "Created By": "current.createdBy",
+              "Description": "current.description",
+              "Memberships": "current.memberships",
+              "Name": "current.name",
+              "Slug": "current.slug",
+              "Updated At": "current.updatedAt",
+              "Updated By": "current.updatedBy"
+            },
+            "value": "body.teams"
+          },
+          "_Count": {
+            "value": "body.teams?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.teams?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-15T18:57:44.595810Z",
+        "lockVersion": 8,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:23:08.100201Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "87c1444d-22bd-497e-b17b-da2a1ab437cf",
+        "name": "Create Kapp",
+        "config": {
+          "path": "/kapps",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "raw": "{\n  \"name\": \"{{Name*}}\",\n  \"slug\": \"{{Slug*}}\",\n  {{#After Logout Path}}\n    \"afterLogoutPath\": \"{{After Logout Path}}\",\n  {{/After Logout Path}}\n  {{#Bundle Path}}\n    \"bundlePath\": \"{{Bundle Path}}\",\n  {{/Bundle Path}}\n  {{#Default Form Confirmation Page}}\n    \"defaultFormConfirmationPage\": \"{{Default Form Confirmation Page}}\",\n  {{/Default Form Confirmation Page}}\n  {{#Default Form Display Page}}\n    \"defaultFormDisplayPage\": \"{{Default Form Display Page}}\",\n  {{/Default Form Display Page}}\n  {{#Default Submission Label Expression}}\n    \"defaultSubmissionLabelExpression\": \"{{Default Submission Label Expression}}\",\n  {{/Default Submission Label Expression}}\n  {{#Display Type}}\n    \"displayType\": \"{{Display Type}}\",\n  {{/Display Type}}\n  {{#Display Value}}\n    \"displayValue\": \"{{Display Value}}\",\n  {{/Display Value}}\n  {{#Login Page}}\n    \"loginPage\": \"{{Login Page}}\",\n  {{/Login Page}}\n  {{#Attributes Map [Object]}}\n    \"attributesMap\": {{{Attributes Map [Object]}}},\n  {{/Attributes Map [Object]}}\n\n  {{#Categories [Array of Objects]}}\n    \"categories\": {{{Categories [Array of Objects]}}},\n  {{/Categories [Array of Objects]}}\n  {{#Categorizations [Array of Objects]}}\n    \"categorizations\": {{{Categorizations [Array of Objects]}}},\n  {{/Categorizations [Array of Objects]}}\n{{#Category Attribute Definitions [Array of Objects]}}\n    \"categoryAttributeDefinitions\": {{{Category Attribute Definitions [Array of Objects]}}},\n  {{/Category Attribute Definitions [Array of Objects]}}\n  {{#Fields [Array of Objects]}}\n    \"fields\": {{{Fields [Array of Objects]}}},\n  {{/Fields [Array of Objects]}}\n  {{#Form Attribute Definitions [Array of Objects]}}\n    \"formAttributeDefinitions\": {{{Form Attribute Definitions [Array of Objects]}}},\n  {{/Form Attribute Definitions [Array of Objects]}}\n  {{#Form Types [Array of Objects]}}\n    \"formTypes\": {{{Form Types [Array of Objects]}}},\n  {{/Form Types [Array of Objects]}}\n  {{#Forms [Array of Objects]}}\n    \"forms\": {{{Forms [Array of Objects]}}},\n  {{/Forms [Array of Objects]}}\n  {{#Index Definitions [Array of Objects]}}\n    \"indexDefinitions\": {{{Index Definitions [Array of Objects]}}},\n  {{/Index Definitions [Array of Objects]}}\n  {{#Kapp Attribute Definitions [Array of Objects]}}\n    \"kappAttributeDefinitions\": {{{Kapp Attribute Definitions [Array of Objects]}}},\n  {{/Kapp Attribute Definitions [Array of Objects]}}\n  {{#Security Policies [Array of Objects]}}\n    \"securityPolicies\": {{{Security Policies [Array of Objects]}}},\n  {{/Security Policies [Array of Objects]}}\n  {{#Security Policy Attribute Definitions [Array of Objects]}}\n    \"securityPolicyAttributeDefinitions\": {{{Security Policy Attribute Definitions [Array of Objects]}}},\n  {{/Security Policy Attribute Definitions [Array of Objects]}}\n  {{#Webhooks [Array of Objects]}}\n    \"webhooks\": {{{Webhooks [Array of Objects]}}},\n  {{/Webhooks [Array of Objects]}}\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "POST",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Name": {
+            "value": "body.kapp?.name"
+          },
+          "Slug": {
+            "value": "body.kapp?.slug"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-22T17:26:17.471379Z",
+        "lockVersion": 7,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T21:58:58.346983Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "c7ff9473-55a4-47e8-a03f-863c16fe9440",
+        "name": "List Teams",
+        "config": {
+          "path": "/teams",
+          "params": {
+            "direction": "{[Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {},
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Teams": {
+            "children": {
+              "Attributes": "current.attributes",
+              "Created At": "current.createdAt",
+              "Created By": "current.createdBy",
+              "Description": "current.description",
+              "Memberships": "current.memberships",
+              "Name": "current.name",
+              "Slug": "current.slug",
+              "Updated At": "current.updatedAt",
+              "Updated By": "current.updatedBy"
+            },
+            "value": "body.teams"
+          },
+          "_Count": {
+            "value": "body.teams?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.teams?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-16T20:35:40.000241Z",
+        "lockVersion": 5,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:23:08.582006Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "4177c8b1-5c5f-435b-92ec-fa314d229e44",
+        "name": "Retrieve Kapp",
+        "config": {
+          "path": "/kapps/{{Kapp Slug*}}",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "After Logout Path": {
+            "value": "body.kapp?.afterLogoutPath"
+          },
+          "Attributes Map": {
+            "value": "body.kapp?.attributesMap"
+          },
+          "Bundle Path": {
+            "value": "body.kapp?.bundlePath"
+          },
+          "Categories": {
+            "value": "body.kapp?.categories"
+          },
+          "Categorizations": {
+            "value": "body.kapp?.categorizations"
+          },
+          "Category Attribute Definitions": {
+            "value": "body.kapp?.categoryAttributeDefinitions"
+          },
+          "Created At": {
+            "value": "body.kapp?.createdAt"
+          },
+          "Created By": {
+            "value": "body.kapp?.createdBy"
+          },
+          "Default Form Confirmation Page": {
+            "value": "body.kapp?.defaultFormConfirmationPage"
+          },
+          "Default Form Display Page": {
+            "value": "body.kapp?.defaultFormDisplayPage"
+          },
+          "Default Submission Label Expression": {
+            "value": "body.kapp?.defaultSubmissionLabelExpression"
+          },
+          "Display Type": {
+            "value": "body.kapp?.displayType"
+          },
+          "Display Value": {
+            "value": "body.kapp?.displayValue"
+          },
+          "Fields": {
+            "value": "body.kapp?.fields"
+          },
+          "Form Attribute Definitions": {
+            "value": "body.kapp?.formAttributeDefinitions"
+          },
+          "Form Types": {
+            "value": "body.kapp?.formTypes"
+          },
+          "Forms": {
+            "value": "body.kapp?.forms"
+          },
+          "Index Definitions": {
+            "value": "body.kapp?.indexDefinitions"
+          },
+          "Kapp Attribute Definitions": {
+            "value": "body.kapp?.kappAttributeDefinitions"
+          },
+          "Login Page": {
+            "value": "body.kapp?.loginPage"
+          },
+          "Name": {
+            "value": "body.kapp?.name"
+          },
+          "Security Policies": {
+            "value": "body.kapp?.securityPolicies"
+          },
+          "Security Policy Attribute Definitions": {
+            "value": "body.kapp?.securityPolicyAttributeDefinitions"
+          },
+          "Slug": {
+            "value": "body.kapp?.slug"
+          },
+          "Updated At": {
+            "value": "body.kapp?.updatedAt"
+          },
+          "Updated By": {
+            "value": "body.kapp?.updatedBy"
+          },
+          "Webhooks": {
+            "value": "body.kapp?.webhooks"
+          },
+          "_Count": {
+            "value": "body.kapp ? 1 : 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "!!body.kapp"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-22T17:26:17.475675Z",
+        "lockVersion": 5,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T18:09:49.462156Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "a8cac82d-ee4b-4043-b6af-226c13680428",
+        "name": "Search Kapps",
+        "config": {
+          "path": "/kapps",
+          "params": {
+            "direction": "{{Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}",
+            "q": "{{Query}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Kapps": {
+            "children": {
+              "After Logout Path": "current.afterLogoutPath",
+              "Attributes Map": "current.attributesMap",
+              "Bundle Path": "current.bundlePath",
+              "Categories": "current.categories",
+              "Categorizations": "current.categorizations",
+              "Category Attribute Definitions": "current.categoryAttributeDefinitions",
+              "Created At": "current.createdAt",
+              "Created By": "current.createdBy",
+              "Default Form Confirmation Page": "current.defaultFormConfirmationPage",
+              "Default Form Display Page": "current.defaultFormDisplayPage",
+              "Default Submission Label Expression": "current.defaultSubmissionLabelExpression",
+              "Display Type": "current.displayType",
+              "Display Value": "current.displayValue",
+              "Fields": "current.fields",
+              "Form Attribute Definitions": "current.formAttributeDefinitions",
+              "Form Types": "current.formTypes",
+              "Forms": "current.forms",
+              "Index Definitions": "current.indexDefinitions",
+              "Kapp Attribute Definitions": "current.kappAttributeDefinitions",
+              "Login Page": "current.loginPage",
+              "Name": "current.name",
+              "Security Policies": "current.securityPolicies",
+              "Security Policy Attribute Definitions": "current.securityPolicyAttributeDefinitions",
+              "Slug": "current.slug",
+              "Updated At": "current.updatedAt",
+              "Updated By": "current.updatedBy",
+              "Webhooks": "current.webhooks"
+            },
+            "value": "body.kapps"
+          },
+          "Next Page Token": {
+            "value": "body.nextPageToken"
+          },
+          "_Count": {
+            "value": "body.kapps?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.kapps?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-22T17:26:17.476539Z",
+        "lockVersion": 5,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T18:09:49.462936Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "5555f9e7-d387-4004-be3c-e4ba12ac7f78",
+        "name": "Find Team by Name",
+        "config": {
+          "path": "/teams",
+          "params": {
+            "direction": "{[Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}",
+            "q": "name = \"{{Name*}}\""
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {},
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Teams": {
+            "children": {
+              "Attributes": "current.attributes",
+              "Created At": "current.createdAt",
+              "Created By": "current.createdBy",
+              "Description": "current.description",
+              "Memberships": "current.memberships",
+              "Name": "current.name",
+              "Slug": "current.slug",
+              "Updated At": "current.updatedAt",
+              "Updated By": "current.updatedBy"
+            },
+            "value": "body.teams"
+          },
+          "_Count": {
+            "value": "body.teams?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.teams?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-16T20:37:57.449391Z",
+        "lockVersion": 7,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T21:44:15.950177Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "e20b8b5d-da67-410b-a527-bd3ae1cfe07b",
+        "name": "Retrieve Team",
+        "config": {
+          "path": "/teams/{{Slug*}}",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {},
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "AttributesMap": {
+            "value": "body.team?.attributesMap"
+          },
+          "Created At": {
+            "value": "body.team?.createdAt"
+          },
+          "Created By": {
+            "value": "body.team?.createdBy"
+          },
+          "Description": {
+            "value": "body.team?.description"
+          },
+          "Memberships": {
+            "value": "body.team?.memberships"
+          },
+          "Name": {
+            "value": "body.team?.name"
+          },
+          "Slug": {
+            "value": "body.team?.slug"
+          },
+          "Updated At": {
+            "value": "body.team?.updatedAt"
+          },
+          "Updated By": {
+            "value": "body.team?.updatedBy"
+          },
+          "_Count": {
+            "value": "body.team ? 1 : 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "!!body.team"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-16T20:51:56.763952Z",
+        "lockVersion": 7,
+        "documentationLink": "",
+        "updatedAt": "2026-01-27T15:33:47.403941Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "e6612cf0-8136-4049-a39c-88ccd835edbe",
+        "name": "Search Submissions by Kapp",
+        "config": {
+          "path": "/kapps/{{Kapp*}}/submissions-search",
+          "params": {
+            "count": "{{Count [true/false]}}",
+            "direction": "{{Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}",
+            "q": "{{Query}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "POST",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Submissions": {
+            "children": {
+              "Activities": "current['activities']",
+              "Children": "current['children']",
+              "Closed At": "current['closedAt']",
+              "Closed By": "current['closedBy']",
+              "Core State": "current['coreState']",
+              "Created At": "current['createdAt']",
+              "Created By": "current['createdBy']",
+              "Current Page": "current['currentPage']",
+              "Descendants": "current['descendants']",
+              "Displayed Page": "current['displayedPage']",
+              "Form": "current['form']",
+              "Handle": "current['handle']",
+              "Id": "current['id']",
+              "Label": "current['label']",
+              "Origin": "current['origin']",
+              "Parent": "current['parent']",
+              "Submission Id": "current['id']",
+              "SubmittedAt": "current['submittedAt']",
+              "SubmittedBy": "current['submittedBy']",
+              "Type": "current['type']",
+              "UpdatedAt": "current['updatedAt']",
+              "UpdatedBy": "current['updatedBy']",
+              "Values": "current['values']"
+            },
+            "value": "body.submissions"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Count": {
+            "value": "body.submissions?.length ?? 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "body.submissions?.length > 0"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-09T17:27:42.837755Z",
+        "lockVersion": 17,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T19:19:48.133498Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "8081da53-18b2-4f4c-8034-a999bd15682b",
+        "name": "Update Kapp",
+        "config": {
+          "path": "/kapps/{{Kapp Slug*}}",
+          "params": {
+            "Status Code": "statusCode",
+            "_Error": "body.error"
+          },
+          "body": {
+            "raw": "{\n  {{#Name}}\n    \"name\": \"{{Name}}\",\n  {{/Name}}\n  {{#After Logout Path}}\n    \"afterLogoutPath\": \"{{After Logout Path}}\",\n  {{/After Logout Path}}\n  {{#Bundle Path}}\n    \"bundlePath\": \"{{Bundle Path}}\",\n  {{/Bundle Path}}\n  {{#Default Form Confirmation Page}}\n    \"defaultFormConfirmationPage\": \"{{Default Form Confirmation Page}}\",\n  {{/Default Form Confirmation Page}}\n  {{#Default Form Display Page}}\n    \"defaultFormDisplayPage\": \"{{Default Form Display Page}}\",\n  {{/Default Form Display Page}}\n  {{#Default Submission Label Expression}}\n    \"defaultSubmissionLabelExpression\": \"{{Default Submission Label Expression}}\",\n  {{/Default Submission Label Expression}}\n  {{#Display Type}}\n    \"displayType\": \"{{Display Type}}\",\n  {{/Display Type}}\n  {{#Display Value}}\n    \"displayValue\": \"{{Display Value}}\",\n  {{/Display Value}}\n  {{#Login Page}}\n    \"loginPage\": \"{{Login Page}}\",\n  {{/Login Page}}\n  {{#Attributes Map [Object]}}\n    \"attributesMap\": {{{Attributes Map [Object]}}},\n  {{/Attributes Map [Object]}}\n\n  {{#Categories [Array of Objects]}}\n    \"categories\": {{{Categories [Array of Objects]}}},\n  {{/Categories [Array of Objects]}}\n  {{#Categorizations [Array of Objects]}}\n    \"categorizations\": {{{Categorizations [Array of Objects]}}},\n  {{/Categorizations [Array of Objects]}}\n{{#Category Attribute Definitions [Array of Objects]}}\n    \"categoryAttributeDefinitions\": {{{Category Attribute Definitions [Array of Objects]}}},\n  {{/Category Attribute Definitions [Array of Objects]}}\n  {{#Fields [Array of Objects]}}\n    \"fields\": {{{Fields [Array of Objects]}}},\n  {{/Fields [Array of Objects]}}\n  {{#Form Attribute Definitions [Array of Objects]}}\n    \"formAttributeDefinitions\": {{{Form Attribute Definitions [Array of Objects]}}},\n  {{/Form Attribute Definitions [Array of Objects]}}\n  {{#Form Types [Array of Objects]}}\n    \"formTypes\": {{{Form Types [Array of Objects]}}},\n  {{/Form Types [Array of Objects]}}\n  {{#Forms [Array of Objects]}}\n    \"forms\": {{{Forms [Array of Objects]}}},\n  {{/Forms [Array of Objects]}}\n  {{#Index Definitions [Array of Objects]}}\n    \"indexDefinitions\": {{{Index Definitions [Array of Objects]}}},\n  {{/Index Definitions [Array of Objects]}}\n  {{#Kapp Attribute Definitions [Array of Objects]}}\n    \"kappAttributeDefinitions\": {{{Kapp Attribute Definitions [Array of Objects]}}},\n  {{/Kapp Attribute Definitions [Array of Objects]}}\n  {{#Security Policies [Array of Objects]}}\n    \"securityPolicies\": {{{Security Policies [Array of Objects]}}},\n  {{/Security Policies [Array of Objects]}}\n  {{#Security Policy Attribute Definitions [Array of Objects]}}\n    \"securityPolicyAttributeDefinitions\": {{{Security Policy Attribute Definitions [Array of Objects]}}},\n  {{/Security Policy Attribute Definitions [Array of Objects]}}\n  {{#Webhooks [Array of Objects]}}\n    \"webhooks\": {{{Webhooks [Array of Objects]}}},\n  {{/Webhooks [Array of Objects]}}\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "PUT",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Name": {
+            "value": "body.kapp?.name"
+          },
+          "Slug": {
+            "value": "body.kapp?.slug"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-22T17:26:17.477276Z",
+        "lockVersion": 8,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T21:32:33.705570Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "c69716b8-f9dc-45f1-ab3f-2eed5d2a22b8",
+        "name": "Retrieve Submission",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}",
+          "params": {
+            "count": "{{Count [true/false]}}",
+            "direction": "{{Direction  [ASC, DESC]}}",
+            "include": "{{Include}}",
+            "limit": "{{Limit [0-1000]}}",
+            "orderBy": "{{Order By}}",
+            "pageToken": "{{Page Token}}"
+          },
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "GET",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Activities": {
+            "value": "body.submission?.activities"
+          },
+          "Children": {
+            "value": "body.submission?.children"
+          },
+          "Closed At": {
+            "value": "body.closedAt"
+          },
+          "Closed By": {
+            "value": "body.closedBy"
+          },
+          "Core State": {
+            "value": "body.submission?.coreState"
+          },
+          "Created At": {
+            "value": "body.submission?.createdAt"
+          },
+          "Created By": {
+            "value": "body.submission?.createdBy"
+          },
+          "Current Page": {
+            "value": "body.currentPage"
+          },
+          "Descendants": {
+            "value": "body.descendants"
+          },
+          "Displayed Page": {
+            "value": "body.displayedPage"
+          },
+          "Form": {
+            "value": "body.form"
+          },
+          "Handle": {
+            "value": "body.submission?.handle"
+          },
+          "Id": {
+            "value": "body.id"
+          },
+          "Label": {
+            "value": "body.submission?.label"
+          },
+          "Origin": {
+            "value": "body.origin"
+          },
+          "Parent": {
+            "value": "body.parent"
+          },
+          "Submission Id": {
+            "value": "body.submission?.id"
+          },
+          "SubmittedAt": {
+            "value": "body.submittedAt"
+          },
+          "SubmittedBy": {
+            "value": "body.submittedBy"
+          },
+          "Type": {
+            "value": "body.type"
+          },
+          "UpdatedAt": {
+            "value": "body.updatedAt"
+          },
+          "UpdatedBy": {
+            "value": "body.updatedBy"
+          },
+          "Values": {
+            "value": "body.submission?.values"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Count": {
+            "value": "body.submission ? 1 : 0"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Exists": {
+            "value": "!!body.submission"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-08T15:16:31.867284Z",
+        "lockVersion": 9,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:23:04.080401Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "17128569-e797-41c5-bfcf-76672e066d50",
+        "name": "Create Memberships",
+        "config": {
+          "path": "/memberships",
+          "params": {},
+          "body": {
+            "raw": "{\n  \"team\": {\n    \"name\": \"{{Name}}\"\n  },\n  \"user\": {\n    \"username\": \"{{User Name}}\"\n  }\n}",
+            "bodyType": "raw"
+          },
+          "headers": {},
+          "configType": "http",
+          "method": "POST",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-23T19:51:25.508485Z",
+        "lockVersion": 2,
+        "documentationLink": "",
+        "updatedAt": "2026-01-23T19:51:25.508485Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "0397f489-17c5-4ef3-b156-0088a9cc5633",
+        "name": "Delete Memberships",
+        "config": {
+          "path": "/memberships/{{Slug [teamslug_username]}}",
+          "params": {},
+          "body": {
+            "form": {},
+            "bodyType": "www_form_urlencoded"
+          },
+          "headers": {},
+          "configType": "http",
+          "method": "DELETE",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2026-01-23T20:20:41.811842Z",
+        "lockVersion": 2,
+        "documentationLink": "",
+        "updatedAt": "2026-01-23T20:20:41.811842Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "e382ceff-2ac0-4541-b8aa-1c49d9580c42",
+        "name": "Create User",
+        "config": {
+          "path": "/users",
+          "params": {},
+          "body": {
+            "raw": "{\n  \"username\":\"{{Username}}\",\n  \"email\":\"{{Email}}\",\n  \"displayName\":\"{{Display Name}}\",\n  {{#Is Space Admin [true/false]}}\n    \"spaceAdmin\":\n    {Is Space Admin [true/false]}},\n  {{/Is Space Admin [true/false]}}\n  {{#Enabled [true/false]}}\n    \"enabled\": {{Enabled [true/false]}},\n  {{/Enabled [true/false]}}\n  {{#Password}}\n    \"password\":\"{{Password}}\"\n  {{/Password}},\n  {{#User Attributes Map [Object]}}\n    \"attributesMap\":{{{User Attributes Map [Object]}}}\n  {{/User Attributes Map [Object]}},\n  {{#Profile Attributes Map [Object]}}\n    \"profileAttributesMap\":{{{Profile Attributes Map [Object]}}}\n  {{/Profile Attributes Map [Object]}},\n  {{#Memberships [Array of Objects]}}\n    \"memberships\":{{{Memberships [Array of Objects]}}}\n  {{/Memberships [Array of Objects]}}\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "POST",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Status Code": {
+            "value": "statusCode"
+          },
+          "_Error": {
+            "value": "body.error"
+          }
+        },
+        "insertedAt": "2025-12-09T15:54:42.202087Z",
+        "lockVersion": 9,
+        "documentationLink": "",
+        "updatedAt": "2026-01-22T16:12:51.626866Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "6904708d-7292-4a05-abda-6ad91819e1e9",
+        "name": "Create Team",
+        "config": {
+          "path": "teams",
+          "params": {
+            "include": "{{Include}}"
+          },
+          "body": {
+            "raw": "{ \n  \"name\":\"{{Name}}\", \n  \"description\": \"{{Description}}\",\n  {{#Attributes Map [Object]}}\n    \"attributesMap\":{{{Attributes Map [Object]}}}\n  {{/Attributes Map [Object]}},\n  {{#Memberships [Array of Objects]}}\n    \"memberships\":{{{Memberships [Array of Objects]}}}\n  {{/Memberships [Array of Objects]}},\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "POST",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Slug": {
+            "value": "body.team?.slug"
+          },
+          "_Correlation Id": {
+            "value": "body.correlationId"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2025-12-09T15:55:24.757124Z",
+        "lockVersion": 12,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T16:23:03.072257Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      },
+      {
+        "id": "3ad53519-e058-48a1-b114-5745533526ad",
+        "name": "Update Submission",
+        "config": {
+          "path": "/submissions/{{Submission Id*}}",
+          "params": {},
+          "body": {
+            "raw": "{  \n  {{#Core State}}\n    \"coreState\": \"{{Core State}}\",\n  {{/Core State}}\n  {{#Current Page}}\n    \"currentPage\": {\n          \"name\": \"{{Current Page}}\"\n    },\n  {{/Current Page}}\n  \"label\": \"{{Label}}\",  \n  \"type\": \"{{Type}}\",  \n  {{#Values [Object]}}\n    \"values\": {{{Values [Object]}}},\n  {{/Values [Object]}}\n  {{#Origin}}\n    \"origin\": {\n        \"id\": \"{{Origin}}\"\n    },\n  {{/Origin}}\n  {{#Parent}}\n    \"parent\": {\n        \"id\": \"{{Parent}}\"\n    },\n  {{/Parent}}\n}",
+            "bodyType": "raw"
+          },
+          "headers": {
+            "accept": "application/json",
+            "content-type": "application/json"
+          },
+          "configType": "http",
+          "method": "PUT",
+          "includeEmptyParams": false,
+          "followRedirect": false,
+          "streamResponse": false
+        },
+        "outputs": {
+          "Id": {
+            "value": "body.submission?.id"
+          },
+          "_Error": {
+            "value": "body.error"
+          },
+          "_Status Code": {
+            "value": "statusCode"
+          }
+        },
+        "insertedAt": "2024-10-30T20:26:04.240380Z",
+        "lockVersion": 37,
+        "documentationLink": "",
+        "updatedAt": "2026-01-21T18:43:14.758281Z",
+        "connectionId": "1415539c-bb98-48bb-ad33-11be25189ad0",
+        "notes": ""
+      }
+    ],
+    "documentationLink": "",
+    "insertedAt": "2024-10-30T20:09:16.889549Z",
+    "lockVersion": 8,
+    "secrets": {},
+    "updatedAt": "2026-01-21T17:01:15.462372Z"
+  }
+}
