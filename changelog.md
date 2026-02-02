@@ -1,3 +1,6 @@
+Kinetic Platform [conections] (2026-01-29)
+  * [connections/kinetic-platform_http.json]
+    * Inital Commit of Connections and Operations for the Kinetic Platform
 Kinetic Platform [handlers] (2025-02-06)
   * [kinetic_request_ce_submission_db_bulk_upsert_v1]
     * Added hotfix code to change fieldKey to 256 if length is 8
