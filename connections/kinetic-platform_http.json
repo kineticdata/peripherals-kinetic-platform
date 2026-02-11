@@ -7,11 +7,11 @@
       "auth": {
         "password": null,
         "authType": "basic",
-        "username": "brian.peterson@kineticdata.com"
+        "username": null
       },
       "configType": "http",
       "caCert": null,
-      "baseUrl": "https://momentum-dev.kinopsdev.io/app/api/v1",
+      "baseUrl": "https://<<YOUR_SPACE>>/app/api/v1",
       "testPath": "/space"
     },
     "description": "",
