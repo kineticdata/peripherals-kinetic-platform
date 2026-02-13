@@ -38,7 +38,7 @@ class KineticRequestCeNotificationTemplateSendV3
     @smtp_username    =   @info_values['smtp_username']
     @smtp_password    =   @info_values['smtp_password']
     @smtp_from        =   @info_values['smtp_from_address']
-    @smtp_auth_type   =   @info_values['smtp_auth_type']
+    @smtp_auth_type   =   @info_values['smtp_auth_type']&.strip&.downcase
     @api_username     =   URI.encode(@info_values['api_username'])
     @api_password     =   @info_values['api_password']
     @tenant_id        =   @info_values['tenant_id']
@@ -61,7 +61,6 @@ class KineticRequestCeNotificationTemplateSendV3
     @error_message    = ''
     @template_name    = @parameters['notification_template_name']
     @submission_id    = @parameters['submission_id']
-    @smtp_auth_type   = @parameters['smtp_auth_type']
 
   end
 
@@ -105,13 +104,22 @@ class KineticRequestCeNotificationTemplateSendV3
     ################################################
     ##  SEND EMAIL AND CREATE NOTIFICATION IN CE  ##
     ################################################
-
+    if @smtp_auth_type.nil? || @smtp_auth_type.empty?
+      log("No authentication type, closing","error")
+        results = "<results>\n"
+        results += "  <result name='Handler Error Message'>No authentication type provided (#{@smtp_auth_type})</result>\n"
+        results += "  <result name='Email Id'></result>\n"
+        results += "</results>"
+        return results
+    end
     # Check to make sure a valid message template was found
     if !template_to_use.nil?
+
 
       # If the User has an email address and want to receive notifications
       email_results = {}
       if (!@recipient_json["smtpaddress"].to_s.empty? || !@recipient_json["smtpaddress_cc"].to_s.empty? || !@recipient_json["smtpaddress_bcc"].to_s.empty?) && @recipient_json["email notifications"].to_s.downcase != 'no'
+        #Graph API
         if(@smtp_auth_type == 'graph')
           auth = {
             :type           => 'graph',
@@ -421,49 +429,56 @@ class KineticRequestCeNotificationTemplateSendV3
     
     end
     return mail
-   end
+  end
   ##########################################################################
   ####                  Send Email using Template                       ####
   ##########################################################################
   def sendEmailMessage(template_to_use, auth={})
     puts "Sending Email Message to User" if @debug_logging_enabled
-    begin
-      #Prepare email data
-      email_data = {
-        :to           => @recipient_json["smtpaddress"]["to"]
-        :cc           => @recipient_json["smtpaddress"]["cc"]
-        :bcc          => @recipient_json["smtpaddress"]["bcc"]
-        :from         => @smtp_from
-        :display_name => @smtp_from
-        :subject      => template_to_use["Subject"]
-        :htmlbody     => template_to_use["HTML Content"]
-        :textbody     => template_to_use["Text Content"]
-      }
+    #Prepare email data
+    email_data = {
+      :to           => @recipient_json["smtpaddress"]["to"],
+      :cc           => @recipient_json["smtpaddress"]["cc"],
+      :bcc          => @recipient_json["smtpaddress"]["bcc"],
+      :from         => @smtp_from,
+      :display_name => @smtp_from,
+      :subject      => template_to_use["Subject"],
+      :htmlbody     => template_to_use["HTML Content"],
+      :textbody     => template_to_use["Text Content"]
+    }
 
 
 
-      #authentication       => @smtp_auth_type,
-      if @smtp_auth_type == 'graph'
-        #Microsoft Graph Auth
-        
-        log( "Payload created", "debug")
-        MicrosoftGraphEmail(auth,payload)
+    #authentication       => @smtp_auth_type,
+    if auth[:type] == 'graph'
+      #Microsoft Graph Auth
 
-      else
-        #Basic/plain auth
-        
+      #Generate body
+      payload = generate_payload(email_data)
+      log( "Payload created", "debug")
 
-
+      if !template_to_use["Attachments"].nil? && !template_to_use["Attachments"].empty?
+        payload = apply_attachments_graph(payload, template_to_use["Attachments"])
+        log("Attachments applied to payload", "debug")
+      end
+      if !email_data[:htmlbody].nil? && !email_data[:htmlbody].empty?
+        payload = extract_and_embed_images_graph(payload, email_data[:htmlbody])
+        log("Inline images embedded in payload", "debug")
       end
 
+      return MicrosoftGraphEmail(auth,payload)
 
-      sendSMTPMessage(email_data)
+    else
+      #Basic/plain auth
+      return sendSMTPMessage(email_data,template_to_use)
+    end
+
   end
 
-
-  def sendSMTPMessage(email_data)
+  def sendSMTPMessage(email_details,template_to_use)
     # Unless there was not a user specified
     # Create SMTP Defaults hash
+    begin
       smtp_defaults = {
         :address              => @smtp_server,
         :port                 => @smtp_port,
@@ -492,33 +507,10 @@ class KineticRequestCeNotificationTemplateSendV3
           body "#{email_details[:textbody]}"
         end
       end
-
+      
       # Embed linked images into the html body if present
       unless email_details[:htmlbody].nil? || email_details[:htmlbody].empty?
-        # Initialize a hash of image links to embeded values
-        embedded_images = {}
-
-        # Iterate over the body and embed necessary images
-        email_details[:htmlbody].scan(/"cid:(.*?)"/) do |match|
-          # The match variable is an array of Regex groups (specified with
-          # parentheses); in this case the first match is the url
-          url = match.first
-          # Unless we have already embedded this url
-          unless embedded_images.has_key?(url)
-            cid = embed_url(mail,url)
-            embedded_images[url] = cid
-          end
-        end
-
-        # Replace the image URLs with their embedded values
-        embedded_images.each do |url, cid|
-          email_details[:htmlbody].gsub!(url, cid)
-        end
-
-        mail.html_part do
-          content_type "text/html; charset=UTF-8"
-          body "#{email_details[:htmlbody]}"
-        end
+        mail = embed_images(email_details,mail)
       end
       
       if !template_to_use["Attachments"].nil?
@@ -533,14 +525,14 @@ class KineticRequestCeNotificationTemplateSendV3
         return { "message_id" => mail.message_id }
       else
         send_error = <<-LOGGING
-There was an error sending the email message
-    Bounced?:        #{mail.bounced?}
-    Final Recipient: #{mail.final_recipient}
-    Action:          #{mail.action}
-    Error Status:    #{mail.error_status}
-    Diagnostic Code: #{mail.diagnostic_code}
-    Retryable?:      #{mail.retryable}
-LOGGING
+          There was an error sending the email message
+              Bounced?:        #{mail.bounced?}
+              Final Recipient: #{mail.final_recipient}
+              Action:          #{mail.action}
+              Error Status:    #{mail.error_status}
+              Diagnostic Code: #{mail.diagnostic_code}
+              Retryable?:      #{mail.retryable}
+          LOGGING
 
         puts send_error if @debug_logging_enabled
         @error_message = @error_message + send_error
@@ -552,7 +544,7 @@ LOGGING
       else
         send_error = "#{e.class.name} : #{e}"
         puts send_error if @debug_logging_enabled
-        @error_message = @error_message + send_error
+        @error_message = @error_message + "\nSMTP Send #{@smtp_auth_type}\n" + send_error
         return { "message_id" => nil }
       end
     end
@@ -647,9 +639,12 @@ LOGGING
   def log(message, log_level="info")
     unless @logtier
       @logtier = {"error" => 1, "debug" => 2, "info"=> 3}
+      @current_log_level = @debug_logging_enabled ? "debug" : "info"
     end
     
-    puts "#{Time.now.utc} [#{log_level.upcase}] #{message}" if @logtier[log_level] >= @logtier[@log_level]
+    # Only log if the message level is equal to or more important than current level
+    # Lower numbers = more important (error=1 is most important)
+    puts "#{Time.now.utc} [#{log_level.upcase}] #{message}" if @logtier[log_level] <= @logtier[@current_log_level]
   end
 
   def MicrosoftGraphEmail(auth,payload)
@@ -660,6 +655,8 @@ LOGGING
     req = Net::HTTP::Post.new(sendURI)
     req['Authorization'] = "Bearer #{access_token}"
     req['Content-Type'] = 'application/json'
+
+
     req.body = JSON.generate(payload)
     res = Net::HTTP.start(sendURI.hostname, sendURI.port, use_ssl: true) { |http| http.request(req) }
     log( "POST request sent","debug")
@@ -669,6 +666,280 @@ LOGGING
       log( "Failed to send email: #{res.code} #{res.body}", "error")
     end
 
+    #Calculate return
+    if res.is_a?(Net::HTTPSuccess)
+      log("Email sent successfully!", "debug")
+      return { "message_id" => "graph-#{Time.now.to_i}" }  # Add return value
+    else
+      log("Failed to send email: #{res.code} #{res.body}", "error")
+      @error_message += "\nGraph API Error: #{res.code} #{res.body}"
+      return { "message_id" => nil }  # Add return value
+    end
+
   end
 
+  def extract_and_embed_images_graph(payload, html_body)
+    log("Extracting inline images from HTML", "debug")
+    
+    # Find all cid: references in the HTML
+    html_body.scan(/"cid:(.*?)"/) do |match|
+      url = match[0]
+      log("Found inline image reference: #{url}", "debug")
+      
+      begin
+        # Download the image
+        response = RestClient.get(url)
+        file_content = response.body
+        base64_content = Base64.strict_encode64(file_content)
+        
+        # Extract filename from URL
+        uri = URI.parse(url)
+        filename = File.basename(uri.path)
+        content_id = filename
+        
+        # Determine content type
+        content_type = response.headers[:content_type] || determine_content_type(filename)
+        
+        # Add as inline attachment to payload
+        payload[:message][:attachments] << {
+          "@odata.type" => "#microsoft.graph.fileAttachment",
+          "name" => filename,
+          "contentType" => content_type,
+          "contentBytes" => base64_content,
+          "contentId" => content_id,
+          "isInline" => true
+        }
+        
+        log("Embedded inline image: #{filename} as #{content_id}", "debug")
+        
+        # Update the HTML to reference the content ID
+        payload[:message][:body][:content].gsub!("cid:#{url}", "cid:#{content_id}")
+        
+      rescue Exception => e
+        log("Error embedding inline image #{url}: #{e.message}", "error")
+      end
+    end
+    
+    return payload
+  end
+  def embed_images(email_details,mail)
+    # Initialize a hash of image links to embeded values
+    embedded_images = {}
+
+    # Iterate over the body and embed necessary images
+    email_details[:htmlbody].scan(/"cid:(.*?)"/) do |match|
+      # The match variable is an array of Regex groups (specified with
+      # parentheses); in this case the first match is the url
+      url = match.first
+      # Unless we have already embedded this url
+      unless embedded_images.has_key?(url)
+        cid = embed_url(mail,url)
+        embedded_images[url] = cid
+      end
+    end
+
+    # Replace the image URLs with their embedded values
+    embedded_images.each do |url, cid|
+      email_details[:htmlbody].gsub!(url, cid)
+    end
+
+    mail.html_part do
+      content_type "text/html; charset=UTF-8"
+      body "#{email_details[:htmlbody]}"
+    end
+    return mail
+  end
+
+  def generate_payload(email_data)
+    message = {
+      message: {
+        subject: email_data[:subject],
+        body: {
+          contentType: "HTML",
+          content: email_data[:htmlbody]
+        },
+        toRecipients: email_data[:to].to_s.split(',').map { |email| { emailAddress: { address: email.strip } } },
+        attachments: []
+      },
+      saveToSentItems: true
+    }
+    # Add CC recipients if provided
+    unless email_data[:cc].nil? || email_data[:cc].empty?
+      message[:message][:ccRecipients] = email_data[:cc].split(',').map { |email| { emailAddress: { address: email.strip } } }
+    end    
+    # Add BCC recipients if provided
+    unless email_data[:bcc].nil? || email_data[:bcc].empty?
+      message[:message][:bccRecipients] = email_data[:bcc].split(',').map { |email| { emailAddress: { address: email.strip } } }
+    end
+    return message
+  end
+
+  ##########################################################################
+  ####            Apply Attachments for Microsoft Graph API            ####
+  ##########################################################################
+  def apply_attachments_graph(payload, attachmentList)
+    if @submission_id.nil? || @submission_id.empty?
+      log("No submission ID provided for attachments", "debug")
+      return payload
+    end
+
+    if attachmentList.nil? || attachmentList.empty?
+      log("No attachment list provided", "debug")
+      return payload
+    end
+
+    puts "Applying attachments for Graph API" if @debug_logging_enabled
+
+    # Submission API Route including Values
+    submission_api_route = @api_server +
+                            "/app/api/v1/submissions/" +
+                            URI.escape(@submission_id) +
+                            "/?include=values"
+    
+    log("Getting submission from: #{submission_api_route}", "debug")
+    
+    begin
+      # Retrieve the Submission Values
+      submission_result = RestClient::Resource.new(
+        submission_api_route,
+        user: @api_username,
+        password: @api_password
+      ).get
+
+      log("Retrieved submission successfully", "debug")
+      
+      # If the submission exists
+      unless submission_result.nil?
+        submission = JSON.parse(submission_result)["submission"]
+        
+        # Find all attachment field references in the attachmentList string
+        attachmentList.scan(/\$\{attachment\('(.*?)'\)\}/) do |match|
+          field_name = match[0]
+          field_value = submission["values"][field_name]
+          
+          log("Processing attachment field: #{field_name}", "debug")
+          
+          # If the attachment field value exists
+          unless field_value.nil?
+            # Attachment field values are stored as arrays, one map for each file attachment
+            field_value.each_index do |index|
+              file_info = field_value[index]
+              file_name = file_info['name']
+              
+              log("Processing file: #{file_name}", "debug")
+              
+              # API route to get the generated attachment download link from Kinetic Request CE.
+              attachment_download_api_route = @api_server +
+                '/app/api/v1' +
+                '/submissions/' + URI.escape(@submission_id) +
+                '/files/' + URI.escape(field_name) +
+                '/' + index.to_s +
+                '/' + URI.escape(file_name) +
+                '/url'
+              
+              log("Getting attachment URL from: #{attachment_download_api_route}", "debug")
+              
+              attachment_download_result = RestClient::Resource.new(
+                attachment_download_api_route,
+                user: @api_username,
+                password: @api_password
+              ).get
+
+              unless attachment_download_result.nil?
+                # Get the filehub url to download the file
+                file_url = JSON.parse(attachment_download_result)['url']
+                log("Downloading file from: #{file_url}", "debug")
+
+                # Determine if using legacy or modern URL format
+                params = CGI.parse(URI(file_url).query || "")
+                is_legacy = params.has_key?('signature')
+                log("Using #{is_legacy ? 'legacy' : 'modern'} url", "debug")
+
+                # Download the file content
+                file_content = if is_legacy
+                  RestClient.get(file_url).body
+                else
+                  RestClient::Resource.new(
+                    file_url,
+                    user: @api_username,
+                    password: @api_password
+                  ).get.body
+                end
+
+                # Encode to base64 for Graph API
+                base64_content = Base64.strict_encode64(file_content)
+                
+                # Determine content type from file extension if not provided
+                content_type = file_info['contentType'] || determine_content_type(file_name)
+                
+                # Add attachment to the payload
+                payload[:message][:attachments] << {
+                  "@odata.type" => "#microsoft.graph.fileAttachment",
+                  "name" => file_name,
+                  "contentType" => content_type,
+                  "contentBytes" => base64_content,
+                  "isInline" => false
+                }
+                
+                log("Added attachment: #{file_name} (#{content_type})", "debug")
+              end
+            end
+          else
+            log("No value found for attachment field: #{field_name}", "debug")
+          end
+        end
+      end
+    rescue RestClient::Exception => e
+      error_msg = "Error retrieving attachments: #{e.message}"
+      log(error_msg, "error")
+      @error_message += "\n#{error_msg}"
+      
+      if @error_handling == "Raise Error"
+        raise
+      end
+    rescue Exception => e
+      error_msg = "Unexpected error applying attachments: #{e.class.name} - #{e.message}"
+      log(error_msg, "error")
+      @error_message += "\n#{error_msg}"
+      
+      if @error_handling == "Raise Error"
+        raise
+      end
+    end
+    
+    return payload
+  end
+
+  ##########################################################################
+  ####              Helper: Determine Content Type from Filename        ####
+  ##########################################################################
+  def determine_content_type(filename)
+    extension = File.extname(filename).downcase
+    
+    content_types = {
+      '.pdf' => 'application/pdf',
+      '.doc' => 'application/msword',
+      '.docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.xls' => 'application/vnd.ms-excel',
+      '.xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      '.ppt' => 'application/vnd.ms-powerpoint',
+      '.pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      '.txt' => 'text/plain',
+      '.csv' => 'text/csv',
+      '.jpg' => 'image/jpeg',
+      '.jpeg' => 'image/jpeg',
+      '.png' => 'image/png',
+      '.gif' => 'image/gif',
+      '.bmp' => 'image/bmp',
+      '.zip' => 'application/zip',
+      '.rar' => 'application/x-rar-compressed',
+      '.7z' => 'application/x-7z-compressed',
+      '.json' => 'application/json',
+      '.xml' => 'application/xml',
+      '.html' => 'text/html',
+      '.htm' => 'text/html'
+    }
+    
+    content_types[extension] || 'application/octet-stream'
+  end
 end
