@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taskDefinition id="kinetic_request_ce_notification_template_send" name="Kinetic Request CE Notification Template Send" schema_version="1.0" version="5">
+    <author>support@kineticdata.com</author>
+    <description>
+        Retrieves and combines all template content (headers, footers, snippets), performs dynamic content replacements and sends the message.
+    </description>
+    <helpurl></helpurl>
+    <visible>false</visible>
+    <deferrable>false</deferrable>
+    <parameters>
+        <parameter id="error_handling" label="Error Handling" required="true"
+          tooltip="Determine what to return if an error is encountered." menu="Error Message,Raise Error">Error Message</parameter>
+        <parameter id="space_slug" label="Space Slug" required="false"
+          tooltip="The id of the space from which the submission is being retrieved."/>
+        <parameter id="recipient_json" label="Recipient Json Object" required="true"
+          tooltip="The recipient object should look like this. {&quot;type&quot;:&quot;user&quot;,&quot;username&quot;:&quot;test@mycompany.com&quot;,&quot;smtpaddress&quot;:{&quot;to&quot;:&quot;to_test@mycompany.com&quot;,&quot;cc&quot;:&quot;cc_test@mycompany.com&quot;,&quot;bcc&quot;:&quot;bcc_test@mycompany.com&quot;},&quot;language&quot;:&quot;- Default -&quot;,&quot;email notifications&quot;:&quot;yes&quot;}  "/>
+        <parameter id="notification_template_name" label="Notification Template Name" required="true"
+          tooltip="The notification template name being used."/>
+        <parameter id="replacement_values" label="Replacement Values" required="false"
+            tooltip="JSON string of replacement values. Required to successfully apply replacements to any notification template.  JSON keys can be 'form', 'values', and 'vars'."/>
+        <parameter id="submission_id" label="Submission Id" required="false"
+            tooltip="Needed if the message contains attachments."/>
+    </parameters>
+    <handler name="kinetic_request_ce_notification_template_send" version="5">
+        <infos>
+            <info name="smtp_server">&lt;%= @info['smtp_server'] %&gt;</info>
+            <info name="smtp_port">&lt;%= @info['smtp_port'] %&gt;</info>
+            <info name="smtp_tls_method">&lt;%= @info['smtp_tls_method'] %&gt;</info>
+            <info name="smtp_tls">&lt;%= @info['smtp_tls'] %&gt;</info>
+            <info name="smtp_username">&lt;%= @info['smtp_username'] %&gt;</info>
+            <info name="smtp_password">&lt;%= @info['smtp_password'] %&gt;</info>
+            <info name="smtp_from_address">&lt;%= @info['smtp_from_address'] %&gt;</info>
+            <info name="smtp_auth_type">&lt;%= @info['smtp_auth_type'] %&gt;</info>
+            <info name="smtp_open_timeout">&lt;%= @info['smtp_open_timeout'] %&gt;</info>
+            <info name="api_password">&lt;%= @info['api_password'] %&gt;</info>
+            <info name="api_server">&lt;%= @info['api_server'] %&gt;</info>
+            <info name="api_username">&lt;%= @info['api_username'] %&gt;</info>
+            <info name="kapp_slug">&lt;%= @info['kapp_slug'] %&gt;</info>
+            <info name="form_slug_data">&lt;%= @info['form_slug_data'] %&gt;</info>
+            <info name="form_slug_dates">&lt;%= @info['form_slug_dates'] %&gt;</info>
+            <info name="space_slug">&lt;%= @info['space_slug'] %&gt;</info>
+            <info name="enable_debug_logging">&lt;%= @info['enable_debug_logging'] %&gt;</info>
+        </infos>
+        <parameters>
+            <parameter name="error_handling">&lt;%= @parameters.has_key?("error_handling") ? @parameters["error_handling"] : "Raise" %&gt;</parameter>
+            <parameter name="recipient_json">&lt;%= @parameters['recipient_json'] %&gt;</parameter>
+            <parameter name="notification_template_name">&lt;%= @parameters['notification_template_name'] %&gt;</parameter>
+            <parameter name="space_slug">&lt;%= @parameters['space_slug'] %&gt;</parameter>
+            <parameter name="replacement_values">&lt;%= @parameters['replacement_values'] %&gt;</parameter>
+            <parameter name="submission_id">&lt;%= @parameters['submission_id'] %&gt;</parameter>
+        </parameters>
+    </handler>
+    <results format="xml">
+        <result name="Handler Error Message"/>
+        <result name="Email Id"/>
+    </results>
+</taskDefinition>
