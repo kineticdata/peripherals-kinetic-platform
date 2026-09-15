@@ -179,11 +179,10 @@ class KineticRequestCeNotificationTemplateSendV5
     # Build up a query to retrieve the appropriate notification template
     query = %|values[Name]="#{templateName}" AND values[Status]="Active"|
     # Build the API route for retrieving the notification template submissions based on the Query
-    #route =  "#{@api_server}/app/api/v1/datastore/forms/notification-data/submissions" +
     route =  "#{@api_server}/app/api/v1/kapps/#{@kapp_slug}/forms/#{@form_slug_data}/submissions" +
-                      "?include=details,values&limit=1000&index=values[Name],values[Status]&q=#{URI.escape(query)}"
+                      "?include=details,values&limit=1000&q=#{ERB::Util.url_encode(query)}"
     # Build a rest resource for calling the CE API
-    # puts "from route: #{route}" if @debug_logging_enabled
+    puts "Get Notification from route: #{route}" if @debug_logging_enabled
     resource = RestClient::Resource.new(route, { :user => @api_username, :password => @api_password })
     # Retrieve template records from the CE API
     records = JSON.parse(resource.get)["submissions"]
@@ -366,9 +365,8 @@ class KineticRequestCeNotificationTemplateSendV5
     # Submission API Route including Values
     submission_api_route = @api_server +
                             "/app/api/v1/submissions/" +
-                            #URI.escape(@submission_id) +
-                            URI.escape(submission_id) +
-                            "/?include=values"
+                            ERB::Util.url_encode(submission_id) +
+                            "?include=values"
       puts "Getting from submission: #{submission_api_route}" if @debug_logging_enabled
     # Retrieve the Submission Values
     submission_result = RestClient::Resource.new(
@@ -395,11 +393,10 @@ class KineticRequestCeNotificationTemplateSendV5
 
           attachment_download_api_route = @api_server +
             '/app/api/v1' +
-            #'/submissions/' + URI.escape(@submission_id) +
-            '/submissions/' + URI.escape(submission_id) +
-            '/files/' + URI.escape($1) +
+            '/submissions/' + ERB::Util.url_encode(submission_id) +
+            '/files/' + ERB::Util.url_encode($1) +
             '/' + index.to_s +
-            '/' + URI.escape(file_info['name']) +
+            '/' + ERB::Util.url_encode(file_info['name']) +
             '/url'
 
           puts "Getting attachment from submission: #{file_info['name']} from field #{$1}" if @debug_logging_enabled
@@ -559,7 +556,7 @@ LOGGING
       # Retrieve all active date formats and populate the date_format_json object
       date_format_query = %|values[Status] IN ("active","Active")|
       date_format_api_route = "#{@api_server}/app/api/v1/kapps/#{@kapp_slug}/forms/#{@form_slug_dates}/submissions" +
-                  "?include=details,values&limit=1000&index=values[Status]&q=#{URI.escape(date_format_query)}"
+                  "?include=details,values&limit=1000&q=#{ERB::Util.url_encode(date_format_query)}"
       date_format_resource = RestClient::Resource.new(date_format_api_route, { :user => @api_username, :password => @api_password })
       date_format_response = date_format_resource.get
       JSON.parse(date_format_response)["submissions"].each{|format|
